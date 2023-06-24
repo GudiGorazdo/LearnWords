@@ -14,13 +14,11 @@ interface IHomeScreenProps {
 	navigation: NavigationProp<any>,
 }
 
-export function Home ({ navigation }: IHomeScreenProps): JSX.Element {
+export function Repeat ({ navigation }: IHomeScreenProps): JSX.Element {
 	return (
 		<SafeAreaView>
 			<View style={styles.section}>
-				<Button title='Повторять' onPress={() => navigation.navigate('Repeat')} />
-				<Button title='Добавить' onPress={() => navigation.navigate('Add')} />
-				<Button title='Удалить' onPress={() => navigation.navigate('Remove')} />
+				<Button title='Назад' onPress={() => navigation.navigate('Home')} />
 			</View>
 		</SafeAreaView>
 	);
