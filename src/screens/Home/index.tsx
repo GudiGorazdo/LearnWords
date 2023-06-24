@@ -1,10 +1,12 @@
 import React from 'react';
 import { NavigationProp } from '@react-navigation/native';
-import { Container } from '../../components/Container';
 import { Button } from '../../components/Button';
+
+import S_container from '../../styles/container';
 
 import {
 	SafeAreaView,
+	View,
 	StyleSheet,
 } from 'react-native';
 
@@ -14,25 +16,22 @@ interface IHomeScreenProps {
 
 export function Home({ navigation }: IHomeScreenProps): JSX.Element {
 	return (
-		<Container>
-			<SafeAreaView style={styles.sectionContainer}>
+		<SafeAreaView>
+			<View style={styles.section}>
 				<Button title='Повторять' onPress={() => navigation.navigate('Repeat')} />
 				<Button title='Добавить' onPress={() => navigation.navigate('Add')} />
 				<Button title='Удалить' onPress={() => navigation.navigate('Remove')} />
-			</SafeAreaView>
-		</Container>
+			</View>
+		</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create({
-	sectionContainer: {
-		width: '100%',
-		height: '100%',
-		display: 'flex',
-		flexDirection: 'column',
-		alignItems: 'center',
+	section: {
+		flex: 1,
 		justifyContent: 'center',
 		rowGap: 20,
+		...S_container
 	},
 });
 
