@@ -1,24 +1,26 @@
 import React from 'react';
+import { NavigationProp } from '@react-navigation/native';
+import { Container } from '../../components/Container';
 import { Button } from '../../components/Button';
 
 import {
 	SafeAreaView,
-	StatusBar,
 	StyleSheet,
-	useColorScheme,
 } from 'react-native';
 
-export function Home({ navigation }): JSX.Element {
-	const isDarkMode = useColorScheme() === 'dark';
-	console.log(isDarkMode);
+interface IHomeScreenProps {
+	navigation: NavigationProp<any>,
+}
 
+export function Home({ navigation }: IHomeScreenProps): JSX.Element {
 	return (
-		<SafeAreaView style={styles.sectionContainer}>
-			<StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-			<Button title='Повторять' onPress={() => navigation.nvigate('Repeat')} />
-			<Button title='Добавить' onPress={() => navigation.nvigate('Add')} />
-			<Button title='Удалить' onPress={() => navigation.nvigate('Remove')} />
-		</SafeAreaView>
+		<Container>
+			<SafeAreaView style={styles.sectionContainer}>
+				<Button title='Повторять' onPress={() => navigation.navigate('Repeat')} />
+				<Button title='Добавить' onPress={() => navigation.navigate('Add')} />
+				<Button title='Удалить' onPress={() => navigation.navigate('Remove')} />
+			</SafeAreaView>
+		</Container>
 	);
 }
 
@@ -26,8 +28,6 @@ const styles = StyleSheet.create({
 	sectionContainer: {
 		width: '100%',
 		height: '100%',
-		marginTop: 32,
-		paddingHorizontal: 24,
 		display: 'flex',
 		flexDirection: 'column',
 		alignItems: 'center',
