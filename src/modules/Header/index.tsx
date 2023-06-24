@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavigationProp } from '@react-navigation/native';
+import { StatusBar, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import S_container from '../../styles/container';
@@ -14,6 +14,10 @@ interface IHeaderScreenProps {
 	backPath: () => any,
 }
 
+const getStatusBarMargin = (): number|0 => {
+	return Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+}
+
 export function Header({ backPath }: IHeaderScreenProps): JSX.Element {
 	return (
 		<SafeAreaView>
@@ -26,7 +30,10 @@ export function Header({ backPath }: IHeaderScreenProps): JSX.Element {
 
 const styles = StyleSheet.create({
 	section: {
-		paddingTop: 20,
+		marginTop: getStatusBarMargin(),
+		height: 50,
+		displey: 'flex',
+		justifyContent: 'center',
 		...S_container
 	},
 });

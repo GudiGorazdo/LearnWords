@@ -28,6 +28,7 @@ export function Home ({ navigation }: IHomeScreenProps): JSX.Element {
 
 const styles = StyleSheet.create({
 	section: {
+		minHeight: '100%',
 		flex: 1,
 		justifyContent: 'center',
 		rowGap: 20,
