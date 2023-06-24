@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavigationProp } from '@react-navigation/native';
 import { Button } from '../../components/Button';
+import { Header } from '../../modules/Header';
 
 import S_container from '../../styles/container';
 
@@ -17,9 +18,8 @@ interface IHomeScreenProps {
 export function Add ({ navigation }: IHomeScreenProps): JSX.Element {
 	return (
 		<SafeAreaView>
-			<View style={styles.section}>
-				<Button title='Назад' onPress={() => navigation.navigate('Home')} />
-			</View>
+			<Header backPath={() => navigation.navigate('Home')} />
+			<View style={styles.section}></View>
 		</SafeAreaView>
 	);
 }

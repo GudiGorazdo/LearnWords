@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavigationProp } from '@react-navigation/native';
-import { Button } from '../../components/Button';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import S_container from '../../styles/container';
 
@@ -10,15 +10,15 @@ import {
 	StyleSheet,
 } from 'react-native';
 
-interface IHomeScreenProps {
-	navigation: NavigationProp<any>,
+interface IHeaderScreenProps {
+	backPath: () => any,
 }
 
-export function Add ({ navigation }: IHomeScreenProps): JSX.Element {
+export function Header({ backPath }: IHeaderScreenProps): JSX.Element {
 	return (
 		<SafeAreaView>
 			<View style={styles.section}>
-				<Button title='Назад' onPress={() => navigation.navigate('Home')} />
+				<Icon name="arrow-left" size={24} onPress={() => backPath()} />
 			</View>
 		</SafeAreaView>
 	);
@@ -26,9 +26,7 @@ export function Add ({ navigation }: IHomeScreenProps): JSX.Element {
 
 const styles = StyleSheet.create({
 	section: {
-		flex: 1,
-		justifyContent: 'center',
-		rowGap: 20,
+		paddingTop: 20,
 		...S_container
 	},
 });

@@ -7,7 +7,7 @@ export type IButtonProps = PropsWithChildren<{
 	title: string,
 	onPress: () => void,
 	icon?: {
-		front: boolean,
+		front?: boolean,
 		type: string,
 		styles?: object, 
 	},
