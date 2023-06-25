@@ -10,6 +10,13 @@ export default class SWords implements ISwords {
 	private tableName: string;
 	private db: SQLiteDatabase | null = null;
 
+	private structure = [
+		'word TEXT NOT NULL',
+		'meaning TEXT NOT NULL',
+		'correct INTEGER NOT NULL',
+		'incorrect INTEGER NOT NULL',
+	];
+
 	constructor() {
 		const config: IConfig = SConfig.getInstance();
 		this.tableName = config.get('wordsTableName');
@@ -19,7 +26,22 @@ export default class SWords implements ISwords {
 
 	async init(instanceDB: SDB) {
 		this.db = await instanceDB.getDBConnection();
-		console.log(this.db);
+		const x = await this.checkTable();
+		console.log(x);
+	}
+
+	async checkTable() {
+		const query = `CREATE TABLE IF NOT EXISTS ${this.tableName} (${this.structure.join(', ')});`
+		try {
+			const resultSet = await this.db.executeSql(query);
+			const rowsAffected = resultSet.rowsAffected;
+			const insertId = resultSet.insertId;
+			console.log('Таблица успешно создана или уже существует');
+			console.log('Затронуто строк:', rowsAffected);
+			console.log('Последний вставленный идентификатор:', insertId);
+		} catch (error) {
+			console.log('Ошибка при создании таблицы:', error);
+		}
 	}
 
 	static getInstance() {
