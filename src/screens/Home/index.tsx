@@ -1,14 +1,10 @@
 import React from 'react';
 import { NavigationProp } from '@react-navigation/native';
-import { Button } from '../../components/Button';
-
-import containerStyles from '../../styles/container';
-
 import { observer } from 'mobx-react-lite';
-import Counter from '../../store/counter';
 
-// import app from '../../provider/appProvider';
-import Application from '../../Application';
+import { Button } from '../../components/Button';
+import containerStyles from '../../styles/container';
+import Counter from '../../store/counter';
 
 import {
 	SafeAreaView,
@@ -22,10 +18,6 @@ interface IHomeScreenProps {
 }
 
 export const Home = observer(({ navigation }: IHomeScreenProps): JSX.Element => {
-
-	const app = Application.getInstance();
-	const x = app.resolve('wordsService');
-
 	return (
 		<SafeAreaView>
 			<View style={styles.section}>
