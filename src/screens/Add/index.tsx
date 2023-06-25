@@ -3,7 +3,7 @@ import { NavigationProp } from '@react-navigation/native';
 import { Button } from '../../components/Button';
 import { Header } from '../../modules/Header';
 
-import S_container from '../../styles/container';
+import containerStyles from '../../styles/container';
 
 import {
 	SafeAreaView,
@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		rowGap: 20,
-		...S_container
+		...containerStyles
 	},
 });
 

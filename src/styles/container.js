@@ -1,4 +1,4 @@
-export default S_container = {
+export default containerStyles = {
 		paddingHorizontal: 24,
 }
 

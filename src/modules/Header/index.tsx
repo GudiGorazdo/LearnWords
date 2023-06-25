@@ -8,13 +8,14 @@ import {
 	SafeAreaView,
 	View,
 	StyleSheet,
+	TouchableNativeFeedback,
 } from 'react-native';
 
 interface IHeaderScreenProps {
 	backPath: () => any,
 }
 
-const getStatusBarMargin = (): number|0 => {
+const getStatusBarMargin = (): number => {
 	return Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 }
 
@@ -22,7 +23,12 @@ export function Header({ backPath }: IHeaderScreenProps): JSX.Element {
 	return (
 		<SafeAreaView>
 			<View style={styles.section}>
-				<Icon name="arrow-left" size={24} onPress={() => backPath()} />
+			<TouchableNativeFeedback styles={{paddingHorizontal: 10}} onPress={() => backPath()}>
+				<Icon 
+					name="arrow-left" 
+					size={24} 
+				/>
+			</TouchableNativeFeedback>
 			</View>
 		</SafeAreaView>
 	);
@@ -33,7 +39,8 @@ const styles = StyleSheet.create({
 		marginTop: getStatusBarMargin(),
 		height: 50,
 		displey: 'flex',
-		justifyContent: 'center',
+		flexDirection: 'row',
+		alignItems: 'center',
 		...S_container
 	},
 });
