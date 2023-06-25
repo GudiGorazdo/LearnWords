@@ -6,7 +6,7 @@ export type TAppConfig = {
 
 const AppConfig: TAppConfig = {
 	// DATABASE
-	databaseName: 'LWords',
+	databaseName: 'LWords.db',
 	wordsTable: 'words'
 }
 

@@ -1,5 +1,5 @@
-import IConfig from '../config/config.interface';
-import SConfig from '../config/config.service';
+import IConfig from '../../config/config.interface';
+import SConfig from '../../config/config.service';
 import ISwords from './words.service';
 
 export default class SWords implements ISwords {
@@ -10,9 +10,7 @@ export default class SWords implements ISwords {
 		this.init();
 	}
 
-	init() {
-
-	}
+	async init() { }
 
 	static getInstance() {
 		if (SWords.instance) return SWords.instance;
