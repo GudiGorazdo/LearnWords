@@ -1,13 +1,15 @@
 export type TAppConfig = {
 	[key: string]: string,
 	databaseName: string,
-	wordsTable: string,
+	databaseLocation: string,
+	wordsTableName: string,
 };
 
 const AppConfig: TAppConfig = {
 	// DATABASE
 	databaseName: 'LWords.db',
-	wordsTable: 'words'
+	databaseLocation: 'default',
+	wordsTableName: 'words',
 }
 
 export default AppConfig;
