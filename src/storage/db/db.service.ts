@@ -1,6 +1,7 @@
 import IDB from './db.interface';
 import SConfig from '../../config/config.service';
 import IConfig from '../../config/config.interface';
+import React from 'react-native';
 import { openDatabase, SQLiteDatabase } from 'react-native-sqlite-storage';
 
 export default class SDB implements IDB {
@@ -17,18 +18,26 @@ export default class SDB implements IDB {
 		this.init();
 	}
 
+	static getInstance() {
+		if (SDB.instance) return SDB.instance;
+		return SDB.instance = new SDB();
+	}
+
 	async init() {
 		this.connection = await this.getDBConnection();
 	}
 
 	async getDBConnection(): Promise<SQLiteDatabase | null> {
 		if (this.connection) return this.connection;
-		return openDatabase({name: this.DBName, location: this.DBLocation});
+		return openDatabase({name: this.DBName, location: this.DBLocation}, this.connectSuccess, this.connectError);
 	}
 
-	static getInstance() {
-		if (SDB.instance) return SDB.instance;
-		return SDB.instance = new SDB();
+	connecterror(error: any) {
+		throw new Error(error);
+	}
+
+	connectSuccess() {
+		console.log('DB CONNECT SUCCCESS');
 	}
 }
 

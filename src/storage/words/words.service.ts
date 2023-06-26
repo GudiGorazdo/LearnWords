@@ -11,34 +11,39 @@ export default class SWords implements ISwords {
 	private db: SQLiteDatabase | null = null;
 
 	private structure = [
-		'word TEXT NOT NULL',
-		'meaning TEXT NOT NULL',
-		'correct INTEGER NOT NULL',
-		'incorrect INTEGER NOT NULL',
+		'id INTEGER PRIMARY KEY AUTOINCREMENT',
+		'word TEXT',
+		'meaning TEXT',
+		'correct INTEGER',
+		'incorrect INTEGER',
 	];
 
 	constructor() {
 		const config: IConfig = SConfig.getInstance();
 		this.tableName = config.get('wordsTableName');
-		const instanceDB = SDB.getInstance();
-		this.init(instanceDB);
+		this.init();
 	}
 
-	async init(instanceDB: SDB) {
+	async init() {
+		const instanceDB = await SDB.getInstance();
 		this.db = await instanceDB.getDBConnection();
-		const x = await this.checkTable();
-		console.log(x);
+		await this.checkTable();
+	}
+
+	async dropTable() {
+		try {
+			const dropTableQuery = `DROP TABLE IF EXISTS ${this.tableName};`;
+			await this.db.executeSql(dropTableQuery);
+			console.log(`Таблица "${this.tableName}" успешно удалена`);
+		} catch (error) {
+			console.log('DROP ERR: ', error);''
+		}
 	}
 
 	async checkTable() {
 		const query = `CREATE TABLE IF NOT EXISTS ${this.tableName} (${this.structure.join(', ')});`
 		try {
-			const resultSet = await this.db.executeSql(query);
-			const rowsAffected = resultSet.rowsAffected;
-			const insertId = resultSet.insertId;
-			console.log('Таблица успешно создана или уже существует');
-			console.log('Затронуто строк:', rowsAffected);
-			console.log('Последний вставленный идентификатор:', insertId);
+			await this.db.executeSql(query);
 		} catch (error) {
 			console.log('Ошибка при создании таблицы:', error);
 		}
