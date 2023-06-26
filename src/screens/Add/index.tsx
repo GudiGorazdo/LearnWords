@@ -26,8 +26,17 @@ export function Add({ navigation }: IHomeScreenProps): JSX.Element {
 			<View style={styles.section}>
 				<Input
 					style={styles.input}
+					focusedStyle={styles.inputFocused}
 					label="Слово"
 					placeholder="Введите слово"
+					value={inputText}
+					onChangeText={(text) => setInputText(text)}
+				/>
+				<Input
+					style={styles.input}
+					focusedStyle={styles.inputFocused}
+					label="Перевод"
+					placeholder="Введите перевод"
 					value={inputText}
 					onChangeText={(text) => setInputText(text)}
 				/>
@@ -49,6 +58,10 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 		borderColor: 'gray',
 		paddingHorizontal: 10,
+	},
+
+	inputFocused: {
+		borderColor: 'blue',
 	},
 });
 

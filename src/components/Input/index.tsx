@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
 	View,
@@ -13,6 +13,7 @@ interface IInputProps {
 	value?: string;
 	placeholder?: string;
 	style?: any;
+	focusedStyle?: any;
 }
 
 export function Input({
@@ -21,15 +22,28 @@ export function Input({
 	onChangeText,
 	placeholder,
 	style,
+	focusedStyle,
 }: IInputProps): JSX.Element {
+	const [isFocused, setIsFocused] = useState(false);
+
+	const handleFocus = () => {
+		setIsFocused(true);
+	};
+
+	const handleBlur = () => {
+		setIsFocused(false);
+	};
+
 	return (
 		<View style={styles.container}>
-			{ label && <Text style={styles.label}>{label}:</Text> }
+			{label && <Text style={styles.label}>{label}:</Text>}
 			<TextInput
-				style={style}
+				style={[style, isFocused && focusedStyle]}
 				placeholder={placeholder}
 				value={value}
 				onChangeText={onChangeText}
+				onFocus={handleFocus}
+				onBlur={handleBlur}
 			/>
 		</View>
 	);
