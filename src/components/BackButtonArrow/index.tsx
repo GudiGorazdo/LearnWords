@@ -1,23 +1,19 @@
-
 import React from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import {
+	StyleSheet,
 	TouchableOpacity,
 } from 'react-native';
 
-interface IBackButtonProps {
+interface IBackButtonArrowProps {
 	backPath: () => void,
 }
 
-export default function BackButton({ backPath }: IBackButtonProps): JSX.Element {
+export default function BackButtonArrow({ backPath }: IBackButtonArrowProps): JSX.Element {
 	return (
 		<TouchableOpacity
-			style={{
-				height: '100%',
-				paddingRight: 10,
-				justifyContent: 'center',
-			}}
+			style={styles.backButtonArrow}
 			onPress={() => backPath()}
 		>
 			<Icon
@@ -27,5 +23,13 @@ export default function BackButton({ backPath }: IBackButtonProps): JSX.Element 
 		</TouchableOpacity>
 	);
 }
+
+const styles = StyleSheet.create({
+	backButtonArrow: {
+		height: '100%',
+		paddingRight: 10,
+		justifyContent: 'center',
+	},
+});
 
 
