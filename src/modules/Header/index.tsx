@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
 	section: {
 		marginTop: getStatusBarMargin(),
 		height: 50,
-		displey: 'flex',
+		display: 'flex',
 		flexDirection: 'row',
 		alignItems: 'center',
 		...containerStyles

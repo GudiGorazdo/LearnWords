@@ -6,28 +6,30 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 export type IButtonProps = PropsWithChildren<{
 	title: string,
 	onPress: () => void,
+	style?: object,
+	textStyle?: object,
 	icon?: {
 		front?: boolean,
 		type: string,
-		styles?: object, 
+		style?: object,
 	},
 }>;
 
-export function Button({ title, onPress, icon = undefined }: IButtonProps) {
+export function Button({ title, onPress, style, textStyle, icon }: IButtonProps) {
 	const handlePress = () => {
 		onPress();
 	};
 
 	const getIcon = () => {
 		if (!icon) return;
-		return <Icon name={icon.type} size={16} style={icon.styles ?? {}} />
+		return <Icon name={icon.type} size={16} style={icon.style ?? {}} />
 	}
 
 	return (
 		<TouchableNativeFeedback onPress={handlePress}>
-			<View style={styles.button}>
+			<View style={[styles.button, style]}>
 				{icon && icon.front && getIcon()}
-				<Text style={styles.buttonText}>{title}</Text>
+				<Text style={[styles.buttonText, textStyle]}>{title}</Text>
 				{icon && !icon.front && getIcon()}
 			</View>
 		</TouchableNativeFeedback>
@@ -36,7 +38,6 @@ export function Button({ title, onPress, icon = undefined }: IButtonProps) {
 
 const styles = StyleSheet.create({
 	button: {
-		width: '100%',
 		backgroundColor: 'blue',
 		borderRadius: 8,
 		padding: 10,
