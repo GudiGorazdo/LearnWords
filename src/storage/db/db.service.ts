@@ -18,7 +18,7 @@ export default class SDB implements IDB {
 		this.init();
 	}
 
-	static getInstance() {
+	static async getInstance() {
 		if (SDB.instance) return SDB.instance;
 		return SDB.instance = new SDB();
 	}

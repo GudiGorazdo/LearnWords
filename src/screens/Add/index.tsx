@@ -3,6 +3,7 @@ import { NavigationProp } from '@react-navigation/native';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
+import SWords from '../../storage/words/words.service';
 
 import containerStyles from '../../styles/container';
 
@@ -148,9 +149,15 @@ export function Add({ navigation }: IHomeScreenProps): JSX.Element {
 		);
 	};
 
+	const WordsService = SWords.getInstance();
+	const saveWord = () => {
+		console.log(inputWord);
+		console.log(inputsGroups[0].context);
+	};
+
 	return (
 		<SafeAreaView style={styles.safeArea}>
-			<Header backPath={() => navigation.navigate('Home')} />
+		<Header backPath={() => navigation.navigate('Home')} accept={() => saveWord()} />
 			<KeyboardAvoidingView
 				style={styles.flex}
 				behavior={Platform.OS === 'ios' ? 'padding' : undefined}

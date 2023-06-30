@@ -1,47 +1,64 @@
 import { SQLiteDatabase } from 'react-native-sqlite-storage';
-import IConfig from '../../config/config.interface';
-import SConfig from '../../config/config.service';
 import ISwords from './words.service';
-import IDB from '../db/db.interface';
 import SDB from '../db/db.service';
+
+type structureTable = {
+	[key: string]: string | string[],
+	tableName: string,
+	structure: string[],
+};
 
 export default class SWords implements ISwords {
 	private static instance: ISwords;
-	private tableName: string;
 	private db: SQLiteDatabase | null = null;
 
-	private structure = [
-		'id INTEGER PRIMARY KEY AUTOINCREMENT',
-		'word TEXT',
-		'meaning TEXT',
-		'correct INTEGER',
-		'incorrect INTEGER',
-	];
+	private structureWordsTable = {
+		tableName: 'words',
+		structure: [
+			'id INTEGER PRIMARY KEY AUTOINCREMENT',
+			'word TEXT',
+			'correct INTEGER',
+			'incorrect INTEGER',
+		],
+	} 
+
+	private structureTranslateTable = {
+		tableName: 'word_translate',
+		structure: [
+			'id INTEGER PRIMARY KEY AUTOINCREMENT',
+			'word_id  INTEGER',
+			'translate TEXT',
+			'context TEXT',
+		]
+	};
 
 	constructor() {
-		const config: IConfig = SConfig.getInstance();
-		this.tableName = config.get('wordsTableName');
 		this.init();
 	}
 
 	async init() {
 		const instanceDB = await SDB.getInstance();
 		this.db = await instanceDB.getDBConnection();
-		await this.checkTable();
+		[
+			this.structureWordsTable,
+			this.structureTranslateTable,
+		].forEach(async table => {
+			await this.checkTable(table);
+		});
 	}
 
-	async dropTable() {
+	async dropTable(table: structureTable) {
 		try {
-			const dropTableQuery = `DROP TABLE IF EXISTS ${this.tableName};`;
+			const dropTableQuery = `DROP TABLE IF EXISTS ${table.tableName};`;
 			await this.db.executeSql(dropTableQuery);
-			console.log(`Таблица "${this.tableName}" успешно удалена`);
+			console.log(`Таблица "${table.tableName}" успешно удалена`);
 		} catch (error) {
 			console.log('DROP ERR: ', error);''
 		}
 	}
 
-	async checkTable() {
-		const query = `CREATE TABLE IF NOT EXISTS ${this.tableName} (${this.structure.join(', ')});`
+	async checkTable(table: structureTable) {
+		const query = `CREATE TABLE IF NOT EXISTS ${table.tableName} (${table.structure.join(', ')});`
 		try {
 			await this.db.executeSql(query);
 		} catch (error) {
