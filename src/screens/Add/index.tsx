@@ -143,7 +143,7 @@ export function Add({ navigation }: IHomeScreenProps): JSX.Element {
 			word: inputWord,
 			translate: inputsGroups,
 		}
-		WordsService.saveWord(word);
+		await WordsService.saveWord(word);
 	};
 
 	return (

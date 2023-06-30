@@ -24,8 +24,8 @@ export function Header({ backPath, accept }: IHeaderScreenProps): JSX.Element {
 	return (
 		<SafeAreaView>
 			<View style={styles.section}>
-				{backPath && <BackButtonArrow backPath={() => backPath()} />}
-				{accept && <AcceptButton accept={() => accept()} />}
+				{backPath && <BackButtonArrow style={{paddingLeft: 0}} backPath={() => backPath()} />}
+				{accept && <AcceptButton style={{paddingRight: 0}} accept={() => accept()} />}
 			</View>
 		</SafeAreaView>
 	);

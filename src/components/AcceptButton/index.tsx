@@ -8,12 +8,13 @@ import {
 
 interface IBackButtonArrowProps {
 	accept: () => void,
+	style?: object,
 }
 
-export default function BackButtonArrow({ accept }: IBackButtonArrowProps): JSX.Element {
+export default function BackButtonArrow({ accept, style }: IBackButtonArrowProps): JSX.Element {
 	return (
 		<TouchableOpacity
-			style={styles.acceptButton}
+			style={[styles.acceptButton, style]}
 			onPress={() => accept()}
 		>
 			<Icon
