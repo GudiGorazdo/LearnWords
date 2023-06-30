@@ -4,6 +4,7 @@ import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
 import SWords from '../../storage/words/words.service';
+import { TTranslate, TWord } from '../../storage/words/words.types';
 
 import containerStyles from '../../styles/container';
 
@@ -20,29 +21,16 @@ interface IHomeScreenProps {
 	navigation: NavigationProp<any>;
 }
 
-type TInput = {
-	[key: string]: string;
-	value: string;
-};
-
-type TInputGroup = {
-	[key: string]: TInput | TInput[] | undefined;
-	translate: TInput;
-	context?: TInput[];
-};
-
 export function Add({ navigation }: IHomeScreenProps): JSX.Element {
-	const inputDataGroup: TInputGroup = {
-		translate: {
-			value: '',
-		},
+	const inputDataGroup: TTranslate = {
+		value: '',
 		context: [],
 	};
 
 
 	const [scrollBottom, setScrollBottom] = useState(false);
 	const [inputWord, setInputWord] = useState('');
-	const [inputsGroups, setInputsGroup] = useState<TInputGroup[]>([inputDataGroup]);
+	const [inputsGroups, setInputsGroup] = useState<TTranslate[]>([inputDataGroup]);
 	const scrollViewRef = useRef(null);
 	useEffect(() => {
 		if (scrollBottom) {
@@ -56,11 +44,11 @@ export function Add({ navigation }: IHomeScreenProps): JSX.Element {
 			const newInputsGroups = [...prevInputGroups];
 			switch (type) {
 				case 'translate':
-					newInputsGroups[index][type].value = value;
+					newInputsGroups[index].value = value;
 					break;
 				case 'context':
-					if (newInputsGroups[index][type] && contextIndex !== undefined) {
-						newInputsGroups[index][type][contextIndex].value = value;
+					if (newInputsGroups[index]['context'] && contextIndex !== undefined) {
+						newInputsGroups[index]['context'][contextIndex] = value;
 					}
 					break;
 			}
@@ -71,7 +59,7 @@ export function Add({ navigation }: IHomeScreenProps): JSX.Element {
 	const addNewContext = (index: number) => {
 		const newInputsGroups = [...inputsGroups];
 		if (newInputsGroups[index].context) {
-			newInputsGroups[index].context.push({ value: '' });
+			newInputsGroups[index].context.push('');
 			setInputsGroup(newInputsGroups);
 		}
 	}
@@ -100,7 +88,7 @@ export function Add({ navigation }: IHomeScreenProps): JSX.Element {
 		setScrollBottom(true);
 	}
 
-	const inputGroupTemplate = (index: number, data: TInputGroup): JSX.Element => {
+	const inputGroupTemplate = (index: number, data: TTranslate): JSX.Element => {
 		return (
 			<React.Fragment key={`group-${index}`} >
 				<View style={styles.groupInputs}>
@@ -108,7 +96,7 @@ export function Add({ navigation }: IHomeScreenProps): JSX.Element {
 						key={`translate-${index}`}
 						label="Перевод"
 						placeholder="Введите перевод"
-						value={data.translate.value}
+						value={data.value}
 						onChangeText={(translate) => updateInputGroups(translate, index, 'translate')}
 						onLayout={() => handleLayout()}
 						icon={inputsGroups.length > 1 ? {
@@ -122,13 +110,13 @@ export function Add({ navigation }: IHomeScreenProps): JSX.Element {
 						} : undefined}
 					/>
 					{data.context &&
-						data.context.map((contextData, contextIndex) => {
+						data.context.map((contextValue: string, contextIndex: number) => {
 							return (
 								<Input
 									key={`context-${index}-${contextIndex}`}
 									label="Контекст"
 									placeholder="Добавьте контекст"
-									value={contextData.value}
+									value={contextValue}
 									onChangeText={(context) => updateInputGroups(context, index, 'context', contextIndex)}
 									multiline={true}
 									icon={{
@@ -150,9 +138,12 @@ export function Add({ navigation }: IHomeScreenProps): JSX.Element {
 	};
 
 	const WordsService = SWords.getInstance();
-	const saveWord = () => {
-		console.log(inputWord);
-		console.log(inputsGroups[0].context);
+	const saveWord = async () => {
+		const word: TWord = {
+			word: inputWord,
+			translate: inputsGroups,
+		}
+		WordsService.saveWord(word);
 	};
 
 	return (

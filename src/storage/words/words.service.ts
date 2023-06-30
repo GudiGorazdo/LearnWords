@@ -2,6 +2,8 @@ import { SQLiteDatabase } from 'react-native-sqlite-storage';
 import ISwords from './words.service';
 import SDB from '../db/db.service';
 
+import { TWord } from './word.types';
+
 type structureTable = {
 	[key: string]: string | string[],
 	tableName: string,
@@ -45,6 +47,10 @@ export default class SWords implements ISwords {
 		].forEach(async table => {
 			await this.checkTable(table);
 		});
+	}
+
+	async saveWord(word: TWord) {
+		console.log(word);
 	}
 
 	async dropTable(table: structureTable) {

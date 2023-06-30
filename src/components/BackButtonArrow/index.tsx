@@ -26,9 +26,7 @@ export default function BackButtonArrow({ backPath }: IBackButtonArrowProps): JS
 
 const styles = StyleSheet.create({
 	backButtonArrow: {
-		height: '100%',
-		paddingRight: 10,
-		justifyContent: 'center',
+		padding: 10,
 	},
 });
 

@@ -26,9 +26,7 @@ export default function BackButtonArrow({ accept }: IBackButtonArrowProps): JSX.
 
 const styles = StyleSheet.create({
 	acceptButton: {
-		height: '100%',
-		paddingRight: 10,
-		justifyContent: 'center',
+		padding: 10,
 	},
 });
 
