@@ -33,10 +33,6 @@ export const Words = ({ navigation }: IWordsScreenProps): JSX.Element => {
 	);
 };
 
-const styles = StyleSheet.create({
-	content: {
-		paddingBottom: 54,
-	}
-});
+const styles = StyleSheet.create({});
 
 
