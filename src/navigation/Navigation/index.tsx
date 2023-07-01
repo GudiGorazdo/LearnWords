@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { Home } from '../../screens/Home';
+import { Words } from '../../screens/Words';
 import { Add } from '../../screens/Add';
 import { Repeat } from '../../screens/Repeat';
 import { Remove } from '../../screens/Remove';
@@ -14,6 +15,7 @@ export default function Navigation(): JSX.Element {
 		<NavigationContainer>
 			<Stack.Navigator>
 				<Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
+				<Stack.Screen name="Words" component={Words} options={{ headerShown: false }} />
 				<Stack.Screen name="Add" component={Add} options={{ headerShown: false }} />
 				<Stack.Screen name="Repeat" component={Repeat} options={{ headerShown: false }} />
 				<Stack.Screen name="Remove" component={Remove} options={{ headerShown: false }} />

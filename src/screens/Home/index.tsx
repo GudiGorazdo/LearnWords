@@ -4,12 +4,12 @@ import { observer } from 'mobx-react-lite';
 
 import { Button } from '../../components/Button';
 import containerStyles from '../../styles/container';
+import centeredStyles from '../../styles/centeredContent';
 import Counter from '../../store/counter';
 
 import {
 	SafeAreaView,
 	View,
-	StyleSheet,
 	Text,
 } from 'react-native';
 
@@ -19,11 +19,10 @@ interface IHomeScreenProps {
 
 export const Home = observer(({ navigation }: IHomeScreenProps): JSX.Element => {
 	return (
-		<SafeAreaView>
-			<View style={styles.section}>
+		<SafeAreaView style={{ height: '100%' }}>
+			<View style={[containerStyles, centeredStyles]}>
 				<Button title='Повторять' onPress={() => navigation.navigate('Repeat')} />
-				<Button title='Добавить' onPress={() => navigation.navigate('Add')} />
-				<Button title='Удалить' onPress={() => navigation.navigate('Remove')} />
+				<Button title='Слова' onPress={() => navigation.navigate('Words')} />
 				<View>
 					<Button title='+' onPress={() => Counter.increment()} />
 					<Button title='-' onPress={() => Counter.decrement()} />
@@ -33,15 +32,5 @@ export const Home = observer(({ navigation }: IHomeScreenProps): JSX.Element => 
 		</SafeAreaView>
 	);
 })
-
-const styles = StyleSheet.create({
-	section: {
-		minHeight: '100%',
-		flex: 1,
-		justifyContent: 'center',
-		rowGap: 20,
-		...containerStyles
-	},
-});
 
 

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 interface IHeaderScreenProps {
+	style?: object,
 	backPath?: () => void,
 	accept?: () => void,
 }
@@ -20,10 +21,10 @@ const getStatusBarMargin = (): number => {
 	return Platform.OS === 'android' ? statusBarHeight : 0;
 }
 
-export function Header({ backPath, accept }: IHeaderScreenProps): JSX.Element {
+export function Header({ style, backPath, accept }: IHeaderScreenProps): JSX.Element {
 	return (
 		<SafeAreaView>
-			<View style={styles.section}>
+			<View style={[styles.section, style]}>
 				{backPath && <BackButtonArrow style={{paddingLeft: 0}} backPath={() => backPath()} />}
 				{accept && <AcceptButton style={{paddingRight: 0}} accept={() => accept()} />}
 			</View>

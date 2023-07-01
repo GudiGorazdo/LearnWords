@@ -1,4 +1,4 @@
-export default containerStyles = {
+export default {
 		paddingHorizontal: 24,
 }
 

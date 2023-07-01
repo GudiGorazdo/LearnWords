@@ -148,13 +148,13 @@ export function Add({ navigation }: IHomeScreenProps): JSX.Element {
 
 	return (
 		<SafeAreaView style={styles.safeArea}>
-		<Header backPath={() => navigation.navigate('Home')} accept={() => saveWord()} />
+		<Header backPath={() => navigation.navigate('Words')} accept={() => saveWord()} />
 			<KeyboardAvoidingView
 				style={styles.flex}
 				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
 			>
-				<ScrollView ref={scrollViewRef} contentContainerStyle={styles.scrollViewContent}>
+				<ScrollView ref={scrollViewRef} contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
 					<View style={styles.section}>
 						<Input
 							label="Слово"
@@ -185,7 +185,6 @@ const styles = StyleSheet.create({
 	scrollViewContent: {
 		flexGrow: 1,
 		alignItems: 'center',
-		...containerStyles
 	},
 
 	section: {
