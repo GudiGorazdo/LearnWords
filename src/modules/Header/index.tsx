@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { RefObject } from 'react';
 import { StatusBar, Platform } from 'react-native';
 import BackButtonArrow from '../../components/BackButtonArrow';
 import AcceptButton from '../../components/AcceptButton';
@@ -11,36 +11,46 @@ import {
 } from 'react-native';
 
 interface IHeaderScreenProps {
-	style?: object,
-	backPath?: () => void,
-	accept?: () => void,
+	innerRef?: RefObject<View>,
+	style?: object;
+	backPath?: () => void;
+	accept?: () => void;
 }
 
 const getStatusBarMargin = (): number => {
 	const statusBarHeight = StatusBar.currentHeight ?? 0;
 	return Platform.OS === 'android' ? statusBarHeight : 0;
-}
+};
 
-export function Header({ style, backPath, accept }: IHeaderScreenProps): JSX.Element {
+const HeaderComponent = ({
+	innerRef,
+	style,
+	backPath,
+	accept
+}: IHeaderScreenProps): JSX.Element => {
 	return (
 		<SafeAreaView>
-			<View style={[styles.section, style]}>
-				{backPath && <BackButtonArrow style={{paddingLeft: 0}} backPath={() => backPath()} />}
-				{accept && <AcceptButton style={{paddingRight: 0}} accept={() => accept()} />}
+			<View ref={innerRef} style={[styles.header, style]}>
+				{backPath && <BackButtonArrow style={{ paddingLeft: 0 }} backPath={() => backPath()} />}
+				{accept && <AcceptButton style={{ paddingRight: 0 }} accept={() => accept()} />}
 			</View>
 		</SafeAreaView>
 	);
-}
+};
+
+export const Header = React.forwardRef<View, IHeaderScreenProps>((props, ref) => (
+	<HeaderComponent {...props} innerRef={ref} />
+));
 
 const styles = StyleSheet.create({
-	section: {
+	header: {
 		marginTop: getStatusBarMargin(),
 		height: 50,
 		display: 'flex',
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-between',
-		...containerStyles
+		...containerStyles,
 	},
 });
 

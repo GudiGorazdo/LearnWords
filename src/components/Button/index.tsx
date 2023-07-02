@@ -15,7 +15,13 @@ export type IButtonProps = PropsWithChildren<{
 	},
 }>;
 
-export function Button({ title, onPress, style, textStyle, icon }: IButtonProps) {
+export const Button = ({
+	title,
+	onPress,
+	style,
+	textStyle,
+	icon
+}: IButtonProps) => {
 	const handlePress = () => {
 		onPress();
 	};
