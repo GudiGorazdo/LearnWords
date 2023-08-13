@@ -1,4 +1,4 @@
-type TTranslate = {
+export type TTranslate = {
 	[key: string]: string | string[] | undefined;
 	value: string;
 	context?: string[];

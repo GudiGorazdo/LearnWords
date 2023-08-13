@@ -19,24 +19,12 @@ interface IWordsScreenProps {
 }
 
 export const CenteredContent = ({ navigation, children, header }: IWordsScreenProps): JSX.Element => {
-	const headerRef = useRef(null);
-	const [headerHeight, setHeaderHeight] = useState(50);
-
-	useEffect(() => {
-		measureHeader();
-	}, []);
-
-	const measureHeader = () => {
-		const handle = findNodeHandle(headerRef.current);
-		// UIManager.measure(handle, (x, y, width, height) => {
-		// 	setHeaderHeight(height);
-		// });
-	};
-
 	return (
 		<View style={styles.content}>
-			{header && <Header ref={headerRef} backPath={() => navigation.navigate('Home')} />}
-			<View style={[containerStyles, centeredStyles, { paddingBottom: headerHeight }]}>
+			<View style={styles.header}>
+				{header && <Header backPath={() => navigation.navigate('Home')} /> }
+			</View>
+			<View style={[containerStyles, centeredStyles, { paddingBottom: 0 }]}>
 				{children}
 			</View>
 		</View>
@@ -47,6 +35,10 @@ const styles = StyleSheet.create({
 	content: {
 		height: '100%'
 	},
+
+	header: {
+		position: 'absolute',
+	}
 });
 
 

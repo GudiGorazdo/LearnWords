@@ -11,8 +11,8 @@ import {
 } from 'react-native';
 
 interface IHeaderScreenProps {
-	innerRef?: RefObject<View>,
 	style?: object;
+	onLayout?: () => void;
 	backPath?: () => void;
 	accept?: () => void;
 }
@@ -22,25 +22,21 @@ const getStatusBarMargin = (): number => {
 	return Platform.OS === 'android' ? statusBarHeight : 0;
 };
 
-const HeaderComponent = ({
-	innerRef,
+export const Header = ({
 	style,
 	backPath,
-	accept
+	accept,
+	onLayout,
 }: IHeaderScreenProps): JSX.Element => {
 	return (
-		<SafeAreaView>
-			<View ref={innerRef} style={[styles.header, style]}>
+		<SafeAreaView onLayout={() => onLayout ? onLayout() : null}>
+			<View style={[styles.header, style]}>
 				{backPath && <BackButtonArrow style={{ paddingLeft: 0 }} backPath={() => backPath()} />}
 				{accept && <AcceptButton style={{ paddingRight: 0 }} accept={() => accept()} />}
 			</View>
 		</SafeAreaView>
 	);
 };
-
-export const Header = React.forwardRef<View, IHeaderScreenProps>((props, ref) => (
-	<HeaderComponent {...props} innerRef={ref} />
-));
 
 const styles = StyleSheet.create({
 	header: {
