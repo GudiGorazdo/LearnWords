@@ -17,7 +17,7 @@ interface IHomeScreenProps {
 export function Remove({ navigation }: IHomeScreenProps): JSX.Element {
 	return (
 		<SafeAreaView>
-			<Header backPath={() => navigation.navigate('Home')} />
+			<Header backPath={() => navigation.navigate('Words')} />
 			<View style={styles.section}></View>
 		</SafeAreaView>
 	);
