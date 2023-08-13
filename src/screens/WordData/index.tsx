@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo, MutableRefObject } from 'react';
-import { NavigationProp } from '@react-navigation/native';
+import { NavigationProp, useRoute } from '@react-navigation/native';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
@@ -21,21 +21,36 @@ interface IHomeScreenProps {
 	navigation: NavigationProp<any>;
 }
 
-export function Add({ navigation }: IHomeScreenProps): JSX.Element {
+export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
+	const route = useRoute();
+	const backPathRoute = route.params.backPathRoute;
+	const wordEdit = route.params.wordEdit ?? false;
+	const wordID = route.params.wordID ?? null;
+
 	const inputDataGroup: TTranslate = {
 		value: '',
 		context: [],
+		new: true,
 	};
 
-
+	const [start, setStart] = useState(true);
 	const [scrollBottom, setScrollBottom] = useState(false);
 	const [inputWord, setInputWord] = useState('');
 	const [inputsGroups, setInputsGroup] = useState<TTranslate[]>([inputDataGroup]);
 	const scrollViewRef = useRef(null);
 	useEffect(() => {
-		if (scrollBottom) {
+		if (scrollBottom && scrollViewRef && scrollViewRef.current) {
 			scrollViewRef.current.scrollToEnd({ animated: true });
 			setScrollBottom(false);
+		}
+
+		if (wordEdit && start) {
+			SWords.getByID(wordID, (fetchedWord: TWord | null) => {
+				if (fetchedWord) {
+					setInputWord(fetchedWord.word);
+					setInputsGroup(fetchedWord.translate);
+				}
+			});
 		}
 	}, [scrollBottom]);
 
@@ -80,15 +95,15 @@ export function Add({ navigation }: IHomeScreenProps): JSX.Element {
 
 	const removeTranslate = (index: number) => {
 		const newInputsGroups = [...inputsGroups];
-		newInputsGroups.splice(index, 1);
+		newInputsGroups[index].removed = true;
 		setInputsGroup(newInputsGroups);
 	}
 
 	const handleLayout = () => {
-		setScrollBottom(true);
+		if (!start) setScrollBottom(true);
 	}
 
-	const inputGroupTemplate = (index: number, data: TTranslate): JSX.Element => {
+	const inputGroupTemplate = (index: number, data: TTranslate[]): JSX.Element => {
 		return (
 			<React.Fragment key={`group-${index}`} >
 				<View style={styles.groupInputs}>
@@ -138,17 +153,21 @@ export function Add({ navigation }: IHomeScreenProps): JSX.Element {
 	};
 
 	const saveWord = async () => {
-		const WordsService = await SWords.getInstance();
 		const word: TWord = {
 			word: inputWord,
 			translate: inputsGroups,
 		}
-		await WordsService.saveWord(word);
+		if (wordEdit) {
+			word.id = wordID;
+			await SWords.updateWord(word);
+		} else {
+			await SWords.saveWord(word);
+		}
 	};
 
 	return (
 		<SafeAreaView style={styles.safeArea}>
-		<Header backPath={() => navigation.navigate('Words')} accept={() => saveWord()} />
+			<Header backPath={() => navigation.navigate(backPathRoute)} accept={() => saveWord()} />
 			<KeyboardAvoidingView
 				style={styles.flex}
 				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -162,13 +181,16 @@ export function Add({ navigation }: IHomeScreenProps): JSX.Element {
 							value={inputWord}
 							onChangeText={(word) => setInputWord(word)}
 						/>
-						{inputsGroups.map((data, index) => inputGroupTemplate(index, data))}
+						{inputsGroups.map((data, index) => data.removed ? null : inputGroupTemplate(index, data))}
 					</View>
 				</ScrollView>
 				<Button
 					style={styles.addTranslateButton}
 					title='Добавить перевод'
-					onPress={() => addNewTranslate()}
+						onPress={() => {
+							setStart(false);
+							addNewTranslate();
+						}}
 				/>
 			</KeyboardAvoidingView>
 		</SafeAreaView>

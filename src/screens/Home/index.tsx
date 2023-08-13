@@ -4,15 +4,6 @@ import { observer } from 'mobx-react-lite';
 
 import { CenteredContent } from '../../modules/CenteredContent';
 import { Button } from '../../components/Button';
-import containerStyles from '../../styles/container';
-import centeredStyles from '../../styles/centeredContent';
-import Counter from '../../store/counter';
-
-import {
-	SafeAreaView,
-	View,
-	Text,
-} from 'react-native';
 
 interface IHomeScreenProps {
 	navigation: NavigationProp<any>,

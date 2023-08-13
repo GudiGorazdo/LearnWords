@@ -24,23 +24,18 @@ interface IHomeScreenProps {
 export function Edit({ navigation }: IHomeScreenProps): JSX.Element {
 	const startArr: TWord[] = [];
 	const [words, setWords] = useState(startArr);
-	const [WordsService, setWordsService] = useState<SWords | null>(null);
-	useEffect(() => {
-		async function fetchData() {
-			const instanceWordsService = await SWords.getInstance();
-			instanceWordsService.getAllWords((fetchedWords: TWord[]) => {
-				setWords(fetchedWords);
-			});
-			setWordsService(instanceWordsService);
-		}
 
-		fetchData();
+	useEffect(() => {
+		SWords.getAllWords((fetchedWords: TWord[]) => {
+			setWords(fetchedWords);
+		});
 	}, []);
 
+
 	const removeWord = async (word: TWord) => {
-		if (word.id && WordsService) {
+		if (word.id) {
 			setWords(words.filter(item => item.id !== word.id));
-			WordsService.removeById(word.id);
+			SWords.removeWordByID(word.id);
 		}
 	}
 
@@ -51,17 +46,17 @@ export function Edit({ navigation }: IHomeScreenProps): JSX.Element {
 				{words.map((word: TWord) => (
 					<View
 						key={word.id}
-						style={styles.wordContainer}
+						style={styles.rowContainer}
 					>
-						<TouchableOpacity style={{ flexGrow: 1 }} onPress={() => console.log('edit')}>
+						<TouchableOpacity
+							style={styles.wordContainer}
+							onPress={() => navigation.navigate('WordData', { backPathRoute: 'Edit', wordEdit: true, wordID: word.id })}
+						>
 							<Text>{word.word}</Text>
 						</TouchableOpacity>
-						<Icon
-							style={{ padding: 5 }}
-							name={IconsStrings.remove}
-							size={24}
-							onPress={() => removeWord(word)}
-						/>
+						<TouchableOpacity style={{ padding: 5 }} onPress={() => removeWord(word)}>
+							<Icon name={IconsStrings.remove} size={24} />
+						</TouchableOpacity>
 					</View>
 				))}
 			</ScrollView>
@@ -78,11 +73,16 @@ const styles = StyleSheet.create({
 		flexGrow: 1,
 	},
 
-	wordContainer: {
+	rowContainer: {
+		marginBottom: 10,
 		display: 'flex',
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		alignItems: 'center',
+	},
+
+	wordContainer: {
+		flexGrow: 1,
 		paddingVertical: 10,
 	},
 

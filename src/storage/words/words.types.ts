@@ -1,8 +1,10 @@
 export type TTranslate = {
-	[key: string]: number | string | string[] | undefined;
+	[key: string]: number | string | string[] | undefined | boolean;
 	value: string;
 	context?: string[];
 	word_id?: number,
+	removed?: boolean,
+	new?: boolean,
 };
 
 export type TWord = {

@@ -10,7 +10,10 @@ interface IWordsScreenProps {
 export const Words = ({ navigation }: IWordsScreenProps): JSX.Element => {
 	return (
 		<CenteredContent navigation={navigation} header={true}>
-			<Button title='Добавить' onPress={() => navigation.navigate('Add')} />
+			<Button 
+				title='Добавить' 
+				onPress={() => navigation.navigate('WordData', { backPathRoute: 'Words', wordEdit: false })} 
+			/>
 			<Button title='Редактировать' onPress={() => navigation.navigate('Edit')} />
 		</CenteredContent>
 	);
