@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationProp } from '@react-navigation/native';
 import { Header } from '../../modules/Header';
-import { Button } from '../../components/Button';
 import SWords from '../../storage/words/words.service';
 import { TTranslate, TWord } from '../../storage/words/words.types';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -15,6 +14,7 @@ import {
 	StyleSheet,
 	ScrollView,
 	Text,
+	TouchableOpacity,
 } from 'react-native';
 
 interface IHomeScreenProps {
@@ -24,19 +24,24 @@ interface IHomeScreenProps {
 export function Edit({ navigation }: IHomeScreenProps): JSX.Element {
 	const startArr: TWord[] = [];
 	const [words, setWords] = useState(startArr);
+	const [WordsService, setWordsService] = useState<SWords | null>(null);
 	useEffect(() => {
 		async function fetchData() {
-			const WordsService = await SWords.getInstance();
-			WordsService.getAllWords((fetchedWords: TWord[]) => {
+			const instanceWordsService = await SWords.getInstance();
+			instanceWordsService.getAllWords((fetchedWords: TWord[]) => {
 				setWords(fetchedWords);
 			});
+			setWordsService(instanceWordsService);
 		}
 
 		fetchData();
 	}, []);
 
-	const removeWord = (word: TWord) => {
-		setWords(words.filter(item => item.id !== word.id));
+	const removeWord = async (word: TWord) => {
+		if (word.id && WordsService) {
+			setWords(words.filter(item => item.id !== word.id));
+			WordsService.removeById(word.id);
+		}
 	}
 
 	return (
@@ -44,13 +49,15 @@ export function Edit({ navigation }: IHomeScreenProps): JSX.Element {
 			<Header backPath={() => navigation.navigate('Words')} />
 			<ScrollView contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
 				{words.map((word: TWord) => (
-					<View 
-						key={word.id} 
+					<View
+						key={word.id}
 						style={styles.wordContainer}
 					>
-						<Text style={{flexGrow: 1}} onPress={() => console.log('edit')}>{word.word}</Text>
+						<TouchableOpacity style={{ flexGrow: 1 }} onPress={() => console.log('edit')}>
+							<Text>{word.word}</Text>
+						</TouchableOpacity>
 						<Icon
-							style={{padding: 5}}
+							style={{ padding: 5 }}
 							name={IconsStrings.remove}
 							size={24}
 							onPress={() => removeWord(word)}

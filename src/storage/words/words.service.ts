@@ -38,7 +38,7 @@ export default class SWords implements ISwords {
 	constructor() { }
 
 	static async initC() {
-		return 
+		return
 	}
 
 	async init() {
@@ -126,6 +126,31 @@ export default class SWords implements ISwords {
 				console.error(error);
 			}
 		);
+	}
+
+	removeById(id: number) {
+		this.db.transaction((tx: Transaction) => {
+			tx.executeSql(
+				'DELETE FROM word_translate WHERE word_id = ?',
+				[id],
+				(tx: Transaction, results: ResultSet) => {
+					console.log(`Word with ID ${id} has been deleted from word_translate table.`);
+				},
+				(error: any) => {
+					console.error(error);
+				}
+			);
+			tx.executeSql(
+				'DELETE FROM words WHERE id = ?',
+				[id],
+				(tx: Transaction, results: ResultSet) => {
+					console.log(`Word with ID ${id} has been deleted from words table.`);
+				},
+				(error: any) => {
+					console.error(error);
+				}
+			);
+		});
 	}
 
 	async dropTable(table: structureTable) {
