@@ -6,7 +6,7 @@ import { Home } from '../../screens/Home';
 import { Words } from '../../screens/Words';
 import { Add } from '../../screens/Add';
 import { Repeat } from '../../screens/Repeat';
-import { Remove } from '../../screens/Remove';
+import { Edit } from '../../screens/Edit';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,7 +18,7 @@ export default function Navigation(): JSX.Element {
 				<Stack.Screen name="Words" component={Words} options={{ headerShown: false }} />
 				<Stack.Screen name="Add" component={Add} options={{ headerShown: false }} />
 				<Stack.Screen name="Repeat" component={Repeat} options={{ headerShown: false }} />
-				<Stack.Screen name="Remove" component={Remove} options={{ headerShown: false }} />
+				<Stack.Screen name="Edit" component={Edit} options={{ headerShown: false }} />
 			</Stack.Navigator>
 		</NavigationContainer>
 	);

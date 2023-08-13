@@ -35,8 +35,10 @@ export default class SWords implements ISwords {
 		]
 	};
 
-	constructor() {
-		this.init();
+	constructor() { }
+
+	static async initC() {
+		return 
 	}
 
 	async init() {
@@ -47,6 +49,30 @@ export default class SWords implements ISwords {
 			this.structureTranslateTable,
 		].forEach(async table => {
 			await this.checkTable(table);
+		});
+	}
+
+	getAllWords(callback: (words: TWord[]) => void) {
+		this.db.transaction((tx: Transaction) => {
+			tx.executeSql(
+				'SELECT * FROM words',
+				[],
+				(tx: Transaction, results: ResultSet) => {
+					const len = results.rows.length;
+					const words = [];
+
+					for (let i = 0; i < len; i++) {
+						const row = results.rows.item(i);
+						words.push(row);
+					}
+
+					callback(words);
+				},
+				(error: any) => {
+					console.error(error);
+					callback([]);
+				}
+			);
 		});
 	}
 
@@ -122,9 +148,11 @@ export default class SWords implements ISwords {
 		}
 	}
 
-	static getInstance() {
+	static async getInstance() {
 		if (SWords.instance) return SWords.instance;
-		return SWords.instance = new SWords();
+		SWords.instance = new SWords();
+		await SWords.instance.init();
+		return SWords.instance;
 	}
 }
 

@@ -11,7 +11,7 @@ export const Words = ({ navigation }: IWordsScreenProps): JSX.Element => {
 	return (
 		<CenteredContent navigation={navigation} header={true}>
 			<Button title='Добавить' onPress={() => navigation.navigate('Add')} />
-			<Button title='Удалить' onPress={() => navigation.navigate('Remove')} />
+			<Button title='Редактировать' onPress={() => navigation.navigate('Edit')} />
 		</CenteredContent>
 	);
 };
