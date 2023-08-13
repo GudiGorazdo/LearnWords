@@ -137,8 +137,8 @@ export function Add({ navigation }: IHomeScreenProps): JSX.Element {
 		);
 	};
 
-	const WordsService = SWords.getInstance();
 	const saveWord = async () => {
+		const WordsService = await SWords.getInstance();
 		const word: TWord = {
 			word: inputWord,
 			translate: inputsGroups,
