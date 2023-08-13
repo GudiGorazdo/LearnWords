@@ -1,13 +1,14 @@
-import React, { RefObject } from 'react';
+import React from 'react';
 import { StatusBar, Platform } from 'react-native';
-import BackButtonArrow from '../../components/BackButtonArrow';
-import AcceptButton from '../../components/AcceptButton';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import IconsStrings from '../../assets/awesomeIcons';
 import containerStyles from '../../styles/container';
 
 import {
 	SafeAreaView,
 	View,
 	StyleSheet,
+	TouchableOpacity,
 } from 'react-native';
 
 interface IHeaderScreenProps {
@@ -31,8 +32,19 @@ export const Header = ({
 	return (
 		<SafeAreaView onLayout={() => onLayout ? onLayout() : null}>
 			<View style={[styles.header, style]}>
-				{backPath && <BackButtonArrow style={{ paddingLeft: 0 }} backPath={() => backPath()} />}
-				{accept && <AcceptButton style={{ paddingRight: 0 }} accept={() => accept()} />}
+				{backPath && <TouchableOpacity
+					style={[styles.buttonsPadding, {paddingLeft: 0}]}
+					onPress={() => backPath()}
+				>
+					<Icon name={IconsStrings.arrow} size={24} />
+				</TouchableOpacity>
+				}
+				{accept && <TouchableOpacity
+					style={[styles.buttonsPadding, {paddingRight: 0}]}
+					onPress={() => accept()}
+				>
+					<Icon name={IconsStrings.accept} size={24} />
+				</TouchableOpacity>}
 			</View>
 		</SafeAreaView>
 	);
@@ -47,6 +59,10 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'space-between',
 		...containerStyles,
+	},
+
+	buttonsPadding: {
+		padding: 10,
 	},
 });
 
