@@ -1,8 +1,8 @@
-import { SQLiteDatabase } from 'react-native-sqlite-storage';
+import { SQLiteDatabase, ResultSet, Transaction } from 'react-native-sqlite-storage';
 import ISwords from './words.service';
 import SDB from '../db/db.service';
 
-import { TWord } from './word.types';
+import { TWord, TTranslate } from './words.types';
 
 type structureTable = {
 	[key: string]: string | string[],
@@ -19,10 +19,10 @@ export default class SWords implements ISwords {
 		structure: [
 			'id INTEGER PRIMARY KEY AUTOINCREMENT',
 			'word TEXT',
-			'correct INTEGER',
-			'incorrect INTEGER',
+			'correct INTEGER DEFAULT 0',
+			'incorrect INTEGER DEFAULT 0',
 		],
-	} 
+	}
 
 	private structureTranslateTable = {
 		tableName: 'word_translate',
@@ -31,6 +31,7 @@ export default class SWords implements ISwords {
 			'word_id  INTEGER',
 			'translate TEXT',
 			'context TEXT',
+			'FOREIGN KEY (word_id) REFERENCES words(id)'
 		]
 	};
 
@@ -50,7 +51,55 @@ export default class SWords implements ISwords {
 	}
 
 	async saveWord(word: TWord) {
-		console.log(word);
+		if (word.word === '') return;
+		this.db.transaction((tx: Transaction) => {
+			tx.executeSql(
+				`SELECT id FROM words where word=(?)`,
+				[word.word],
+				(tx: Transaction, results: ResultSet) => {
+					if (results.rows.length === 0) {
+						this.insertWordAndTranslations(tx, word);
+					} else {
+						console.log(`Запись с словом ${word.word} уже существует`);
+					}
+				},
+				(error: any) => {
+					console.error(error);
+				}
+			);
+		});
+	}
+
+	insertWordAndTranslations(tx: Transaction, word: TWord) {
+		tx.executeSql(
+			'INSERT INTO words (word) VALUES (?)',
+			[word.word],
+			(tx: Transaction, results: ResultSet) => {
+				const insertedWordId: number = results.insertId;
+
+				if (word.translate && Array.isArray(word.translate)) {
+					word.translate.forEach((translateData: TTranslate) => {
+						const { context, value } = translateData;
+						const contextJson: string = JSON.stringify(context);
+
+						tx.executeSql(
+							'INSERT INTO word_translate (word_id, translate, context) VALUES (?, ?, ?)',
+							[insertedWordId, value, contextJson],
+							(tx: Transaction, results: ResultSet) => {
+								console.log(`Word ${word.word} added.`);
+								console.log(results);
+							},
+							(error: any) => {
+								console.error(error);
+							}
+						);
+					});
+				}
+			},
+			(error: any) => {
+				console.error(error);
+			}
+		);
 	}
 
 	async dropTable(table: structureTable) {
@@ -59,7 +108,7 @@ export default class SWords implements ISwords {
 			await this.db.executeSql(dropTableQuery);
 			console.log(`Таблица "${table.tableName}" успешно удалена`);
 		} catch (error) {
-			console.log('DROP ERR: ', error);''
+			console.log('DROP ERR: ', error); ''
 		}
 	}
 
@@ -67,6 +116,7 @@ export default class SWords implements ISwords {
 		const query = `CREATE TABLE IF NOT EXISTS ${table.tableName} (${table.structure.join(', ')});`
 		try {
 			await this.db.executeSql(query);
+			console.log('words table is ok.');
 		} catch (error) {
 			console.log('Ошибка при создании таблицы:', error);
 		}
