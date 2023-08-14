@@ -218,51 +218,73 @@ export default class SWords implements ISwords {
 		);
 	}
 
-	static async update(word: TWord) {
-		if (word.word === '') return;
-		const instance = await SWords.getInstance();
-		instance.db.transaction((tx: Transaction) => {
-			tx.executeSql(
-				'UPDATE words SET word = ? WHERE id = ?',
-				[word.word, word.id],
-				() => {
-					if (word.translate && Array.isArray(word.translate)) {
-						word.translate.forEach((translateData: TTranslate) => {
-							let { id, context, value } = translateData;
-							context = context && context.filter(item => item !== '');
-							const contextJson: string = JSON.stringify(context);
+	static async update(word: TWord): Promise<boolean> {
+		if (word.word === '') return false;
 
-							if (translateData.new && word.id) {
-								SWords.insertTranslation(tx, translateData, word.id);
-							} else if (translateData.removed) {
-								tx.executeSql(
-									'DELETE FROM word_translate WHERE id = ?',
-									[id],
-									() => { console.log(`Translation deleted.`); },
-									(error: any) => {
-										console.error(error);
-									}
-								);
+		return new Promise<boolean>(async (resolve, reject) => {
+			const instance = await SWords.getInstance();
+			instance.db.transaction((tx: Transaction) => {
+				tx.executeSql(
+					'UPDATE words SET word = ? WHERE id = ?',
+					[word.word, word.id],
+					() => {
+						if (word.translate && Array.isArray(word.translate)) {
+							const promises = word.translate.map((translateData: TTranslate) => {
+								return new Promise<void>((resolve, reject) => {
+									let { id, context, value } = translateData;
+									context = context && context.filter(item => item !== '');
+									const contextJson: string = JSON.stringify(context);
 
-							} else {
-								tx.executeSql(
-									'UPDATE word_translate SET translate = ?, context = ? WHERE id = ?',
-									[value, contextJson, id],
-									() => {
-										console.log(`Word ${word.word} updated.`);
-									},
-									(error: any) => {
-										console.error(error);
+									if (translateData.new && word.id) {
+										SWords.insertTranslation(tx, translateData, word.id)
+											.then(() => resolve())
+											.catch(error => reject(error));
+									} else if (translateData.removed) {
+										tx.executeSql(
+											'DELETE FROM word_translate WHERE id = ?',
+											[id],
+											() => {
+												console.log(`Translation deleted.`);
+												resolve();
+											},
+											(error: any) => {
+												console.error(error);
+												reject(error);
+											}
+										);
+									} else {
+										tx.executeSql(
+											'UPDATE word_translate SET translate = ?, context = ? WHERE id = ?',
+											[value, contextJson, id],
+											() => {
+												console.log(`Word ${word.word} updated.`);
+												resolve();
+											},
+											(error: any) => {
+												console.error(error);
+												reject(error);
+											}
+										);
 									}
-								);
-							}
-						});
+								});
+							});
+
+							Promise.all(promises)
+								.then(() => resolve(true))
+								.catch(error => {
+									console.error(error);
+									resolve(false);
+								});
+						} else {
+							resolve(true);
+						}
+					},
+					(error: any) => {
+						console.error(error);
+						resolve(false);
 					}
-				},
-				(error: any) => {
-					console.error(error);
-				}
-			);
+				);
+			});
 		});
 	}
 
