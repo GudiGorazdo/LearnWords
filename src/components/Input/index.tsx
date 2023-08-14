@@ -6,7 +6,6 @@ import {
 	StyleSheet,
 	TextInput,
 	Text,
-	Platform,
 } from 'react-native';
 
 interface IInputProps {

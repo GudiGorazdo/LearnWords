@@ -15,6 +15,8 @@ import {
 	KeyboardAvoidingView,
 	StyleSheet,
 	Platform,
+	Modal,
+	Text,
 } from 'react-native';
 
 interface IHomeScreenProps {
@@ -34,6 +36,9 @@ export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
 	};
 
 	const [start, setStart] = useState(true);
+	const [showModal, setShowModal] = useState(false);
+	const [modalMessage, setModalMessage] = useState('');
+	const [saveWordError, setSaveWordError] = useState(false);
 	const [scrollBottom, setScrollBottom] = useState(false);
 	const [inputWord, setInputWord] = useState('');
 	const [inputsGroups, setInputsGroup] = useState<TTranslate[]>([inputDataGroup]);
@@ -103,7 +108,7 @@ export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
 		if (!start) setScrollBottom(true);
 	}
 
-	const inputGroupTemplate = (index: number, data: TTranslate[]): JSX.Element => {
+	const inputGroupTemplate = (index: number, data: TTranslate): JSX.Element => {
 		return (
 			<React.Fragment key={`group-${index}`} >
 				<View style={styles.groupInputs}>
@@ -152,18 +157,50 @@ export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
 		);
 	};
 
+	const updateWord = async (word: TWord) => {
+		word.id = wordID;
+		await SWords.updateWord(word);
+	}
+
 	const saveWord = async () => {
 		const word: TWord = {
 			word: inputWord,
 			translate: inputsGroups,
 		}
-		if (wordEdit) {
-			word.id = wordID;
-			await SWords.updateWord(word);
-		} else {
-			await SWords.saveWord(word);
+		if (!word.word) {
+			setSaveWordError(true);
+			setModalMessage('Введите слово');
+			return setShowModal(true);
 		}
-	};
+		if (!word.translate[0].value) {
+			setSaveWordError(true);
+			setModalMessage('Введите перевод');
+			return setShowModal(true);
+		}
+		setSaveWordError(false);
+		setModalMessage('Слово сохранено');
+		let result = null;
+		try {
+			if (wordEdit) {
+				await updateWord(word);
+			} else {
+				result = await SWords.saveWord(word);
+			}
+			if (result === 'dublicate') {
+				setModalMessage('Слово уже есть в словаре');
+			}
+			return setShowModal(true);
+		} catch (error: any) {
+			console.log(error);
+			setModalMessage('При сохранении слова произошла ошибка');
+			return setShowModal(true);
+		}
+	}
+
+	const resetForm = () => {
+		setInputsGroup([inputDataGroup]);
+		setInputWord('');
+	}
 
 	return (
 		<SafeAreaView style={styles.safeArea}>
@@ -187,12 +224,52 @@ export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
 				<Button
 					style={styles.addTranslateButton}
 					title='Добавить перевод'
-						onPress={() => {
-							setStart(false);
-							addNewTranslate();
-						}}
+					onPress={() => {
+						setStart(false);
+						addNewTranslate();
+					}}
 				/>
 			</KeyboardAvoidingView>
+			<Modal
+				animationType="fade"
+				transparent={true}
+				visible={showModal}
+				onRequestClose={() => {
+					setShowModal(!showModal);
+				}}>
+				<View style={styles.modalOverlay} />
+				<View style={styles.centeredView}>
+					<View style={styles.modalView}>
+						<Text style={styles.modalText}>{modalMessage}</Text>
+						{saveWordError && <Button
+							title='Закрыть'
+							onPress={() => setShowModal(!showModal)}
+						/>
+						}
+						{!saveWordError && <View>
+							<Button
+								style={[styles.modalButtonMB]}
+								title='Закрыть'
+								onPress={() => {
+									setShowModal(!showModal);
+									if (wordEdit) navigation.navigate('Edit');
+									else navigation.navigate('Words');
+								}}
+							/>
+							<Button
+								style={[styles.modalButtonMB]}
+								title='Добавить новое слово'
+								onPress={() => {
+									setShowModal(!showModal);
+									resetForm();
+									navigation.navigate('WordData', { backPathRoute: 'Words', wordEdit: false });
+								}}
+							/>
+						</View>
+						}
+					</View>
+				</View>
+			</Modal>
 		</SafeAreaView>
 	);
 }
@@ -240,7 +317,52 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		width: '100%',
 		borderRadius: 0,
-	}
+	},
+
+	centeredView: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		marginTop: 22,
+	},
+
+	modalOverlay: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
+		backgroundColor: 'rgba(0, 0, 0, 0.5)',
+	},
+
+	modalView: {
+		margin: 20,
+		backgroundColor: 'white',
+		borderRadius: 20,
+		padding: 35,
+		alignItems: 'center',
+		shadowColor: '#000',
+		shadowOffset: {
+			width: 0,
+			height: 2,
+		},
+	},
+
+	modalText: {
+		marginBottom: 15,
+		fontSize: 22,
+		textAlign: 'center',
+	},
+
+	modalButtonMB: {
+		marginBottom: 15,
+	},
+
+	textStyle: {
+		color: 'white',
+		fontWeight: 'bold',
+		textAlign: 'center',
+	},
 });
 
 

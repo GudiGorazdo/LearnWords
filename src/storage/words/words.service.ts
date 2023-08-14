@@ -113,23 +113,28 @@ export default class SWords implements ISwords {
 	}
 
 	static async saveWord(word: TWord) {
-		if (word.word === '') return;
-		const instance = await SWords.getInstance();
-		instance.db.transaction((tx: Transaction) => {
-			tx.executeSql(
-				`SELECT id FROM words where word=(?)`,
-				[word.word],
-				(tx: Transaction, results: ResultSet) => {
-					if (results.rows.length === 0) {
-						SWords.insertWordAndTranslations(tx, word);
-					} else {
-						console.log(`Запись с словом ${word.word} уже существует`);
+		if (word.word === '') return null;
+
+		return new Promise(async (resolve, reject) => {
+			const instance = await SWords.getInstance();
+			instance.db.transaction((tx: Transaction) => {
+				tx.executeSql(
+					`SELECT id FROM words where word=(?)`,
+					[word.word],
+					async (tx: Transaction, results: ResultSet) => {
+						if (results.rows.length === 0) {
+							SWords.insertWordAndTranslations(tx, word);
+							resolve('ok');
+						} else {
+							resolve('dublicate');
+						}
+					},
+					(error: any) => {
+						console.error(error);
+						reject('error');
 					}
-				},
-				(error: any) => {
-					console.error(error);
-				}
-			);
+				);
+			});
 		});
 	}
 

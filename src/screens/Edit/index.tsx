@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { NavigationProp } from '@react-navigation/native';
 import { Header } from '../../modules/Header';
 import SWords from '../../storage/words/words.service';
@@ -25,11 +26,12 @@ export function Edit({ navigation }: IHomeScreenProps): JSX.Element {
 	const startArr: TWord[] = [];
 	const [words, setWords] = useState(startArr);
 
-	useEffect(() => {
+	useFocusEffect(() => {
 		SWords.getAllWords((fetchedWords: TWord[]) => {
-			setWords(fetchedWords);
+			const sortedArray = fetchedWords.sort((a, b) => a.word.localeCompare(b.word));
+			setWords(sortedArray);
 		});
-	}, []);
+	});
 
 
 	const removeWord = async (word: TWord) => {
