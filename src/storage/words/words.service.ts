@@ -158,7 +158,9 @@ export default class SWords implements ISwords {
 	}
 
 	private static insertTranslation(tx: Transaction, translate: TTranslate, insertedWordId: number) {
-		const { context, value } = translate;
+		let { context, value } = translate;
+		if (!value) return;
+		context = context && context.filter(item => item !== '');
 		const contextJson: string = JSON.stringify(context);
 		tx.executeSql(
 			'INSERT INTO word_translate (word_id, translate, context) VALUES (?, ?, ?)',
@@ -181,10 +183,11 @@ export default class SWords implements ISwords {
 				() => {
 					if (word.translate && Array.isArray(word.translate)) {
 						word.translate.forEach((translateData: TTranslate) => {
-							const { id, context, value } = translateData;
+							let { id, context, value } = translateData;
+							context = context && context.filter(item => item !== '');
 							const contextJson: string = JSON.stringify(context);
 
-							if (translateData.new) {
+							if (translateData.new && word.id) {
 								SWords.insertTranslation(tx, translateData, word.id);
 							} else if (translateData.removed) {
 								tx.executeSql(
