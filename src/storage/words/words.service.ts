@@ -48,31 +48,7 @@ export default class SWords implements ISwords {
 		});
 	}
 
-	static async getAllWordsCount(): Promise<number> {
-		return new Promise<number>(async (resolve, reject) => {
-			const instance = await SWords.getInstance();
-			instance.db.transaction((tx: Transaction) => {
-				tx.executeSql(
-					'SELECT COUNT(*) as count FROM words',
-					[],
-					(tx: Transaction, results: ResultSet) => {
-						if (results.rows.length > 0) {
-							const count = results.rows.item(0).count;
-							resolve(count);
-						} else {
-							resolve(0);
-						}
-					},
-					(error: any) => {
-						console.error(error);
-						reject(error);
-					}
-				);
-			});
-		});
-	}
-
-	static async getAllWords(): Promise<TWord[]> {
+	static async getAll(): Promise<TWord[]> {
 		return new Promise<TWord[]>(async (resolve, reject) => {
 			const instance = await SWords.getInstance();
 			instance.db.transaction((tx: Transaction) => {
@@ -89,6 +65,47 @@ export default class SWords implements ISwords {
 						}
 
 						resolve(words);
+					},
+					(error: any) => {
+						console.error(error);
+						reject(error);
+					}
+				);
+			});
+		});
+	}
+
+	static getRandom(id: number): Promise<TWord | null> {
+		return new Promise(async (resolve, reject) => {
+			const instance = await SWords.getInstance();
+			instance.db.transaction((tx: Transaction) => {
+				tx.executeSql(
+					'SELECT words.*, word_translate.id as t_id, word_translate.translate, word_translate.context FROM words left join word_translate on words.id=word_translate.word_id where words.id=(?)',
+					[id],
+					(tx: Transaction, results: ResultSet) => {
+						if (results.rows.length > 0) {
+							const wordTranslations: TTranslate[] = [];
+
+							for (let i = 0; i < results.rows.length; i++) {
+								const result = results.rows.item(i);
+								const translation: TTranslate = {
+									id: result.t_id,
+									value: result.translate,
+									context: JSON.parse(result.context),
+								};
+								wordTranslations.push(translation);
+							}
+
+							const word: TWord = {
+								id: results.rows.item(0).id,
+								word: results.rows.item(0).word,
+								translate: wordTranslations,
+							};
+
+							resolve(word);
+						} else {
+							resolve(null);
+						}
 					},
 					(error: any) => {
 						console.error(error);
@@ -140,7 +157,7 @@ export default class SWords implements ISwords {
 		});
 	}
 
-	static async saveWord(word: TWord) {
+	static async save(word: TWord) {
 		if (word.word === '') return null;
 		return new Promise(async (resolve, reject) => {
 			const instance = await SWords.getInstance();
@@ -201,7 +218,7 @@ export default class SWords implements ISwords {
 		);
 	}
 
-	static async updateWord(word: TWord) {
+	static async update(word: TWord) {
 		if (word.word === '') return;
 		const instance = await SWords.getInstance();
 		instance.db.transaction((tx: Transaction) => {
@@ -249,7 +266,7 @@ export default class SWords implements ISwords {
 		});
 	}
 
-	static async removeWordByID(id: number) {
+	static async removeByID(id: number) {
 		const instance = await SWords.getInstance();
 		await instance.db.transaction(async (tx: Transaction) => {
 			await tx.executeSql(

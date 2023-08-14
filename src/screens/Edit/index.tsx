@@ -35,7 +35,7 @@ export function Edit({ navigation }: IHomeScreenProps): JSX.Element {
 
 	const fetchWords = async () => {
 		try {
-			let words = await SWords.getAllWords();
+			let words = await SWords.getAll();
 			words = words.sort((a, b) => a.word.localeCompare(b.word));
 			setWords(words);
 		} catch(error) {
@@ -47,7 +47,7 @@ export function Edit({ navigation }: IHomeScreenProps): JSX.Element {
 	const removeWord = async (word: TWord) => {
 		if (word.id) {
 			setWords(words.filter(item => item.id !== word.id));
-			SWords.removeWordByID(word.id);
+			SWords.removeByID(word.id);
 		}
 	}
 

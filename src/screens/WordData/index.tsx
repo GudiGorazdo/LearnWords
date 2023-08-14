@@ -36,6 +36,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	};
 
 	const [start, setStart] = useState(true);
+	const [startScroll, setStartScroll] = useState(true);
 	const [showModal, setShowModal] = useState(false);
 	const [modalMessage, setModalMessage] = useState('');
 	const [saveWordError, setSaveWordError] = useState(false);
@@ -53,6 +54,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	useFocusEffect(() => {
 		if (wordEdit && start) {
 			fetchWord();
+			setStart(false);
 		}
 	});
 
@@ -110,7 +112,119 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	}
 
 	const handleLayout = () => {
-		if (!start) setScrollBottom(true);
+		if (!startScroll) setScrollBottom(true);
+	}
+
+
+	const updateWord = async (word: TWord) => {
+		word.id = wordID;
+		await SWords.update(word);
+	}
+
+	const validationWord = (): boolean => {
+		if (!inputWord) {
+			setSaveWordError(true);
+			setModalMessage('Введите слово');
+			setShowModal(true);
+			return true;
+		}
+		if (!inputsGroups[0].value) {
+			setSaveWordError(true);
+			setModalMessage('Введите перевод');
+			setShowModal(true);
+			return true;
+		}
+
+		return false;
+	}
+
+	const filterInputsGroups = () => {
+		const filteredInputsGroups: TTranslate[] = inputsGroups.reduce((acc: TTranslate[], item: TTranslate) => {
+			if (item.value !== '') {
+				if (item.context) {
+					item.context = item.context.filter(contextItem => contextItem !== '');
+				}
+				acc.push(item);
+			}
+			return acc;
+		}, []);
+		setInputsGroup(filteredInputsGroups);
+	}
+
+	const dbSaveWord = async (word: TWord) => {
+		return new Promise(async (resolve, reject) => {
+			let result = null;
+			if (wordEdit) {
+				result = await updateWord(word);
+			} else {
+				result = await SWords.save(word);
+			}
+
+			resolve(result);
+		});
+	}
+
+	const saveWord = async () => {
+		if (validationWord()) return;
+		filterInputsGroups();
+
+		const word: TWord = {
+			word: inputWord,
+			translate: inputsGroups,
+		}
+
+		setSaveWordError(false);
+		setModalMessage('Слово сохранено');
+		try {
+			const result = await dbSaveWord(word);
+			if (result === 'dublicate') {
+				setModalMessage('Слово уже есть в словаре');
+			}
+			return setShowModal(true);
+		} catch (error: any) {
+			console.log(error);
+			setModalMessage('При сохранении слова произошла ошибка');
+			return setShowModal(true);
+		}
+	}
+
+	const resetForm = () => {
+		setInputsGroup([inputDataGroup]);
+		setInputWord('');
+	}
+
+	const getModalButtons = (): TModalButton[] => {
+		const buttons: TModalButton[] = [{
+			title: 'Закрыть',
+			onPress: () => {
+				setShowModal(!showModal);
+				setStart(true);
+				if (!saveWordError) {
+					if (wordEdit) navigation.navigate('Edit');
+					else navigation.navigate('Words');
+				}
+			},
+		}];
+		if (!saveWordError && !wordEdit) {
+			buttons.push({
+				title: 'Добавить новое слово',
+				onPress: () => {
+					setShowModal(!showModal);
+					resetForm();
+					setStart(true);
+					navigation.navigate('WordData', { backPathRoute: 'Words', wordEdit: false });
+				}
+			});
+			buttons.push({
+				title: 'К списку слов',
+				onPress: () => {
+					setShowModal(!showModal);
+					setStart(true);
+					navigation.navigate('Edit');
+				}
+			});
+		}
+		return buttons;
 	}
 
 	const inputGroupTemplate = (index: number, data: TTranslate): JSX.Element => {
@@ -162,97 +276,15 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 		);
 	};
 
-	const updateWord = async (word: TWord) => {
-		word.id = wordID;
-		await SWords.updateWord(word);
-	}
-
-	const saveWord = async () => {
-		if (!inputWord) {
-			setSaveWordError(true);
-			setModalMessage('Введите слово');
-			return setShowModal(true);
-		}
-		if (!inputsGroups[0].value) {
-			setSaveWordError(true);
-			setModalMessage('Введите перевод');
-			return setShowModal(true);
-		}
-
-		const filteredInputsGroups: TTranslate[] = inputsGroups.reduce((acc: TTranslate[], item: TTranslate) => {
-			if (item.value !== '') {
-				if (item.context) {
-					item.context = item.context.filter(contextItem => contextItem !== '');
-				}
-				acc.push(item);
-			}
-			return acc;
-		}, []);
-		setInputsGroup(filteredInputsGroups);
-
-		const word: TWord = {
-			word: inputWord,
-			translate: inputsGroups,
-		}
-		setSaveWordError(false);
-		setModalMessage('Слово сохранено');
-		let result = null;
-		try {
-			if (wordEdit) {
-				await updateWord(word);
-			} else {
-				result = await SWords.saveWord(word);
-			}
-			if (result === 'dublicate') {
-				setModalMessage('Слово уже есть в словаре');
-			}
-			return setShowModal(true);
-		} catch (error: any) {
-			console.log(error);
-			setModalMessage('При сохранении слова произошла ошибка');
-			return setShowModal(true);
-		}
-	}
-
-	const resetForm = () => {
-		setInputsGroup([inputDataGroup]);
-		setInputWord('');
-	}
-
-	const getModalButtons = (): TModalButton[] => {
-		const buttons: TModalButton[] = [{
-			title: 'Закрыть',
-			onPress: () => {
-				setShowModal(!showModal);
-				if (!saveWordError) {
-					if (wordEdit) navigation.navigate('Edit');
-					else navigation.navigate('Words');
-				}
-			},
-		}];
-		if (!saveWordError && !wordEdit) {
-			buttons.push({
-				title: 'Добавить новое слово',
-				onPress: () => {
-					setShowModal(!showModal);
-					resetForm();
-					navigation.navigate('WordData', { backPathRoute: 'Words', wordEdit: false });
-				}
-			});
-			buttons.push({
-				title: 'К списку слов',
-				onPress: () => {
-					setShowModal(!showModal);
-					navigation.navigate('Edit');
-				}
-			});
-		}
-		return buttons;
-	}
-
 	return (
 		<SafeAreaView style={styles.safeArea}>
-			<Header backPath={() => navigation.navigate(backPathRoute)} accept={() => saveWord()} />
+			<Header
+				backPath={() => {
+					setStart(true);
+					navigation.navigate(backPathRoute);
+				}}
+				accept={() => saveWord()}
+			/>
 			<KeyboardAvoidingView
 				style={styles.flex}
 				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -273,7 +305,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 					style={styles.addTranslateButton}
 					title='Добавить перевод'
 					onPress={() => {
-						setStart(false);
+						setStartScroll(false);
 						addNewTranslate();
 					}}
 				/>
