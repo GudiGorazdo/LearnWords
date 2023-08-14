@@ -147,7 +147,9 @@ export default class SWords implements ISwords {
 
 				if (word.translate && Array.isArray(word.translate)) {
 					word.translate.forEach((translateData: TTranslate) => {
-						SWords.insertTranslation(tx, translateData, insertedWordId);
+						if (translateData.value > '') {
+							SWords.insertTranslation(tx, translateData, insertedWordId);
+						}
 					});
 				}
 			},
@@ -159,7 +161,6 @@ export default class SWords implements ISwords {
 
 	private static insertTranslation(tx: Transaction, translate: TTranslate, insertedWordId: number) {
 		let { context, value } = translate;
-		if (!value) return;
 		context = context && context.filter(item => item !== '');
 		const contextJson: string = JSON.stringify(context);
 		tx.executeSql(

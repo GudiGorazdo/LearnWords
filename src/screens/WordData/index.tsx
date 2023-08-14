@@ -16,8 +16,6 @@ import {
 	KeyboardAvoidingView,
 	StyleSheet,
 	Platform,
-	Modal,
-	Text,
 } from 'react-native';
 
 interface IHomeScreenProps {
@@ -164,19 +162,31 @@ export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
 	}
 
 	const saveWord = async () => {
-		const word: TWord = {
-			word: inputWord,
-			translate: inputsGroups,
-		}
-		if (!word.word) {
+		if (!inputWord) {
 			setSaveWordError(true);
 			setModalMessage('Введите слово');
 			return setShowModal(true);
 		}
-		if (!word.translate[0].value) {
+		if (!inputsGroups[0].value) {
 			setSaveWordError(true);
 			setModalMessage('Введите перевод');
 			return setShowModal(true);
+		}
+
+		const filteredInputsGroups: TTranslate[] = inputsGroups.reduce((acc: TTranslate[], item: TTranslate) => {
+			if (item.value !== '') {
+				if (item.context) {
+					item.context = item.context.filter(contextItem => contextItem !== '');
+				}
+				acc.push(item);
+			}
+			return acc;
+		}, []);
+		setInputsGroup(filteredInputsGroups);
+
+		const word: TWord = {
+			word: inputWord,
+			translate: inputsGroups,
 		}
 		setSaveWordError(false);
 		setModalMessage('Слово сохранено');
