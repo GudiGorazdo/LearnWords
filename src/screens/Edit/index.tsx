@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
-import { NavigationProp } from '@react-navigation/native';
+import { useFocusEffect, NavigationProp } from '@react-navigation/native';
 import { Header } from '../../modules/Header';
 import { ModalWindow, TModalButton } from '../../modules/ModalWindow';
 import SWords from '../../storage/words/words.service';

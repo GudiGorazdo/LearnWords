@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect, useMemo, MutableRefObject } from 'react';
-import { NavigationProp, useRoute } from '@react-navigation/native';
+import { NavigationProp, useRoute, useFocusEffect } from '@react-navigation/native';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
 import { ModalWindow, TModalButton } from '../../modules/ModalWindow';
 import SWords from '../../storage/words/words.service';
 import { TTranslate, TWord } from '../../storage/words/words.types';
+import IconsStrings from '../../assets/awesomeIcons';
 
 import containerStyles from '../../styles/container';
 
@@ -47,7 +48,9 @@ export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
 			scrollViewRef.current.scrollToEnd({ animated: true });
 			setScrollBottom(false);
 		}
+	}, [scrollBottom]);
 
+	useFocusEffect(() => {
 		if (wordEdit && start) {
 			SWords.getByID(wordID, (fetchedWord: TWord | null) => {
 				if (fetchedWord) {
@@ -56,7 +59,8 @@ export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
 				}
 			});
 		}
-	}, [scrollBottom]);
+	});
+
 
 	const updateInputGroups = (value: string, index: number, type: string, contextIndex?: number) => {
 		setInputsGroup(prevInputGroups => {
@@ -119,7 +123,7 @@ export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
 						onChangeText={(translate) => updateInputGroups(translate, index, 'translate')}
 						onLayout={() => handleLayout()}
 						icon={inputsGroups.length > 1 ? {
-							type: 'trash',
+							type: IconsStrings.remove,
 							style: {
 								position: 'absolute',
 								right: '-12%',
@@ -139,7 +143,7 @@ export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
 									onChangeText={(context) => updateInputGroups(context, index, 'context', contextIndex)}
 									multiline={true}
 									icon={{
-										type: 'remove',
+										type: IconsStrings.cancel,
 										style: {
 											position: 'absolute',
 											right: '-12%',
