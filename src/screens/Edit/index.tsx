@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { NavigationProp } from '@react-navigation/native';
 import { Header } from '../../modules/Header';
+import { ModalWindow, TModalButton } from '../../modules/ModalWindow';
 import SWords from '../../storage/words/words.service';
 import { TTranslate, TWord } from '../../storage/words/words.types';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -24,7 +25,9 @@ interface IHomeScreenProps {
 
 export function Edit({ navigation }: IHomeScreenProps): JSX.Element {
 	const startArr: TWord[] = [];
+	const [wordToRemove, setWordToRemove] = useState<TWord | null>(null);
 	const [words, setWords] = useState(startArr);
+	const [showModal, setShowModal] = useState(false);
 
 	useFocusEffect(() => {
 		SWords.getAllWords((fetchedWords: TWord[]) => {
@@ -56,12 +59,35 @@ export function Edit({ navigation }: IHomeScreenProps): JSX.Element {
 						>
 							<Text>{word.word}</Text>
 						</TouchableOpacity>
-						<TouchableOpacity style={{ padding: 5 }} onPress={() => removeWord(word)}>
+						<TouchableOpacity style={{ padding: 5 }} onPress={() => {
+							setWordToRemove(word);
+							setShowModal(!showModal);
+						}}>
 							<Icon name={IconsStrings.remove} size={24} />
 						</TouchableOpacity>
 					</View>
 				))}
 			</ScrollView>
+			<ModalWindow
+				show={showModal}
+				message='Удалить слово из словаря?'
+				onClose={() => setShowModal(!showModal)}
+				buttons={[
+					{
+						title: 'Удалить',
+						onPress: () => {
+							wordToRemove && removeWord(wordToRemove);
+							setShowModal(!showModal);
+						}
+					},
+					{
+						title: 'Отмена',
+						onPress: () => {
+							setShowModal(!showModal);
+						}
+					}
+				]}
+			/>
 		</SafeAreaView>
 	);
 }

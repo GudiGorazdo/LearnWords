@@ -316,51 +316,6 @@ const styles = StyleSheet.create({
 		width: '100%',
 		borderRadius: 0,
 	},
-
-	centeredView: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		marginTop: 22,
-	},
-
-	modalOverlay: {
-		position: 'absolute',
-		top: 0,
-		left: 0,
-		right: 0,
-		bottom: 0,
-		backgroundColor: 'rgba(0, 0, 0, 0.5)',
-	},
-
-	modalView: {
-		margin: 20,
-		backgroundColor: 'white',
-		borderRadius: 20,
-		padding: 35,
-		alignItems: 'center',
-		shadowColor: '#000',
-		shadowOffset: {
-			width: 0,
-			height: 2,
-		},
-	},
-
-	modalText: {
-		marginBottom: 15,
-		fontSize: 22,
-		textAlign: 'center',
-	},
-
-	modalButtonMB: {
-		marginBottom: 15,
-	},
-
-	textStyle: {
-		color: 'white',
-		fontWeight: 'bold',
-		textAlign: 'center',
-	},
 });
 
 
