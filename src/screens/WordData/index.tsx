@@ -3,6 +3,7 @@ import { NavigationProp, useRoute } from '@react-navigation/native';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
+import { ModalWindow, TModalButton } from '../../modules/ModalWindow';
 import SWords from '../../storage/words/words.service';
 import { TTranslate, TWord } from '../../storage/words/words.types';
 
@@ -202,6 +203,37 @@ export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
 		setInputWord('');
 	}
 
+	const getModalButtons = (): TModalButton[] => {
+		const buttons: TModalButton[] = [{
+			title: 'Закрыть',
+			onPress: () => {
+				setShowModal(!showModal);
+				if (!saveWordError) {
+					if (wordEdit) navigation.navigate('Edit');
+					else navigation.navigate('Words');
+				}
+			},
+		}];
+		if (!saveWordError && !wordEdit) {
+			buttons.push({
+				title: 'Добавить новое слово',
+				onPress: () => {
+					setShowModal(!showModal);
+					resetForm();
+					navigation.navigate('WordData', { backPathRoute: 'Words', wordEdit: false });
+				}
+			});
+			buttons.push({
+				title: 'К списку слов',
+				onPress: () => {
+					setShowModal(!showModal);
+					navigation.navigate('Edit');
+				}
+			});
+		}
+		return buttons;
+	}
+
 	return (
 		<SafeAreaView style={styles.safeArea}>
 			<Header backPath={() => navigation.navigate(backPathRoute)} accept={() => saveWord()} />
@@ -230,46 +262,12 @@ export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
 					}}
 				/>
 			</KeyboardAvoidingView>
-			<Modal
-				animationType="fade"
-				transparent={true}
-				visible={showModal}
-				onRequestClose={() => {
-					setShowModal(!showModal);
-				}}>
-				<View style={styles.modalOverlay} />
-				<View style={styles.centeredView}>
-					<View style={styles.modalView}>
-						<Text style={styles.modalText}>{modalMessage}</Text>
-						{saveWordError && <Button
-							title='Закрыть'
-							onPress={() => setShowModal(!showModal)}
-						/>
-						}
-						{!saveWordError && <View>
-							<Button
-								style={[styles.modalButtonMB]}
-								title='Закрыть'
-								onPress={() => {
-									setShowModal(!showModal);
-									if (wordEdit) navigation.navigate('Edit');
-									else navigation.navigate('Words');
-								}}
-							/>
-							<Button
-								style={[styles.modalButtonMB]}
-								title='Добавить новое слово'
-								onPress={() => {
-									setShowModal(!showModal);
-									resetForm();
-									navigation.navigate('WordData', { backPathRoute: 'Words', wordEdit: false });
-								}}
-							/>
-						</View>
-						}
-					</View>
-				</View>
-			</Modal>
+			<ModalWindow
+				show={showModal}
+				message={modalMessage}
+				onClose={() => setShowModal(!showModal)}
+				buttons={getModalButtons()}
+			/>
 		</SafeAreaView>
 	);
 }

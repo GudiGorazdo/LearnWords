@@ -9,36 +9,37 @@ import {
 } from 'react-native';
 
 export type TModalButton = {
-	style: object,
+	style?: object,
 	title: string,
 	onPress: () => void,
 }
 
-interface IModaWindowProps {
-	modalMessage: string,
-	showModal: boolean,
+interface IModalWindowProps {
+	message: string,
+	show: boolean,
 	buttons: TModalButton[],
-	onRequestClose: () => void,
+	onClose: () => void,
 }
 
-export function ModaWindow({
-	modalMessage,
-	showModal,
+export function ModalWindow({
+	message,
+	show,
 	buttons,
-	onRequestClose,
-}: IModaWindowProps): JSX.Element {
+	onClose,
+}: IModalWindowProps): JSX.Element {
 	return (
 		<Modal
 			animationType="fade"
 			transparent={true}
-			visible={showModal}
-			onRequestClose={() => onRequestClose()}>
+			visible={show}
+			onRequestClose={() => onClose()}>
 			<View style={styles.modalOverlay} />
 			<View style={styles.centeredView}>
 				<View style={styles.modalView}>
-					<Text style={styles.modalText}>{modalMessage}</Text>
+					<Text style={styles.modalText}>{message}</Text>
 					{buttons.map((button: TModalButton, index: number) => (
 						<Button
+							key={index}
 							style={[
 								(buttons.length - 1 != index) ? styles.modalButtonMB : {}, 
 								button.style
