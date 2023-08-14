@@ -31,7 +31,7 @@ export default class SWords implements ISwords {
 			'word_id  INTEGER',
 			'translate TEXT',
 			'context TEXT',
-			'FOREIGN KEY (word_id) REFERENCES words(id)'
+			'FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE'
 		]
 	};
 
@@ -48,82 +48,109 @@ export default class SWords implements ISwords {
 		});
 	}
 
-	static async getAllWords(callback: (words: TWord[]) => void) {
-		const instance = await SWords.getInstance();
-		instance.db.transaction((tx: Transaction) => {
-			tx.executeSql(
-				'SELECT * FROM words',
-				[],
-				(tx: Transaction, results: ResultSet) => {
-					const len = results.rows.length;
-					const words = [];
-
-					for (let i = 0; i < len; i++) {
-						const row = results.rows.item(i);
-						words.push(row);
+	static async getAllWordsCount(): Promise<number> {
+		return new Promise<number>(async (resolve, reject) => {
+			const instance = await SWords.getInstance();
+			instance.db.transaction((tx: Transaction) => {
+				tx.executeSql(
+					'SELECT COUNT(*) as count FROM words',
+					[],
+					(tx: Transaction, results: ResultSet) => {
+						if (results.rows.length > 0) {
+							const count = results.rows.item(0).count;
+							resolve(count);
+						} else {
+							resolve(0);
+						}
+					},
+					(error: any) => {
+						console.error(error);
+						reject(error);
 					}
-
-					callback(words);
-				},
-				(error: any) => {
-					console.error(error);
-					callback([]);
-				}
-			);
+				);
+			});
 		});
 	}
 
-	static async getByID(id: number, callback: (word: TWord | null) => void) {
-		const instance = await SWords.getInstance();
-		instance.db.transaction((tx: Transaction) => {
-			tx.executeSql(
-				'SELECT words.*, word_translate.id as t_id, word_translate.translate, word_translate.context FROM words left join word_translate on words.id=word_translate.word_id where words.id=(?)',
-				[id],
-				(tx: Transaction, results: ResultSet) => {
-					if (results.rows.length > 0) {
-						const wordTranslations: TTranslate[] = [];
+	static async getAllWords(): Promise<TWord[]> {
+		return new Promise<TWord[]>(async (resolve, reject) => {
+			const instance = await SWords.getInstance();
+			instance.db.transaction((tx: Transaction) => {
+				tx.executeSql(
+					'SELECT * FROM words',
+					[],
+					(tx: Transaction, results: ResultSet) => {
+						const len = results.rows.length;
+						const words: TWord[] = [];
 
-						for (let i = 0; i < results.rows.length; i++) {
-							const result = results.rows.item(i);
-							const translation: TTranslate = {
-								id: result.t_id,
-								value: result.translate,
-								context: JSON.parse(result.context),
-							};
-							wordTranslations.push(translation);
+						for (let i = 0; i < len; i++) {
+							const row = results.rows.item(i);
+							words.push(row);
 						}
 
-						const word: TWord = {
-							id: results.rows.item(0).id,
-							word: results.rows.item(0).word,
-							translate: wordTranslations,
-						};
-
-						callback(word);
-					} else {
-						callback(null);
+						resolve(words);
+					},
+					(error: any) => {
+						console.error(error);
+						reject(error);
 					}
-				},
-				(error: any) => {
-					console.error(error);
-					callback(null);
-				}
-			);
+				);
+			});
+		});
+	}
+
+	static getByID(id: number): Promise<TWord | null> {
+		return new Promise(async (resolve, reject) => {
+			const instance = await SWords.getInstance();
+			instance.db.transaction((tx: Transaction) => {
+				tx.executeSql(
+					'SELECT words.*, word_translate.id as t_id, word_translate.translate, word_translate.context FROM words left join word_translate on words.id=word_translate.word_id where words.id=(?)',
+					[id],
+					(tx: Transaction, results: ResultSet) => {
+						if (results.rows.length > 0) {
+							const wordTranslations: TTranslate[] = [];
+
+							for (let i = 0; i < results.rows.length; i++) {
+								const result = results.rows.item(i);
+								const translation: TTranslate = {
+									id: result.t_id,
+									value: result.translate,
+									context: JSON.parse(result.context),
+								};
+								wordTranslations.push(translation);
+							}
+
+							const word: TWord = {
+								id: results.rows.item(0).id,
+								word: results.rows.item(0).word,
+								translate: wordTranslations,
+							};
+
+							resolve(word);
+						} else {
+							resolve(null);
+						}
+					},
+					(error: any) => {
+						console.error(error);
+						reject(error);
+					}
+				);
+			});
 		});
 	}
 
 	static async saveWord(word: TWord) {
 		if (word.word === '') return null;
-
 		return new Promise(async (resolve, reject) => {
 			const instance = await SWords.getInstance();
-			instance.db.transaction((tx: Transaction) => {
-				tx.executeSql(
+			await instance.db.transaction(async (tx: Transaction) => {
+				await tx.executeSql(
 					`SELECT id FROM words where word=(?)`,
 					[word.word],
 					async (tx: Transaction, results: ResultSet) => {
 						if (results.rows.length === 0) {
-							SWords.insertWordAndTranslations(tx, word);
+							await SWords.insertWordAndTranslations(tx, word);
 							resolve('ok');
 						} else {
 							resolve('dublicate');
@@ -138,17 +165,17 @@ export default class SWords implements ISwords {
 		});
 	}
 
-	private static insertWordAndTranslations(tx: Transaction, word: TWord) {
-		tx.executeSql(
+	private static async insertWordAndTranslations(tx: Transaction, word: TWord) {
+		await tx.executeSql(
 			'INSERT INTO words (word) VALUES (?)',
 			[word.word],
 			(tx: Transaction, results: ResultSet) => {
 				const insertedWordId: number = results.insertId;
 
 				if (word.translate && Array.isArray(word.translate)) {
-					word.translate.forEach((translateData: TTranslate) => {
+					word.translate.forEach(async (translateData: TTranslate) => {
 						if (translateData.value > '') {
-							SWords.insertTranslation(tx, translateData, insertedWordId);
+							await SWords.insertTranslation(tx, translateData, insertedWordId);
 						}
 					});
 				}
@@ -159,11 +186,11 @@ export default class SWords implements ISwords {
 		);
 	}
 
-	private static insertTranslation(tx: Transaction, translate: TTranslate, insertedWordId: number) {
+	private static async insertTranslation(tx: Transaction, translate: TTranslate, insertedWordId: number) {
 		let { context, value } = translate;
 		context = context && context.filter(item => item !== '');
 		const contextJson: string = JSON.stringify(context);
-		tx.executeSql(
+		await tx.executeSql(
 			'INSERT INTO word_translate (word_id, translate, context) VALUES (?, ?, ?)',
 			[insertedWordId, value, contextJson],
 			(tx: Transaction, results: ResultSet) => {
@@ -224,8 +251,8 @@ export default class SWords implements ISwords {
 
 	static async removeWordByID(id: number) {
 		const instance = await SWords.getInstance();
-		instance.db.transaction((tx: Transaction) => {
-			tx.executeSql(
+		await instance.db.transaction(async (tx: Transaction) => {
+			await tx.executeSql(
 				'DELETE FROM word_translate WHERE word_id = ?',
 				[id],
 				(tx: Transaction, results: ResultSet) => {
@@ -235,7 +262,7 @@ export default class SWords implements ISwords {
 					console.error(error);
 				}
 			);
-			tx.executeSql(
+			await tx.executeSql(
 				'DELETE FROM words WHERE id = ?',
 				[id],
 				(tx: Transaction, results: ResultSet) => {

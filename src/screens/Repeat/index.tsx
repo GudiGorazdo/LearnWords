@@ -10,11 +10,11 @@ import {
 	StyleSheet,
 } from 'react-native';
 
-interface IHomeScreenProps {
+interface IRepeatScreenProps {
 	navigation: NavigationProp<any>,
 }
 
-export function Repeat ({ navigation }: IHomeScreenProps): JSX.Element {
+export function Repeat ({ navigation }: IRepeatScreenProps): JSX.Element {
 	return (
 		<SafeAreaView>
 			<Header backPath={() => navigation.navigate('Home')} />

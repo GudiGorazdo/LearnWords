@@ -22,6 +22,7 @@ interface IHomeScreenProps {
 	navigation: NavigationProp<any>,
 }
 
+
 export function Edit({ navigation }: IHomeScreenProps): JSX.Element {
 	const startArr: TWord[] = [];
 	const [wordToRemove, setWordToRemove] = useState<TWord | null>(null);
@@ -29,11 +30,18 @@ export function Edit({ navigation }: IHomeScreenProps): JSX.Element {
 	const [showModal, setShowModal] = useState(false);
 
 	useFocusEffect(() => {
-		SWords.getAllWords((fetchedWords: TWord[]) => {
-			const sortedArray = fetchedWords.sort((a, b) => a.word.localeCompare(b.word));
-			setWords(sortedArray);
-		});
+		fetchWords();
 	});
+
+	const fetchWords = async () => {
+		try {
+			let words = await SWords.getAllWords();
+			words = words.sort((a, b) => a.word.localeCompare(b.word));
+			setWords(words);
+		} catch(error) {
+			console.log(error);
+		}
+	}
 
 
 	const removeWord = async (word: TWord) => {
@@ -45,13 +53,10 @@ export function Edit({ navigation }: IHomeScreenProps): JSX.Element {
 
 	return (
 		<SafeAreaView style={styles.container}>
-			<Header backPath={() => navigation.navigate('Words')} />
+			<Header backPath={() => navigation.navigate('Dictionary')} />
 			<ScrollView contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
 				{words.map((word: TWord) => (
-					<View
-						key={word.id}
-						style={styles.rowContainer}
-					>
+					<View key={word.id} style={styles.rowContainer} >
 						<TouchableOpacity
 							style={styles.wordContainer}
 							onPress={() => navigation.navigate('WordData', { backPathRoute: 'Edit', wordEdit: true, wordID: word.id })}

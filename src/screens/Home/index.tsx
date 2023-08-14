@@ -13,7 +13,7 @@ export const Home = observer(({ navigation }: IHomeScreenProps): JSX.Element => 
 	return (
 		<CenteredContent navigation={navigation}>
 			<Button title='Повторять' onPress={() => navigation.navigate('Repeat')} />
-			<Button title='Словарь' onPress={() => navigation.navigate('Words')} />
+			<Button title='Словарь' onPress={() => navigation.navigate('Dictionary')} />
 		</CenteredContent>
 	);
 })

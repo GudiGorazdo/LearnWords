@@ -8,10 +8,10 @@ export type TTranslate = {
 };
 
 export type TWord = {
-	[key: string]: number | string | undefined | TTranslate;
+	[key: string]: number | string | undefined | TTranslate[];
 	id?: number,
 	word: string,
-	translate: TTranslate,
+	translate: TTranslate[],
 };
 
 

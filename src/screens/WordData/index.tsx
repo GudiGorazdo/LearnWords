@@ -19,11 +19,11 @@ import {
 	Platform,
 } from 'react-native';
 
-interface IHomeScreenProps {
+interface IWordDataScreenProps {
 	navigation: NavigationProp<any>;
 }
 
-export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
+export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	const route = useRoute();
 	const backPathRoute = route.params.backPathRoute;
 	const wordEdit = route.params.wordEdit ?? false;
@@ -52,15 +52,17 @@ export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
 
 	useFocusEffect(() => {
 		if (wordEdit && start) {
-			SWords.getByID(wordID, (fetchedWord: TWord | null) => {
-				if (fetchedWord) {
-					setInputWord(fetchedWord.word);
-					setInputsGroup(fetchedWord.translate);
-				}
-			});
+			fetchWord();
 		}
 	});
 
+	const fetchWord = async () => {
+		const word = await SWords.getByID(wordID);
+		if (word) {
+			setInputWord(word.word);
+			setInputsGroup(word.translate);
+		}
+	}
 
 	const updateInputGroups = (value: string, index: number, type: string, contextIndex?: number) => {
 		setInputsGroup(prevInputGroups => {
@@ -81,7 +83,7 @@ export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
 
 	const addNewContext = (index: number) => {
 		const newInputsGroups = [...inputsGroups];
-		if (newInputsGroups[index].context) {
+		if (newInputsGroups[index] && newInputsGroups[index].context) {
 			newInputsGroups[index].context.push('');
 			setInputsGroup(newInputsGroups);
 		}
@@ -89,7 +91,7 @@ export function WordData({ navigation }: IHomeScreenProps): JSX.Element {
 
 	const removeContext = (index: number, contextIndex: number) => {
 		const newInputsGroups = [...inputsGroups];
-		if (newInputsGroups[index].context) {
+		if (newInputsGroups[index] && newInputsGroups[index].context) {
 			newInputsGroups[index].context.splice(contextIndex, 1);
 			setInputsGroup(newInputsGroups);
 		}
