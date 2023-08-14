@@ -1,12 +1,11 @@
 import React from 'react';
 import { NavigationProp } from '@react-navigation/native';
-import { Header } from '../../modules/Header';
+import { CenteredContent } from '../../modules/CenteredContent';
+import { Button } from '../../components/Button';
 
 import containerStyles from '../../styles/container';
 
 import {
-	SafeAreaView,
-	View,
 	StyleSheet,
 } from 'react-native';
 
@@ -16,10 +15,10 @@ interface IRepeatScreenProps {
 
 export function Repeat ({ navigation }: IRepeatScreenProps): JSX.Element {
 	return (
-		<SafeAreaView>
-			<Header backPath={() => navigation.navigate('Home')} />
-			<View style={styles.section}></View>
-		</SafeAreaView>
+		<CenteredContent navigation={navigation} header={true} backPath="Home">
+			<Button title='Режим теста' onPress={() => navigation.navigate('Test')} />
+			<Button title='Режим ввода' onPress={() => navigation.navigate('Type')} />
+		</CenteredContent>
 	);
 }
 

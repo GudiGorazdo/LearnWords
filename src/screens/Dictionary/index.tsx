@@ -9,10 +9,13 @@ interface IDictionaryScreenProps {
 
 export const Dictionary = ({ navigation }: IDictionaryScreenProps): JSX.Element => {
 	return (
-		<CenteredContent navigation={navigation} header={true}>
-			<Button 
-				title='Добавить' 
-				onPress={() => navigation.navigate('WordData', { backPathRoute: 'Dictionary', wordEdit: false })} 
+		<CenteredContent navigation={navigation} header={true} backPath="Home">
+			<Button
+				title='Добавить'
+				onPress={() => navigation.navigate(
+					'WordData',
+					{ backPathRoute: 'Dictionary', wordEdit: false }
+				)}
 			/>
 			<Button title='Редактировать' onPress={() => navigation.navigate('Edit')} />
 		</CenteredContent>
