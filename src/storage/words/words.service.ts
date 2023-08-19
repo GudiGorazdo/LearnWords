@@ -246,7 +246,12 @@ export default class SWords implements ISwords {
 						if (word.translate && Array.isArray(word.translate)) {
 							word.translate.forEach(async (translateData: TTranslate) => {
 								if (translateData.value > '') {
-									await instance.insertTranslation(tx, translateData, insertedWordId);
+									try {
+										await instance.insertTranslation(tx, translateData, insertedWordId);
+										resolve(true);
+									} catch (error: any) {
+										reject(false);
+									}
 								}
 							});
 						}

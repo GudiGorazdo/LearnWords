@@ -244,26 +244,30 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 		return (
 			<React.Fragment key={`group-${index}`} >
 				<View style={styles.groupInputs}>
-					{wordEdit ? (<Input
-						key={`translate-${index}`}
-						label="Перевод"
-						placeholder="Введите перевод"
-						value={data.value}
-						onChangeText={(translate) => updateInputGroups(translate, index, 'translate')}
-						onLayout={() => handleLayout()}
-						icon={inputsGroups.length > 1 ? {
-							type: IconsStrings.remove,
-							style: {
-								position: 'absolute',
-								right: '-12%',
-								padding: 10,
-							},
-							onPress: () => removeTranslate(index),
-						} : undefined}
-					/>) : (<View key={`translate-${index}`}>
-						<Text>Перевод:</Text>
-						<Text>{data.value}</Text>
-					</View>)}
+					{wordEdit ? (
+						<Input
+							key={`translate-${index}`}
+							label="Перевод"
+							placeholder="Введите перевод"
+							value={data.value}
+							onChangeText={(translate) => updateInputGroups(translate, index, 'translate')}
+							onLayout={() => handleLayout()}
+							icon={inputsGroups.length > 1 ? {
+								type: IconsStrings.remove,
+								style: {
+									position: 'absolute',
+									right: '-12%',
+									padding: 10,
+								},
+								onPress: () => removeTranslate(index),
+							} : undefined}
+						/>
+					) : (
+						<View key={`translate-${index}`}>
+							<Text>Перевод:</Text>
+							<Text>{data.value}</Text>
+						</View>
+					)}
 
 					{data.context &&
 						data.context.map((contextValue: string, contextIndex: number) => {
@@ -285,11 +289,14 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 										onPress: () => removeContext(index, contextIndex),
 									}}
 								/>
-							) : (<View key={`context-${index}-${contextIndex}`}>
-								<Text >Контекст:</Text>
-								<Text>{contextValue}</Text>
-							</View>);
-						})}
+							) : (
+								<View key={`context-${index}-${contextIndex}`}>
+									<Text >Контекст:</Text>
+									<Text>{contextValue}</Text>
+								</View>
+							);
+						})
+					}
 					{wordEdit && <Button title='Добавить контекст' onPress={() => addNewContext(index)} />}
 				</View>
 			</React.Fragment>
@@ -328,12 +335,14 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 			>
 				<ScrollView ref={scrollViewRef} contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
 					<View style={styles.section}>
-						{wordEdit ? (<Input
-							label="Слово"
-							placeholder="Введите слово"
-							value={inputWord}
-							onChangeText={(word) => setInputWord(word)}
-						/>) : (<Text>{inputWord}</Text>)
+						{wordEdit ? (
+							<Input
+								label="Слово"
+								placeholder="Введите слово"
+								value={inputWord}
+								onChangeText={(word) => setInputWord(word)}
+							/>
+						) : <Text>{inputWord}</Text>
 						}
 						{inputsGroups.map((data, index) => data.removed ? null : inputGroupTemplate(index, data))}
 					</View>
