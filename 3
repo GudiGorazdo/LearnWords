@@ -120,7 +120,7 @@ export function Test({ navigation }: ITestScreenProps): JSX.Element {
 				title: 'Прервать',
 				onPress: () => {
 					setShowModal(!showModal);
-					navigation.navigate('Training');
+					navigation.navigate('Repeat');
 				},
 			},
 			{
@@ -136,8 +136,8 @@ export function Test({ navigation }: ITestScreenProps): JSX.Element {
 	const computedAnswerStyles = (answer: TAnswer) => {
 		if (checked) {
 			console.log(answer.selected && !answer.correct);
-			if (answer.correct) return styles.correctAnswer;
-			if (answer.selected && !answer.correct) return styles.inCorrectAnswer;
+			if (answer.selected && answer.correct) return styles.correctAnswer;
+			else if (answer.selected && !answer.correct) return styles.inCorrectAnswer;
 		} else {
 			return answer.selected ? styles.selectedAnswer : styles.unselectedAnswer;
 		}
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
 	},
 
 	inCorrectAnswer: {
-		backgroundColor: 'red',
+		backgroundColor: 'Red',
 	},
 
 	unselectedAnswer: {

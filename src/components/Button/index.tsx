@@ -8,6 +8,7 @@ export type IButtonProps = PropsWithChildren<{
 	onPress: () => void,
 	style?: object,
 	textStyle?: object,
+	disabled?: boolean,
 	icon?: {
 		front?: boolean,
 		type: string,
@@ -20,34 +21,50 @@ export const Button = ({
 	onPress,
 	style,
 	textStyle,
-	icon
+	icon,
+	disabled
 }: IButtonProps) => {
 	const handlePress = () => {
-		onPress();
+		if (!disabled) {
+			onPress();
+		}
 	};
 
 	const getIcon = () => {
-		if (!icon) return;
-		return <Icon name={icon.type} size={16} style={icon.style ?? {}} />
-	}
+		if (!icon) return null;
+		return <Icon name={icon.type} size={16} style={icon.style ?? {}} />;
+	};
+
+	const buttonStyles = [
+		styles.button,
+		style,
+		disabled && styles.disabledButton
+	];
 
 	return (
-		<TouchableNativeFeedback onPress={handlePress}>
-			<View style={[styles.button, style]}>
+		<TouchableNativeFeedback onPress={handlePress} disabled={disabled}>
+			<View style={buttonStyles}>
 				{icon && icon.front && getIcon()}
 				<Text style={[styles.buttonText, textStyle]}>{title}</Text>
 				{icon && !icon.front && getIcon()}
 			</View>
 		</TouchableNativeFeedback>
 	);
-}
+};
 
 const styles = StyleSheet.create({
 	button: {
-		backgroundColor: 'blue',
 		borderRadius: 8,
 		padding: 10,
 		overflow: 'hidden',
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
+		backgroundColor: 'blue',
+	},
+	disabledButton: {
+		backgroundColor: 'gray',
+		opacity: 0.7,
 	},
 	buttonText: {
 		color: 'white',

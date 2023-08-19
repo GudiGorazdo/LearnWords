@@ -12,7 +12,7 @@ interface IHomeScreenProps {
 export const Home = observer(({ navigation }: IHomeScreenProps): JSX.Element => {
 	return (
 		<CenteredContent navigation={navigation}>
-			<Button title='Повторять' onPress={() => navigation.navigate('Repeat')} />
+			<Button title='Тренировка' onPress={() => navigation.navigate('Training')} />
 			<Button title='Словарь' onPress={() => navigation.navigate('Dictionary')} />
 		</CenteredContent>
 	);

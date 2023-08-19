@@ -12,7 +12,7 @@ import {
 interface IWordsScreenProps {
 	navigation: NavigationProp<any>;
 	children: React.ReactNode;
-	backPath: string,
+	backPath?: string,
 	header?: boolean;
 }
 
@@ -20,7 +20,7 @@ export const CenteredContent = ({ navigation, backPath, children, header }: IWor
 	return (
 		<View style={styles.content}>
 			<View style={styles.header}>
-				{header && <Header backPath={() => navigation.navigate(backPath)} /> }
+				{header && <Header backPath={() => backPath && navigation.navigate(backPath)} /> }
 			</View>
 			<View style={[containerStyles, centeredStyles, { paddingBottom: 0 }]}>
 				{children}

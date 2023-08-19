@@ -9,6 +9,7 @@ import { TTranslate, TWord } from '../../storage/words/words.types';
 import IconsStrings from '../../assets/awesomeIcons';
 
 import containerStyles from '../../styles/container';
+import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
 
 import {
 	SafeAreaView,
@@ -302,7 +303,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 					</View>
 				</ScrollView>
 				<Button
-					style={styles.addTranslateButton}
+					style={buttonBottomFreeze}
 					title='Добавить перевод'
 					onPress={() => {
 						setStartScroll(false);
@@ -357,13 +358,13 @@ const styles = StyleSheet.create({
 		marginLeft: 10,
 	},
 
-	addTranslateButton: {
-		position: 'absolute',
-		right: 0,
-		bottom: 0,
-		width: '100%',
-		borderRadius: 0,
-	},
+	// addTranslateButton: {
+	// 	position: 'absolute',
+	// 	right: 0,
+	// 	bottom: 0,
+	// 	width: '100%',
+	// 	borderRadius: 0,
+	// },
 });
 
 

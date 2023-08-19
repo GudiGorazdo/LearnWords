@@ -9,11 +9,11 @@ import {
 	StyleSheet,
 } from 'react-native';
 
-interface IRepeatScreenProps {
+interface ITrainingScreenProps {
 	navigation: NavigationProp<any>,
 }
 
-export function Repeat ({ navigation }: IRepeatScreenProps): JSX.Element {
+export function Training ({ navigation }: ITrainingScreenProps): JSX.Element {
 	return (
 		<CenteredContent navigation={navigation} header={true} backPath="Home">
 			<Button title='Режим теста' onPress={() => navigation.navigate('Test')} />

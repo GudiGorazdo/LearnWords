@@ -8,7 +8,7 @@ import { Dictionary } from '../../screens/Dictionary';
 import { WordData } from '../../screens/WordData';
 import { Edit } from '../../screens/Edit';
 
-import { Repeat } from '../../screens/Repeat';
+import { Training } from '../../screens/Training';
 import { Test } from '../../screens/Test';
 
 const Stack = createNativeStackNavigator();
@@ -23,7 +23,7 @@ export default function Navigation(): JSX.Element {
 				<Stack.Screen name="WordData" component={WordData} options={{ headerShown: false }} />
 				<Stack.Screen name="Edit" component={Edit} options={{ headerShown: false }} />
 
-				<Stack.Screen name="Repeat" component={Repeat} options={{ headerShown: false }} />
+				<Stack.Screen name="Training" component={Training} options={{ headerShown: false }} />
 				<Stack.Screen name="Test" component={Test} options={{ headerShown: false }} />
 			</Stack.Navigator>
 		</NavigationContainer>
