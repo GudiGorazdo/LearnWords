@@ -137,7 +137,7 @@ export function Type({ navigation }: ITypeScreenProps): JSX.Element {
 
 	const computedAnswerStyles = (answer: TAnswer) => {
 		if (checked) {
-			if (answer.correct) return [styles.correctAnswer, styles.texWhite];
+			if (answer.correct) return [styles.correctAnswer, styles.textWhite];
 			return [styles.inCorrectAnswer, styles.textWhite];
 		}
 		return [styles.textBlack];
