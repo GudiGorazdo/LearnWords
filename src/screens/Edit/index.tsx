@@ -59,7 +59,7 @@ export function Edit({ navigation }: IHomeScreenProps): JSX.Element {
 					<View key={word.id} style={styles.rowContainer} >
 						<TouchableOpacity
 							style={styles.wordContainer}
-							onPress={() => navigation.navigate('WordData', { backPathRoute: 'Edit', wordEdit: true, wordID: word.id })}
+							onPress={() => navigation.navigate('WordData', { backPathRoute: 'Edit', wordShow: true, wordID: word.id })}
 						>
 							<Text>{word.word}</Text>
 						</TouchableOpacity>

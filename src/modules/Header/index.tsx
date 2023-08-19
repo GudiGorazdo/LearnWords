@@ -16,6 +16,10 @@ interface IHeaderScreenProps {
 	onLayout?: () => void;
 	backPath?: () => void;
 	accept?: () => void;
+	rightIcon?: {
+		type: string,
+		onPress: () => void,
+	};
 }
 
 const getStatusBarMargin = (): number => {
@@ -27,6 +31,7 @@ export const Header = ({
 	style,
 	backPath,
 	accept,
+	rightIcon,
 	onLayout,
 }: IHeaderScreenProps): JSX.Element => {
 	return (
@@ -44,6 +49,12 @@ export const Header = ({
 					onPress={() => accept()}
 				>
 					<Icon name={IconsStrings.accept} size={24} />
+				</TouchableOpacity>}
+				{rightIcon && <TouchableOpacity
+					style={[styles.buttonsPadding, {paddingRight: 0}]}
+					onPress={() => rightIcon.onPress()}
+				>
+					<Icon name={rightIcon.type} size={24} />
 				</TouchableOpacity>}
 			</View>
 		</SafeAreaView>

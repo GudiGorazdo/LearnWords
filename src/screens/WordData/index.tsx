@@ -6,6 +6,7 @@ import { Header } from '../../modules/Header';
 import { ModalWindow, TModalButton } from '../../modules/ModalWindow';
 import SWords from '../../storage/words/words.service';
 import { TTranslate, TWord } from '../../storage/words/words.types';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import IconsStrings from '../../assets/awesomeIcons';
 
 import containerStyles from '../../styles/container';
@@ -18,6 +19,7 @@ import {
 	KeyboardAvoidingView,
 	StyleSheet,
 	Platform,
+	Text,
 } from 'react-native';
 
 interface IWordDataScreenProps {
@@ -27,7 +29,7 @@ interface IWordDataScreenProps {
 export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	const route = useRoute();
 	const backPathRoute = route.params.backPathRoute;
-	const wordEdit = route.params.wordEdit ?? false;
+	const wordNew = route.params.wordNew ?? false;
 	const wordID = route.params.wordID ?? null;
 
 	const inputDataGroup: TTranslate = {
@@ -35,6 +37,9 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 		context: [],
 		new: true,
 	};
+
+	const [wordShow, setWordShow] = useState(route.params.wordShow ?? false)
+	const [wordEdit, setWordEdit] = useState(route.params.wordEdit ?? false);
 
 	const [start, setStart] = useState(true);
 	const [showModal, setShowModal] = useState(false);
@@ -53,7 +58,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	}, [scrollBottom]);
 
 	useFocusEffect(() => {
-		if (wordEdit && start) {
+		if (wordShow && start) {
 			fetchWord();
 			setStart(false);
 		}
@@ -155,10 +160,11 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	const dbSaveWord = async (word: TWord) => {
 		return new Promise(async (resolve, reject) => {
 			let result = null;
-			if (wordEdit) {
-				result = await updateWord(word);
-			} else {
+			console.log('wordNew: ', wordNew);
+			if (wordNew) {
 				result = await SWords.save(word);
+			} else {
+				result = await updateWord(word);
 			}
 
 			resolve(result);
@@ -173,7 +179,9 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 			word: inputWord,
 			translate: inputsData,
 		}
-		
+
+		console.log(word);
+
 		setSaveWordError(false);
 		setModalMessage('Слово сохранено');
 		try {
@@ -181,7 +189,11 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 			if (result === 'dublicate') {
 				setModalMessage('Слово уже есть в словаре');
 			}
-			return setShowModal(true);
+			if (wordNew) setShowModal(true);
+			else {
+				setWordShow(true)
+				setWordEdit(false)
+			}
 		} catch (error: any) {
 			console.log(error);
 			setModalMessage('При сохранении слова произошла ошибка');
@@ -201,19 +213,19 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 				setShowModal(!showModal);
 				setStart(true);
 				if (!saveWordError) {
-					if (wordEdit) navigation.navigate('Edit');
-					else navigation.navigate('Words');
+					if (wordShow) navigation.navigate('Edit');
+					else navigation.navigate('Dictionary');
 				}
 			},
 		}];
-		if (!saveWordError && !wordEdit) {
+		if (!saveWordError && !wordShow) {
 			buttons.push({
 				title: 'Добавить новое слово',
 				onPress: () => {
 					setShowModal(!showModal);
 					resetForm();
 					setStart(true);
-					navigation.navigate('WordData', { backPathRoute: 'Words', wordEdit: false });
+					navigation.navigate('WordData', { backPathRoute: 'Words', wordShow: false });
 				}
 			});
 			buttons.push({
@@ -232,7 +244,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 		return (
 			<React.Fragment key={`group-${index}`} >
 				<View style={styles.groupInputs}>
-					<Input
+					{wordEdit ? (<Input
 						key={`translate-${index}`}
 						label="Перевод"
 						placeholder="Введите перевод"
@@ -248,10 +260,14 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 							},
 							onPress: () => removeTranslate(index),
 						} : undefined}
-					/>
+					/>) : (<View key={`translate-${index}`}>
+						<Text>Перевод:</Text>
+						<Text>{data.value}</Text>
+					</View>)}
+
 					{data.context &&
 						data.context.map((contextValue: string, contextIndex: number) => {
-							return (
+							return wordEdit ? (
 								<Input
 									key={`context-${index}-${contextIndex}`}
 									label="Контекст"
@@ -269,9 +285,12 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 										onPress: () => removeContext(index, contextIndex),
 									}}
 								/>
-							);
+							) : (<View key={`context-${index}-${contextIndex}`}>
+								<Text >Контекст:</Text>
+								<Text>{contextValue}</Text>
+							</View>);
 						})}
-					<Button title='Добавить контекст' onPress={() => addNewContext(index)} />
+					{wordEdit && <Button title='Добавить контекст' onPress={() => addNewContext(index)} />}
 				</View>
 			</React.Fragment>
 		);
@@ -279,13 +298,29 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 
 	return (
 		<SafeAreaView style={styles.safeArea}>
-			<Header
-				backPath={() => {
-					setStart(true);
-					navigation.navigate(backPathRoute);
-				}}
-				accept={() => saveWord()}
-			/>
+			{wordShow ? (
+				<Header
+					backPath={() => {
+						setStart(true);
+						navigation.navigate(backPathRoute);
+					}}
+					rightIcon={{
+						type: IconsStrings.edit,
+						onPress: () => {
+							setWordEdit(true);
+							setWordShow(false);
+						},
+					}}
+				/>
+			) : (
+				<Header
+					backPath={() => {
+						setStart(true);
+						navigation.navigate(backPathRoute);
+					}}
+					accept={() => saveWord()}
+				/>
+			)}
 			<KeyboardAvoidingView
 				style={styles.flex}
 				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -293,23 +328,26 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 			>
 				<ScrollView ref={scrollViewRef} contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
 					<View style={styles.section}>
-						<Input
+						{wordEdit ? (<Input
 							label="Слово"
 							placeholder="Введите слово"
 							value={inputWord}
 							onChangeText={(word) => setInputWord(word)}
-						/>
+						/>) : (<Text>{inputWord}</Text>)
+						}
 						{inputsGroups.map((data, index) => data.removed ? null : inputGroupTemplate(index, data))}
 					</View>
 				</ScrollView>
-				<Button
-					style={buttonBottomFreeze}
-					title='Добавить перевод'
-					onPress={() => {
-						setStartScroll(false);
-						addNewTranslate();
-					}}
-				/>
+				{wordEdit &&
+					<Button
+						style={buttonBottomFreeze}
+						title='Добавить перевод'
+						onPress={() => {
+							setStartScroll(false);
+							addNewTranslate();
+						}}
+					/>
+				}
 			</KeyboardAvoidingView>
 			<ModalWindow
 				show={showModal}
@@ -325,12 +363,20 @@ const styles = StyleSheet.create({
 	safeArea: {
 		flex: 1,
 	},
+
 	flex: {
 		flex: 1,
 	},
+
 	scrollViewContent: {
 		flexGrow: 1,
 		alignItems: 'center',
+	},
+
+	wordRow: {
+		display: 'flex',
+		flexDirection: 'row',
+		justifyContent: 'space-between',
 	},
 
 	section: {

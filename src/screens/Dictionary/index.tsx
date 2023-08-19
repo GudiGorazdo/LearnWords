@@ -14,7 +14,12 @@ export const Dictionary = ({ navigation }: IDictionaryScreenProps): JSX.Element 
 				title='Добавить'
 				onPress={() => navigation.navigate(
 					'WordData',
-					{ backPathRoute: 'Dictionary', wordEdit: false }
+					{
+						backPathRoute: 'Dictionary',
+						wordShow: false,
+						wordEdit: true,
+						wordNew: true,
+					}
 				)}
 			/>
 			<Button title='Редактировать' onPress={() => navigation.navigate('Edit')} />
