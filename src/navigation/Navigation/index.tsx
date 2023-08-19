@@ -9,8 +9,8 @@ import { WordData } from '../../screens/WordData';
 import { Edit } from '../../screens/Edit';
 
 import { Training } from '../../screens/Training';
-import { Test } from '../../screens/Test';
-import { Type } from '../../screens/Type';
+import { TestMode } from '../../screens/TestMode';
+import { InputMode } from '../../screens/InputMode';
 
 const Stack = createNativeStackNavigator();
 
@@ -25,8 +25,8 @@ export default function Navigation(): JSX.Element {
 				<Stack.Screen name="Edit" component={Edit} options={{ headerShown: false }} />
 
 				<Stack.Screen name="Training" component={Training} options={{ headerShown: false }} />
-				<Stack.Screen name="Test" component={Test} options={{ headerShown: false }} />
-				<Stack.Screen name="Type" component={Type} options={{ headerShown: false }} />
+				<Stack.Screen name="TestMode" component={TestMode} options={{ headerShown: false }} />
+				<Stack.Screen name="InputMode" component={InputMode} options={{ headerShown: false }} />
 			</Stack.Navigator>
 		</NavigationContainer>
 	);

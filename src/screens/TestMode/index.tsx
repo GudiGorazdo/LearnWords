@@ -17,7 +17,7 @@ import {
 	StyleSheet,
 } from 'react-native';
 
-interface ITestScreenProps {
+interface ITestModeScreenProps {
 	navigation: NavigationProp<any>;
 }
 
@@ -26,7 +26,7 @@ type TAnswer = TTranslate & {
 	selected: boolean,
 }
 
-export function Test({ navigation }: ITestScreenProps): JSX.Element {
+export function TestMode({ navigation }: ITestModeScreenProps): JSX.Element {
 	const [showModal, setShowModal] = useState(false);
 	const [activeWord, setActiveWord] = useState<TWord | null>(null);
 	const [correctAnswers, setCorrectAnswers] = useState<TAnswer[]>([]);

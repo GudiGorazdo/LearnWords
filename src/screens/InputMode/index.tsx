@@ -19,10 +19,9 @@ import {
 	KeyboardAvoidingView,
 	StyleSheet,
 	Platform,
-	TouchableOpacity,
 } from 'react-native';
 
-interface ITypeScreenProps {
+interface IInputModeScreenProps {
 	navigation: NavigationProp<any>;
 }
 
@@ -31,7 +30,7 @@ type TAnswer = {
 	value: string,
 }
 
-export function Type({ navigation }: ITypeScreenProps): JSX.Element {
+export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
 	const route = useRoute();
 
 	const emptyAnswer: TAnswer = { correct: false, value: '' };

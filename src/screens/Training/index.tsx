@@ -16,8 +16,8 @@ interface ITrainingScreenProps {
 export function Training ({ navigation }: ITrainingScreenProps): JSX.Element {
 	return (
 		<CenteredContent navigation={navigation} header={true} backPath="Home">
-			<Button title='Режим теста' onPress={() => navigation.navigate('Test')} />
-			<Button title='Режим ввода' onPress={() => navigation.navigate('Type')} />
+			<Button title='Режим теста' onPress={() => navigation.navigate('TestMode')} />
+			<Button title='Режим ввода' onPress={() => navigation.navigate('InputMode')} />
 		</CenteredContent>
 	);
 }
