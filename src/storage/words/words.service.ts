@@ -37,7 +37,7 @@ export default class SWords implements ISwords {
 
 	constructor() { }
 
-	async init() {
+	private async init() {
 		const instanceDB = await SDB.getInstance();
 		this.db = await instanceDB.getDBConnection();
 		[
@@ -75,13 +75,19 @@ export default class SWords implements ISwords {
 		});
 	}
 
-	static getRandom(id: number): Promise<TWord | null> {
+	static getRandom(): Promise<TWord | null> {
 		return new Promise(async (resolve, reject) => {
 			const instance = await SWords.getInstance();
 			instance.db.transaction((tx: Transaction) => {
 				tx.executeSql(
-					'SELECT words.*, word_translate.id as t_id, word_translate.translate, word_translate.context FROM words left join word_translate on words.id=word_translate.word_id where words.id=(?)',
-					[id],
+					`SELECT words.*, 
+						word_translate.id as t_id, word_translate.translate, word_translate.context
+						FROM words 
+						left join word_translate on words.id=word_translate.word_id 
+						ORDER BY RANDOM() 
+						LIMIT 1
+					;`,
+					[],
 					(tx: Transaction, results: ResultSet) => {
 						if (results.rows.length > 0) {
 							const wordTranslations: TTranslate[] = [];
@@ -105,6 +111,47 @@ export default class SWords implements ISwords {
 							resolve(word);
 						} else {
 							resolve(null);
+						}
+					},
+					(error: any) => {
+						console.error(error);
+						reject(error);
+					}
+				);
+			});
+		});
+	}
+
+	static getRandomAnswers(wordID: number): Promise<TTranslate[]> {
+		return new Promise(async (resolve, reject) => {
+			const instance = await SWords.getInstance();
+			instance.db.transaction((tx: Transaction) => {
+				tx.executeSql(
+					`SELECT *,
+						word_translate.id as t_id, word_translate.translate, word_translate.context
+						FROM word_translate 
+						where word_id <> (?) 
+						ORDER BY RANDOM() LIMIT 5
+					;`,
+					[wordID],
+					(tx: Transaction, results: ResultSet) => {
+						if (results.rows.length > 0) {
+							const wordTranslations: TTranslate[] = [];
+
+							for (let i = 0; i < results.rows.length; i++) {
+								const result = results.rows.item(i);
+								const translation: TTranslate = {
+									id: result.t_id,
+									value: result.translate,
+									context: JSON.parse(result.context),
+								};
+								wordTranslations.push(translation);
+							}
+
+							resolve(wordTranslations);
+						} else {
+							const wordTranslations: TTranslate[] = [];
+							resolve(wordTranslations);
 						}
 					},
 					(error: any) => {
@@ -159,15 +206,15 @@ export default class SWords implements ISwords {
 
 	static async save(word: TWord) {
 		if (word.word === '') return null;
+		const instance = await SWords.getInstance();
 		return new Promise(async (resolve, reject) => {
-			const instance = await SWords.getInstance();
 			await instance.db.transaction(async (tx: Transaction) => {
 				await tx.executeSql(
 					`SELECT id FROM words where word=(?)`,
 					[word.word],
 					async (tx: Transaction, results: ResultSet) => {
 						if (results.rows.length === 0) {
-							await SWords.insertWordAndTranslations(tx, word);
+							await instance.insertWordAndTranslations(tx, word);
 							resolve('ok');
 						} else {
 							resolve('dublicate');
@@ -182,7 +229,8 @@ export default class SWords implements ISwords {
 		});
 	}
 
-	private static async insertWordAndTranslations(tx: Transaction, word: TWord) {
+	private async insertWordAndTranslations(tx: Transaction, word: TWord) {
+		const instance = await SWords.getInstance();
 		await tx.executeSql(
 			'INSERT INTO words (word) VALUES (?)',
 			[word.word],
@@ -192,7 +240,7 @@ export default class SWords implements ISwords {
 				if (word.translate && Array.isArray(word.translate)) {
 					word.translate.forEach(async (translateData: TTranslate) => {
 						if (translateData.value > '') {
-							await SWords.insertTranslation(tx, translateData, insertedWordId);
+							await instance.insertTranslation(tx, translateData, insertedWordId);
 						}
 					});
 				}
@@ -203,7 +251,7 @@ export default class SWords implements ISwords {
 		);
 	}
 
-	private static async insertTranslation(tx: Transaction, translate: TTranslate, insertedWordId: number) {
+	private async insertTranslation(tx: Transaction, translate: TTranslate, insertedWordId: number) {
 		let { context, value } = translate;
 		context = context && context.filter(item => item !== '');
 		const contextJson: string = JSON.stringify(context);
@@ -236,7 +284,7 @@ export default class SWords implements ISwords {
 									const contextJson: string = JSON.stringify(context);
 
 									if (translateData.new && word.id) {
-										SWords.insertTranslation(tx, translateData, word.id)
+										instance.insertTranslation(tx, translateData, word.id)
 											.then(() => resolve())
 											.catch(error => reject(error));
 									} else if (translateData.removed) {
