@@ -141,15 +141,15 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 
 	const filterInputsGroups = () => {
 		const filteredInputsGroups: TTranslate[] = inputsGroups.reduce((acc: TTranslate[], item: TTranslate) => {
-			if (item.value !== '') {
-				if (item.context) {
-					item.context = item.context.filter(contextItem => contextItem !== '');
-				}
-				acc.push(item);
+			if (item.value == '') return acc;
+			if (item.context) {
+				item.context = item.context.filter(contextItem => contextItem !== '');
 			}
+			acc.push(item);
 			return acc;
 		}, []);
 		setInputsGroup(filteredInputsGroups);
+		return filteredInputsGroups;
 	}
 
 	const dbSaveWord = async (word: TWord) => {
@@ -167,13 +167,13 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 
 	const saveWord = async () => {
 		if (validationWord()) return;
-		filterInputsGroups();
+		const inputsData = filterInputsGroups();
 
 		const word: TWord = {
 			word: inputWord,
-			translate: inputsGroups,
+			translate: inputsData,
 		}
-
+		
 		setSaveWordError(false);
 		setModalMessage('Слово сохранено');
 		try {
