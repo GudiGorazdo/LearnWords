@@ -37,13 +37,13 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	};
 
 	const [start, setStart] = useState(true);
-	const [startScroll, setStartScroll] = useState(true);
 	const [showModal, setShowModal] = useState(false);
 	const [modalMessage, setModalMessage] = useState('');
 	const [saveWordError, setSaveWordError] = useState(false);
-	const [scrollBottom, setScrollBottom] = useState(false);
 	const [inputWord, setInputWord] = useState('');
 	const [inputsGroups, setInputsGroup] = useState<TTranslate[]>([inputDataGroup]);
+	const [startScroll, setStartScroll] = useState(true);
+	const [scrollBottom, setScrollBottom] = useState(false);
 	const scrollViewRef = useRef(null);
 	useEffect(() => {
 		if (scrollBottom && scrollViewRef && scrollViewRef.current) {

@@ -62,10 +62,11 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		backgroundColor: 'blue',
 	},
+
 	disabledButton: {
 		backgroundColor: 'gray',
-		opacity: 0.7,
 	},
+
 	buttonText: {
 		color: 'white',
 		fontSize: 16,

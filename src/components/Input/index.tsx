@@ -19,6 +19,7 @@ interface IInputProps {
 	focusedStyle?: any;
 	multiline?: boolean;
 	numberOfLines?: number;
+	disabled?: boolean;
 	icon?: {
 		front?: boolean,
 		type: string,
@@ -36,6 +37,7 @@ export function Input({
 	multiline,
 	numberOfLines,
 	icon,
+	disabled,
 	onChangeText,
 	onLayout,
 }: IInputProps): JSX.Element {
@@ -52,7 +54,7 @@ export function Input({
 	const inputTemplate = () => {
 		return (
 			<TextInput
-				style={{ paddingTop: 0, paddingBottom: 0, }}
+				style={[{ paddingTop: 0, paddingBottom: 0, }, style]}
 				placeholder={placeholder}
 				value={value}
 				onChangeText={onChangeText}
@@ -61,6 +63,7 @@ export function Input({
 				multiline={multiline}
 				numberOfLines={numberOfLines}
 				onLayout={onLayout}
+				editable={disabled}
 			/>
 		);
 	}

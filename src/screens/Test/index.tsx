@@ -1,12 +1,10 @@
-import React, { useState, useRef, useEffect, useMemo, MutableRefObject } from 'react';
-import { NavigationProp, useRoute, useFocusEffect } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { NavigationProp } from '@react-navigation/native';
 import { Button } from '../../components/Button';
-import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
 import { ModalWindow, TModalButton } from '../../modules/ModalWindow';
 import SWords from '../../storage/words/words.service';
 import { TTranslate, TWord } from '../../storage/words/words.types';
-import IconsStrings from '../../assets/awesomeIcons';
 
 import containerStyles from '../../styles/container';
 import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
@@ -14,12 +12,9 @@ import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
 import {
 	SafeAreaView,
 	Text,
-	View,
 	ScrollView,
-	KeyboardAvoidingView,
-	StyleSheet,
-	Platform,
 	TouchableOpacity,
+	StyleSheet,
 } from 'react-native';
 
 interface ITestScreenProps {
@@ -32,8 +27,6 @@ type TAnswer = TTranslate & {
 }
 
 export function Test({ navigation }: ITestScreenProps): JSX.Element {
-	const route = useRoute();
-
 	const [showModal, setShowModal] = useState(false);
 	const [activeWord, setActiveWord] = useState<TWord | null>(null);
 	const [correctAnswers, setCorrectAnswers] = useState<TAnswer[]>([]);
@@ -104,6 +97,7 @@ export function Test({ navigation }: ITestScreenProps): JSX.Element {
 	}
 
 	const handleAnswerClick = (index: number) => {
+		if (checked) return;
 		setActiveAnswers(prevAnswers => {
 			const updatedAnswers = [...prevAnswers];
 			updatedAnswers[index].selected = !updatedAnswers[index].selected;
@@ -135,7 +129,6 @@ export function Test({ navigation }: ITestScreenProps): JSX.Element {
 
 	const computedAnswerStyles = (answer: TAnswer) => {
 		if (checked) {
-			console.log(answer.selected && !answer.correct);
 			if (answer.correct) return styles.correctAnswer;
 			if (answer.selected && !answer.correct) return styles.inCorrectAnswer;
 		} else {
@@ -160,6 +153,7 @@ export function Test({ navigation }: ITestScreenProps): JSX.Element {
 				{activeAnswers.map((answer, index) => (
 					<TouchableOpacity
 						key={index}
+						disabled={checked}
 						onPress={() => handleAnswerClick(index)}
 						style={[
 							styles.answerContainer,
@@ -169,7 +163,8 @@ export function Test({ navigation }: ITestScreenProps): JSX.Element {
 						<Text
 							style={[
 								styles.answerText,
-								answer.selected ? styles.selectedAnswerText : null
+								answer.selected ? styles.selectedAnswerText : null,
+								answer.correct && checked ? styles.selectedAnswerText : null
 							]}>{answer.value}</Text>
 					</TouchableOpacity>
 				))}
