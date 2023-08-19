@@ -180,12 +180,12 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 			translate: inputsData,
 		}
 
-		console.log(word);
-
 		setSaveWordError(false);
 		setModalMessage('Слово сохранено');
 		try {
 			const result = await dbSaveWord(word);
+			console.log('result');
+			console.log(result);
 			if (result === 'dublicate') {
 				setModalMessage('Слово уже есть в словаре');
 			}

@@ -214,8 +214,12 @@ export default class SWords implements ISwords {
 					[word.word],
 					async (tx: Transaction, results: ResultSet) => {
 						if (results.rows.length === 0) {
-							await instance.insertWordAndTranslations(tx, word);
-							resolve('ok');
+							try {
+								await instance.insertWordAndTranslations(word);
+								resolve('ok');
+							} catch (error: any) {
+								resolve('error');
+							}
 						} else {
 							resolve('dublicate');
 						}
@@ -229,26 +233,30 @@ export default class SWords implements ISwords {
 		});
 	}
 
-	private async insertWordAndTranslations(tx: Transaction, word: TWord) {
+	private async insertWordAndTranslations(word: TWord) {
 		const instance = await SWords.getInstance();
-		await tx.executeSql(
-			'INSERT INTO words (word) VALUES (?)',
-			[word.word],
-			(tx: Transaction, results: ResultSet) => {
-				const insertedWordId: number = results.insertId;
+		return new Promise(async (resolve, reject) => {
+			await instance.db.transaction(async (tx: Transaction) => {
+				await tx.executeSql(
+					'INSERT INTO words (word) VALUES (?)',
+					[word.word],
+					(tx: Transaction, results: ResultSet) => {
+						const insertedWordId: number = results.insertId;
 
-				if (word.translate && Array.isArray(word.translate)) {
-					word.translate.forEach(async (translateData: TTranslate) => {
-						if (translateData.value > '') {
-							await instance.insertTranslation(tx, translateData, insertedWordId);
+						if (word.translate && Array.isArray(word.translate)) {
+							word.translate.forEach(async (translateData: TTranslate) => {
+								if (translateData.value > '') {
+									await instance.insertTranslation(tx, translateData, insertedWordId);
+								}
+							});
 						}
-					});
-				}
-			},
-			(error: any) => {
-				console.error(error);
-			}
-		);
+					},
+					(error: any) => {
+						console.error(error);
+					}
+				);
+			});
+		});
 	}
 
 	private async insertTranslation(tx: Transaction, translate: TTranslate, insertedWordId: number) {
