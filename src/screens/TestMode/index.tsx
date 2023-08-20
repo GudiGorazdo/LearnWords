@@ -42,6 +42,8 @@ export function TestMode({ navigation }: ITestModeScreenProps): JSX.Element {
 
 	useEffect(() => {
 		if (activeWord) {
+			console.log(activeWord);
+			console.log((activeWord.translate[0].context));
 			getCorrectAnswer();
 			fetchRandomAnswers();
 		}

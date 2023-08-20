@@ -18,12 +18,12 @@ import {
 	TouchableOpacity,
 } from 'react-native';
 
-interface IHomeScreenProps {
+interface IWordListScreenProps {
 	navigation: NavigationProp<any>,
 }
 
 
-export function Edit({ navigation }: IHomeScreenProps): JSX.Element {
+export function WordList({ navigation }: IWordListScreenProps): JSX.Element {
 	const startArr: TWord[] = [];
 	const [wordToRemove, setWordToRemove] = useState<TWord | null>(null);
 	const [words, setWords] = useState(startArr);
@@ -59,7 +59,7 @@ export function Edit({ navigation }: IHomeScreenProps): JSX.Element {
 					<View key={word.id} style={styles.rowContainer} >
 						<TouchableOpacity
 							style={styles.wordContainer}
-							onPress={() => navigation.navigate('WordData', { backPathRoute: 'Edit', wordShow: true, wordID: word.id })}
+							onPress={() => navigation.navigate('WordData', { backPathRoute: 'WordList', wordShow: true, wordID: word.id })}
 						>
 							<Text>{word.word}</Text>
 						</TouchableOpacity>

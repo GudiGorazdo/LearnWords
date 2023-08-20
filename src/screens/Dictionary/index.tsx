@@ -22,7 +22,7 @@ export const Dictionary = ({ navigation }: IDictionaryScreenProps): JSX.Element 
 					}
 				)}
 			/>
-			<Button title='Редактировать' onPress={() => navigation.navigate('Edit')} />
+			<Button title='Все слова' onPress={() => navigation.navigate('WordList')} />
 		</CenteredContent>
 	);
 };

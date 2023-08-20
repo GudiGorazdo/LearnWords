@@ -4,7 +4,8 @@ import SDB from '../db/db.service';
 
 import { TWord, TTranslate } from './words.types';
 
-type structureTable = {
+
+type TStructureTable = {
 	[key: string]: string | string[],
 	tableName: string,
 	structure: string[],
@@ -14,36 +15,35 @@ export default class SWords implements ISwords {
 	private static instance: ISwords;
 	private db: SQLiteDatabase | null = null;
 
-	private structureWordsTable = {
-		tableName: 'words',
-		structure: [
-			'id INTEGER PRIMARY KEY AUTOINCREMENT',
-			'word TEXT',
-			'correct INTEGER DEFAULT 0',
-			'incorrect INTEGER DEFAULT 0',
-		],
-	}
-
-	private structureTranslateTable = {
-		tableName: 'word_translate',
-		structure: [
-			'id INTEGER PRIMARY KEY AUTOINCREMENT',
-			'word_id  INTEGER',
-			'translate TEXT',
-			'context TEXT',
-			'FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE'
-		]
-	};
+	private tables: TStructureTable[] = [
+		{
+			tableName: 'words',
+			structure: [
+				'id INTEGER PRIMARY KEY AUTOINCREMENT',
+				'word TEXT',
+				'correct INTEGER DEFAULT 0',
+				'incorrect INTEGER DEFAULT 0',
+			],
+		},
+		{
+			tableName: 'word_translate',
+			structure: [
+				'id INTEGER PRIMARY KEY AUTOINCREMENT',
+				'word_id  INTEGER',
+				'translate TEXT',
+				'context TEXT',
+				'FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE'
+			]
+		}
+	]
 
 	constructor() { }
 
 	private async init() {
 		const instanceDB = await SDB.getInstance();
 		this.db = await instanceDB.getDBConnection();
-		[
-			this.structureWordsTable,
-			this.structureTranslateTable,
-		].forEach(async table => {
+		// await this.reset();
+		this.tables.forEach(async table => {
 			await this.checkTable(table);
 		});
 	}
@@ -375,7 +375,7 @@ export default class SWords implements ISwords {
 		});
 	}
 
-	async dropTable(table: structureTable) {
+	private async dropTable(table: TStructureTable) {
 		try {
 			const dropTableQuery = `DROP TABLE IF EXISTS ${table.tableName};`;
 			await this.db.executeSql(dropTableQuery);
@@ -385,7 +385,7 @@ export default class SWords implements ISwords {
 		}
 	}
 
-	async checkTable(table: structureTable) {
+	private async checkTable(table: TStructureTable) {
 		const query = `CREATE TABLE IF NOT EXISTS ${table.tableName} (${table.structure.join(', ')});`
 		try {
 			await this.db.executeSql(query);
@@ -395,12 +395,41 @@ export default class SWords implements ISwords {
 		}
 	}
 
+	private async reset() {
+		for (const table of this.tables) {
+			await this.dropTable(table);
+			await this.checkTable(table);
+		}
+
+		try {
+			const data: TWord[] = await this.getFromJSON();
+			for (const word of data) {
+				await SWords.save(word);
+			}
+		} catch (error: any) {
+			console.log('error');
+			console.log(error);
+		}
+	}
+
+	private getFromJSON(): Promise<TWord[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const data: TWord[] = await require('../../assets/startDB/basic.json');
+				resolve(data)
+			} catch (error: any) {
+				reject([])
+			}
+		});
+	}
+
 	static async getInstance() {
 		if (SWords.instance) return SWords.instance;
 		SWords.instance = new SWords();
 		await SWords.instance.init();
 		return SWords.instance;
 	}
+
 }
 
 

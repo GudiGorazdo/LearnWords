@@ -184,8 +184,6 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 		setModalMessage('Слово сохранено');
 		try {
 			const result = await dbSaveWord(word);
-			console.log('result');
-			console.log(result);
 			if (result === 'dublicate') {
 				setModalMessage('Слово уже есть в словаре');
 			}
@@ -213,7 +211,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 				setShowModal(!showModal);
 				setStart(true);
 				if (!saveWordError) {
-					if (wordShow) navigation.navigate('Edit');
+					if (wordShow) navigation.navigate('WordList');
 					else navigation.navigate('Dictionary');
 				}
 			},
@@ -233,7 +231,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 				onPress: () => {
 					setShowModal(!showModal);
 					setStart(true);
-					navigation.navigate('Edit');
+					navigation.navigate('WordList');
 				}
 			});
 		}
