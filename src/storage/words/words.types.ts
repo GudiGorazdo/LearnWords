@@ -1,3 +1,10 @@
+export type TGroup = {
+	name: string,
+	id?: number,
+	description?: string,
+	count?: number,
+}
+
 export type TTranslate = {
 	[key: string]: number | string | string[] | undefined | boolean;
 	value: string;
@@ -9,9 +16,10 @@ export type TTranslate = {
 
 export type TWord = {
 	[key: string]: number | string | undefined | TTranslate[];
-	id?: number,
 	word: string,
 	translate: TTranslate[],
+	id?: number,
+	groups?: number[],
 };
 
 

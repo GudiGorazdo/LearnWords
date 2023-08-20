@@ -7,6 +7,7 @@ import { Home } from '../../screens/Home';
 import { Dictionary } from '../../screens/Dictionary';
 import { WordData } from '../../screens/WordData';
 import { WordList } from '../../screens/WordList';
+import { WordsGroups } from '../../screens/WordsGroups';
 
 import { Training } from '../../screens/Training';
 import { TestMode } from '../../screens/TestMode';
@@ -23,6 +24,7 @@ export default function Navigation(): JSX.Element {
 				<Stack.Screen name="Dictionary" component={Dictionary} options={{ headerShown: false }} />
 				<Stack.Screen name="WordData" component={WordData} options={{ headerShown: false }} />
 				<Stack.Screen name="WordList" component={WordList} options={{ headerShown: false }} />
+				<Stack.Screen name="WordsGroups" component={WordsGroups} options={{ headerShown: false }} />
 
 				<Stack.Screen name="Training" component={Training} options={{ headerShown: false }} />
 				<Stack.Screen name="TestMode" component={TestMode} options={{ headerShown: false }} />

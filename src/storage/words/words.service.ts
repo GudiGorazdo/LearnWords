@@ -2,14 +2,16 @@ import { SQLiteDatabase, ResultSet, Transaction } from 'react-native-sqlite-stor
 import ISwords from './words.service';
 import SDB from '../db/db.service';
 
-import { TWord, TTranslate } from './words.types';
+import { TWord, TTranslate, TGroup } from './words.types';
 
 
 type TStructureTable = {
 	[key: string]: string | string[],
-	tableName: string,
+	name: string,
 	structure: string[],
 };
+
+type TStartDB = { data: TWord[], groups: number[] };
 
 export default class SWords implements ISwords {
 	private static instance: ISwords;
@@ -17,7 +19,7 @@ export default class SWords implements ISwords {
 
 	private tables: TStructureTable[] = [
 		{
-			tableName: 'words',
+			name: 'words',
 			structure: [
 				'id INTEGER PRIMARY KEY AUTOINCREMENT',
 				'word TEXT',
@@ -26,15 +28,35 @@ export default class SWords implements ISwords {
 			],
 		},
 		{
-			tableName: 'word_translate',
+			name: 'word_translate',
 			structure: [
 				'id INTEGER PRIMARY KEY AUTOINCREMENT',
 				'word_id  INTEGER',
 				'translate TEXT',
 				'context TEXT',
-				'FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE'
+				'FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE',
 			]
-		}
+		},
+		{
+			name: 'groups',
+			structure: [
+				'id INTEGER PRIMARY KEY AUTOINCREMENT',
+				'name TEXT',
+				'description TEXT NULL',
+			]
+		},
+		{
+			name: 'word_group',
+			structure: [
+				'word_id INTEGER',
+				'group_id  INTEGER',
+				'translate TEXT',
+				'context TEXT',
+				'FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE',
+				'FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE',
+				'PRIMARY KEY (group_id, word_id)',
+			]
+		},
 	]
 
 	constructor() { }
@@ -76,7 +98,7 @@ export default class SWords implements ISwords {
 	}
 
 	static getRandom(): Promise<TWord | null> {
-		return new Promise(async (resolve, reject) => {
+		return new Promise<TWord | null>(async (resolve, reject) => {
 			const instance = await SWords.getInstance();
 			instance.db.transaction((tx: Transaction) => {
 				tx.executeSql(
@@ -123,7 +145,7 @@ export default class SWords implements ISwords {
 	}
 
 	static getRandomAnswers(wordID: number): Promise<TTranslate[]> {
-		return new Promise(async (resolve, reject) => {
+		return new Promise<TTranslate[]>(async (resolve, reject) => {
 			const instance = await SWords.getInstance();
 			instance.db.transaction((tx: Transaction) => {
 				tx.executeSql(
@@ -164,11 +186,18 @@ export default class SWords implements ISwords {
 	}
 
 	static getByID(id: number): Promise<TWord | null> {
-		return new Promise(async (resolve, reject) => {
+		return new Promise<TWord | null>(async (resolve, reject) => {
 			const instance = await SWords.getInstance();
 			instance.db.transaction((tx: Transaction) => {
 				tx.executeSql(
-					'SELECT words.*, word_translate.id as t_id, word_translate.translate, word_translate.context FROM words left join word_translate on words.id=word_translate.word_id where words.id=(?)',
+					`SELECT 
+						words.*, 
+						word_translate.id as t_id, 
+						word_translate.translate, 
+						word_translate.context 
+						FROM words left join word_translate on words.id=word_translate.word_id 
+						where words.id=(?)
+					`,
 					[id],
 					(tx: Transaction, results: ResultSet) => {
 						if (results.rows.length > 0) {
@@ -204,10 +233,9 @@ export default class SWords implements ISwords {
 		});
 	}
 
-	static async save(word: TWord) {
-		if (word.word === '') return null;
+	static async save(word: TWord): Promise<string> {
 		const instance = await SWords.getInstance();
-		return new Promise(async (resolve, reject) => {
+		return new Promise<string>(async (resolve, reject) => {
 			await instance.db.transaction(async (tx: Transaction) => {
 				await tx.executeSql(
 					`SELECT id FROM words where word=(?)`,
@@ -233,27 +261,35 @@ export default class SWords implements ISwords {
 		});
 	}
 
-	private async insertWordAndTranslations(word: TWord) {
+	private async insertWordAndTranslations(word: TWord): Promise<boolean> {
 		const instance = await SWords.getInstance();
-		return new Promise(async (resolve, reject) => {
+		return new Promise<boolean>(async (resolve, reject) => {
 			await instance.db.transaction(async (tx: Transaction) => {
 				await tx.executeSql(
 					'INSERT INTO words (word) VALUES (?)',
 					[word.word],
-					(tx: Transaction, results: ResultSet) => {
-						const insertedWordId: number = results.insertId;
+					async (tx: Transaction, results: ResultSet) => {
+						try {
+							const insertedWordID: number = results.insertId;
 
-						if (word.translate && Array.isArray(word.translate)) {
-							word.translate.forEach(async (translateData: TTranslate) => {
-								if (translateData.value > '') {
-									try {
-										await instance.insertTranslation(tx, translateData, insertedWordId);
-										resolve(true);
-									} catch (error: any) {
-										reject(false);
+							if (word.groups) {
+								word.groups.forEach(async (group: number) => {
+									await instance.insertGroup(tx, group, insertedWordID);
+								});
+							}
+
+							if (word.translate && Array.isArray(word.translate)) {
+								word.translate.forEach(async (translateData: TTranslate) => {
+									if (translateData.value > '') {
+										await instance.insertTranslation(tx, translateData, insertedWordID);
 									}
-								}
-							});
+								});
+							}
+
+							resolve(true);
+						} catch (error: any) {
+							console.log(error);
+							reject(false);
 						}
 					},
 					(error: any) => {
@@ -375,21 +411,106 @@ export default class SWords implements ISwords {
 		});
 	}
 
+	static async getGroups(): Promise<TGroup[]> {
+		const instance = await SWords.getInstance();
+		return new Promise<TGroup[]>(async (resolve, reject) => {
+			await instance.db.transaction(async (tx: Transaction) => {
+				tx.executeSql(
+					` 
+						SELECT groups.*, COUNT(words.id) AS count
+						FROM groups
+						LEFT JOIN word_group ON groups.id = word_group.group_id
+						LEFT JOIN words ON word_group.word_id = words.id
+						GROUP BY groups.id
+					;`,
+					[],
+					(tx: Transaction, results: ResultSet) => {
+						const groups: TGroup[] = [];
+						for (let i = 0; i < results.rows.length; i++) {
+							const result = results.rows.item(i) as TGroup;
+							const group: TGroup = {
+								id: result.id,
+								description: result.description ?? undefined,
+								name: result.name,
+								count: result.count,
+							}
+							groups.push(group);
+						}
+						resolve(groups);
+					},
+					(error: any) => {
+						reject([]);
+						console.error(error);
+					}
+				);
+			});
+		});
+	}
+
+	static async createGroup(name: string, description?: string): Promise<string | number> {
+		const instance = await SWords.getInstance();
+		return new Promise<string | number>(async (resolve, reject) => {
+			await instance.db.transaction(async (tx: Transaction) => {
+				const selectQuery = 'SELECT COUNT(*) AS count FROM groups WHERE name = ?';
+				tx.executeSql(
+					selectQuery,
+					[name],
+					(tx: Transaction, results: ResultSet) => {
+						const count = results.rows.item(0).count;
+						if (count > 0) {
+							resolve('duplicate');
+						} else {
+							const insertQuery = 'INSERT INTO groups (name, description) VALUES (?, ?)';
+							tx.executeSql(
+								insertQuery,
+								[name, description ?? null],
+								(tx: Transaction, results: ResultSet) => {
+									resolve(results.insertId);
+								},
+								(error: any) => {
+									reject(error);
+									console.error(error);
+								}
+							);
+						}
+					},
+					(error: any) => {
+						reject(error);
+						console.error(error);
+					}
+				);
+			});
+		});
+	}
+
+	private async insertGroup(tx: Transaction, groupID: number, wordID: number) {
+		await tx.executeSql(
+			'INSERT INTO word_group (group_id, word_id) VALUES (?, ?)',
+			[groupID, wordID],
+			(tx: Transaction, results: ResultSet) => {
+				console.log(`word ${wordID} added to ${groupID} group`);
+			},
+			(error: any) => {
+				console.error(error);
+			}
+		);
+	}
+
 	private async dropTable(table: TStructureTable) {
 		try {
-			const dropTableQuery = `DROP TABLE IF EXISTS ${table.tableName};`;
+			const dropTableQuery = `DROP TABLE IF EXISTS ${table.name};`;
 			await this.db.executeSql(dropTableQuery);
-			console.log(`Таблица "${table.tableName}" успешно удалена`);
+			console.log(`Таблица "${table.name}" успешно удалена`);
 		} catch (error) {
 			console.log('DROP ERR: ', error); ''
 		}
 	}
 
 	private async checkTable(table: TStructureTable) {
-		const query = `CREATE TABLE IF NOT EXISTS ${table.tableName} (${table.structure.join(', ')});`
+		const query = `CREATE TABLE IF NOT EXISTS ${table.name} (${table.structure.join(', ')});`
 		try {
 			await this.db.executeSql(query);
-			console.log('words table is ok.');
+			console.log(table.name, ' table is ok.');
 		} catch (error) {
 			console.log('Ошибка при создании таблицы:', error);
 		}
@@ -402,8 +523,9 @@ export default class SWords implements ISwords {
 		}
 
 		try {
-			const data: TWord[] = await this.getFromJSON();
-			for (const word of data) {
+			const result: TStartDB = await this.getFromJSON();
+			for (const word of result.data) {
+				word.groups = result.groups;
 				await SWords.save(word);
 			}
 		} catch (error: any) {
@@ -412,13 +534,17 @@ export default class SWords implements ISwords {
 		}
 	}
 
-	private getFromJSON(): Promise<TWord[]> {
-		return new Promise(async (resolve, reject) => {
+	private getFromJSON(): Promise<TStartDB> {
+		return new Promise<TStartDB>(async (resolve, reject) => {
 			try {
 				const data: TWord[] = await require('../../assets/startDB/basic.json');
-				resolve(data)
+				const groupIDResult = await SWords.createGroup('Первая группа');
+				let groupID: number = 0;
+				if (typeof groupIDResult === 'number') groupID = groupIDResult;
+				const result: TStartDB = { data: data, groups: [groupID] };
+				resolve(result)
 			} catch (error: any) {
-				reject([])
+				reject({})
 			}
 		});
 	}

@@ -22,6 +22,7 @@ export const Dictionary = ({ navigation }: IDictionaryScreenProps): JSX.Element 
 					}
 				)}
 			/>
+			<Button title='Группы слов' onPress={() => navigation.navigate('WordsGroups')} />
 			<Button title='Все слова' onPress={() => navigation.navigate('WordList')} />
 		</CenteredContent>
 	);
