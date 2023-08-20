@@ -26,18 +26,28 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 	const [groups, setGroups] = useState<TGroup[]>([]);
 
 	useFocusEffect(() => {
-		getGroups();	
+		getGroups();
 	});
 
 	const getGroups = async () => {
 		const groupsArr: TGroup[] = await SWords.getGroups();
-		console.log(groupsArr);
+		setGroups(groupsArr);
 	}
 
 	return (
 		<SafeAreaView style={styles.container}>
 			<Header backPath={() => navigation.navigate('Dictionary')} />
 			<ScrollView contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
+				{groups.map((group, index) => (
+					<TouchableOpacity 
+						key={`group-${group.id}`}
+						style={[styles.rowContainer]}
+						onPress={() => console.log('press ', group.id)}
+					>
+						<Text>{group.name}</Text>
+						<Text>{group.count}</Text>
+					</TouchableOpacity>
+				))}
 			</ScrollView>
 		</SafeAreaView>
 	);
