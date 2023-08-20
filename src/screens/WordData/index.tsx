@@ -211,8 +211,8 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 				setShowModal(!showModal);
 				setStart(true);
 				if (!saveWordError) {
-					if (wordShow) navigation.navigate('WordList');
-					else navigation.navigate('Dictionary');
+					if (wordShow) navigation.navigate('WordsList');
+					else navigation.navigate('Home');
 				}
 			},
 		}];
@@ -410,14 +410,6 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		marginLeft: 10,
 	},
-
-	// addTranslateButton: {
-	// 	position: 'absolute',
-	// 	right: 0,
-	// 	bottom: 0,
-	// 	width: '100%',
-	// 	borderRadius: 0,
-	// },
 });
 
 

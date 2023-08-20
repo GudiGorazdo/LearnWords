@@ -70,12 +70,86 @@ export default class SWords implements ISwords {
 		});
 	}
 
-	static async getAll(): Promise<TWord[]> {
+	static async getDictionaryCount(): Promise<number> {
+		const instance = await SWords.getInstance();
+		return new Promise(async (resolve, reject) => {
+			try {
+				instance.db.transaction((tx: Transaction) => {
+					tx.executeSql(`SELECT COUNT(id) as count FROM words`,
+						[],
+						(tx: Transaction, results: ResultSet) => {
+							const result = results.rows.item(0);
+							if (result) resolve(result.count);
+							else reject(0)
+						},
+						(error: any) => {
+							console.error(error);
+						}
+					);
+				});
+			} catch (error: any) {
+				console.log(error);
+			}
+		});
+	}
+
+	static async getWithoutGroupsCount(): Promise<number> {
+		const instance = await SWords.getInstance();
+		return new Promise(async (resolve, reject) => {
+			try {
+				instance.db.transaction((tx: Transaction) => {
+					tx.executeSql(`
+							SELECT COUNT(words.id) as count
+							FROM words
+							LEFT JOIN word_group ON word_group.word_id = words.id
+							WHERE word_group.word_id IS NULL
+						`,
+						[],
+						(tx: Transaction, results: ResultSet) => {
+							const result = results.rows.item(0);
+							console.log(result);
+							if (result) resolve(result.count);
+							else reject(0)
+						},
+						(error: any) => {
+							console.error(error);
+						}
+					);
+				});
+			} catch (error: any) {
+				console.log(error);
+			}
+		});
+	}
+
+	static async getWordsList(groups?: number | number[] | 'null'): Promise<TWord[]> {
 		return new Promise<TWord[]>(async (resolve, reject) => {
 			const instance = await SWords.getInstance();
 			instance.db.transaction((tx: Transaction) => {
+				let sqlQuery = `
+					SELECT 
+						words.*,
+						groups.id as group_id,
+						groups.name as group_name,
+						groups.description as group_description
+					FROM words
+					LEFT JOIN word_group ON word_group.word_id = words.id
+					LEFT JOIN groups ON groups.id = word_group.group_id
+				`;
+				if (groups) {
+					if (Array.isArray(groups)) {
+						groups = groups.join(' ,');
+						sqlQuery += ` WHERE groups.id IN (${groups})`;
+					}
+					if (typeof groups === "number") {
+						sqlQuery += ` WHERE groups.id = ${groups}`;
+					}
+					if (groups === 'null') {
+						sqlQuery += ` WHERE word_group.word_id IS NULL`;
+					}
+				}
 				tx.executeSql(
-					'SELECT * FROM words',
+					sqlQuery,
 					[],
 					(tx: Transaction, results: ResultSet) => {
 						const len = results.rows.length;
@@ -101,9 +175,11 @@ export default class SWords implements ISwords {
 		return new Promise<TWord | null>(async (resolve, reject) => {
 			const instance = await SWords.getInstance();
 			instance.db.transaction((tx: Transaction) => {
-				tx.executeSql(
-					`SELECT words.*, 
-						word_translate.id as t_id, word_translate.translate, word_translate.context
+				tx.executeSql(`
+						SELECT words.*, 
+							word_translate.id as t_id, 
+							word_translate.translate, 
+							word_translate.context
 						FROM words 
 						left join word_translate on words.id=word_translate.word_id 
 						ORDER BY RANDOM() 
@@ -148,11 +224,10 @@ export default class SWords implements ISwords {
 		return new Promise<TTranslate[]>(async (resolve, reject) => {
 			const instance = await SWords.getInstance();
 			instance.db.transaction((tx: Transaction) => {
-				tx.executeSql(
-					`SELECT *,
-						word_translate.id as t_id, word_translate.translate, word_translate.context
+				tx.executeSql(`
+						SELECT *
 						FROM word_translate 
-						where word_id <> (?) 
+						WHERE word_id <> (?) 
 						ORDER BY RANDOM() LIMIT 5
 					;`,
 					[wordID],
@@ -163,7 +238,7 @@ export default class SWords implements ISwords {
 							for (let i = 0; i < results.rows.length; i++) {
 								const result = results.rows.item(i);
 								const translation: TTranslate = {
-									id: result.t_id,
+									id: result.id,
 									value: result.translate,
 									context: JSON.parse(result.context),
 								};
@@ -189,12 +264,12 @@ export default class SWords implements ISwords {
 		return new Promise<TWord | null>(async (resolve, reject) => {
 			const instance = await SWords.getInstance();
 			instance.db.transaction((tx: Transaction) => {
-				tx.executeSql(
-					`SELECT 
-						words.*, 
-						word_translate.id as t_id, 
-						word_translate.translate, 
-						word_translate.context 
+				tx.executeSql(`
+						SELECT 
+							words.*, 
+							word_translate.id as t_id, 
+							word_translate.translate, 
+							word_translate.context 
 						FROM words left join word_translate on words.id=word_translate.word_id 
 						where words.id=(?)
 					`,
@@ -415,9 +490,10 @@ export default class SWords implements ISwords {
 		const instance = await SWords.getInstance();
 		return new Promise<TGroup[]>(async (resolve, reject) => {
 			await instance.db.transaction(async (tx: Transaction) => {
-				tx.executeSql(
-					` 
-						SELECT groups.*, COUNT(words.id) AS count
+				tx.executeSql(` 
+						SELECT 
+							groups.*, 
+							COUNT(words.id) AS count
 						FROM groups
 						LEFT JOIN word_group ON groups.id = word_group.group_id
 						LEFT JOIN words ON word_group.word_id = words.id

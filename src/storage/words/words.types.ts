@@ -15,11 +15,11 @@ export type TTranslate = {
 };
 
 export type TWord = {
-	[key: string]: number | string | undefined | TTranslate[];
+	[key: string]: any;
 	word: string,
 	translate: TTranslate[],
 	id?: number,
-	groups?: number[],
+	groups?: number[] | TGroup[],
 };
 
 

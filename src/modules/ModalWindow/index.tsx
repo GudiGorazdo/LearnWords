@@ -32,7 +32,8 @@ export function ModalWindow({
 			animationType="fade"
 			transparent={true}
 			visible={show}
-			onRequestClose={() => onClose()}>
+			onRequestClose={() => onClose()}
+		>
 			<View style={styles.modalOverlay} />
 			<View style={styles.centeredView}>
 				<View style={styles.modalView}>
@@ -41,7 +42,7 @@ export function ModalWindow({
 						<Button
 							key={index}
 							style={[
-								(buttons.length - 1 != index) ? styles.modalButtonMB : {}, 
+								(buttons.length - 1 != index) ? styles.modalButtonMB : {},
 								button.style
 							]}
 							title={button.title}

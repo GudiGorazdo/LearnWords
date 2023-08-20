@@ -6,6 +6,7 @@ export default {
 	cancel: 'remove',
 	edit: 'edit',
 	save: 'save',
+	plus: 'plus',
 }
 
 

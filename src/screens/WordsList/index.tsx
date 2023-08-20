@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useFocusEffect, NavigationProp } from '@react-navigation/native';
+import { useFocusEffect, NavigationProp, useRoute } from '@react-navigation/native';
 import { Header } from '../../modules/Header';
 import { ModalWindow, TModalButton } from '../../modules/ModalWindow';
 import SWords from '../../storage/words/words.service';
@@ -18,27 +18,32 @@ import {
 	TouchableOpacity,
 } from 'react-native';
 
-interface IWordListScreenProps {
+interface IWordsListScreenProps {
 	navigation: NavigationProp<any>,
 }
 
 
-export function WordList({ navigation }: IWordListScreenProps): JSX.Element {
+export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
+	const route = useRoute();
+	const backPathRoute = route.params?.backPathRoute || 'Home';
+	const [groupID, setGroupID] = useState(route.params?.groupID ?? null);
+
 	const startArr: TWord[] = [];
-	const [wordToRemove, setWordToRemove] = useState<TWord | null>(null);
 	const [words, setWords] = useState(startArr);
+
+	const [wordToRemove, setWordToRemove] = useState<TWord | null>(null);
 	const [showModal, setShowModal] = useState(false);
 
-	useFocusEffect(() => {
+	useEffect(() => {
 		fetchWords();
-	});
+	}, []);
 
 	const fetchWords = async () => {
 		try {
-			let words = await SWords.getAll();
+			let words = await SWords.getWordsList(groupID ?? undefined);
 			words = words.sort((a, b) => a.word.localeCompare(b.word));
 			setWords(words);
-		} catch(error) {
+		} catch (error) {
 			console.log(error);
 		}
 	}
@@ -53,13 +58,20 @@ export function WordList({ navigation }: IWordListScreenProps): JSX.Element {
 
 	return (
 		<SafeAreaView style={styles.container}>
-			<Header backPath={() => navigation.navigate('Dictionary')} />
+			<Header backPath={() => navigation.navigate(backPathRoute)} />
 			<ScrollView contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
 				{words.map((word: TWord) => (
 					<View key={word.id} style={styles.rowContainer} >
 						<TouchableOpacity
 							style={styles.wordContainer}
-							onPress={() => navigation.navigate('WordData', { backPathRoute: 'WordList', wordShow: true, wordID: word.id })}
+							onPress={() => navigation.navigate(
+								'WordData',
+								{
+									backPathRoute: 'WordsList',
+									wordShow: true,
+									wordID: word.id
+								}
+							)}
 						>
 							<Text>{word.word}</Text>
 						</TouchableOpacity>
