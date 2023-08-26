@@ -7,12 +7,14 @@ import containerStyles from '../../styles/container';
 import {
 	SafeAreaView,
 	View,
-	StyleSheet,
 	TouchableOpacity,
+	StyleSheet,
+	StyleProp,
+	ViewStyle,
 } from 'react-native';
 
 interface IHeaderScreenProps {
-	style?: object;
+	style?: StyleProp<ViewStyle>;
 	onLayout?: () => void;
 	backPath?: () => void;
 	accept?: () => void;

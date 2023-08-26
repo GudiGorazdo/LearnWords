@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavigationProp } from '@react-navigation/native';
 import { Button } from '../../components/Button';
 import { Header } from '../../modules/Header';
-import { ModalWindow, TModalButton } from '../../modules/ModalWindow';
+import { Alert, TAlertButton } from '../../modules/Alert';
 import SWords from '../../storage/words/words.service';
 import { TTranslate, TWord } from '../../storage/words/words.types';
 
@@ -110,8 +110,8 @@ export function TestMode({ navigation }: ITestModeScreenProps): JSX.Element {
 		});
 	}
 
-	const getModalButtons = (): TModalButton[] => {
-		const buttons: TModalButton[] = [
+	const getModalButtons = (): TAlertButton[] => {
+		const buttons: TAlertButton[] = [
 			{
 				title: 'Прервать',
 				onPress: () => {
@@ -182,7 +182,7 @@ export function TestMode({ navigation }: ITestModeScreenProps): JSX.Element {
 					} else setChecked(true);
 				}}
 			/>
-			<ModalWindow
+			<Alert
 				show={showModal}
 				message="Прервать тренировку?"
 				onClose={() => setShowModal(!showModal)}

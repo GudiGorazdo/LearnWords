@@ -1,15 +1,17 @@
 import React from 'react';
+import { ModalWithOverlay } from '../ModalWithOverlay';
 import { Button } from '../../components/Button';
 
 import {
 	View,
-	StyleSheet,
-	Modal,
 	Text,
+	StyleSheet,
+	StyleProp,
+	ViewStyle,
 } from 'react-native';
 
-export type TModalButton = {
-	style?: object,
+export type TAlertButton = {
+	style?: StyleProp<ViewStyle>,
 	title: string,
 	onPress: () => void,
 }
@@ -17,28 +19,26 @@ export type TModalButton = {
 interface IModalWindowProps {
 	message: string,
 	show: boolean,
-	buttons: TModalButton[],
+	buttons: TAlertButton[],
 	onClose: () => void,
 }
 
-export function ModalWindow({
+export function Alert({
 	message,
 	show,
 	buttons,
 	onClose,
 }: IModalWindowProps): JSX.Element {
 	return (
-		<Modal
-			animationType="fade"
-			transparent={true}
-			visible={show}
-			onRequestClose={() => onClose()}
+		<ModalWithOverlay
+			animation="fade"
+			show={show}
+			onClose={() => onClose()}
 		>
-			<View style={styles.modalOverlay} />
 			<View style={styles.centeredView}>
 				<View style={styles.modalView}>
 					<Text style={styles.modalText}>{message}</Text>
-					{buttons.map((button: TModalButton, index: number) => (
+					{buttons.map((button: TAlertButton, index: number) => (
 						<Button
 							key={index}
 							style={[
@@ -50,7 +50,7 @@ export function ModalWindow({
 						/>))}
 				</View>
 			</View>
-		</Modal>
+		</ModalWithOverlay>
 	);
 }
 

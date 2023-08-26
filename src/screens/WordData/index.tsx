@@ -3,7 +3,7 @@ import { NavigationProp, useRoute, useFocusEffect } from '@react-navigation/nati
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
-import { ModalWindow, TModalButton } from '../../modules/ModalWindow';
+import { Alert, TAlertButton } from '../../modules/Alert';
 import SWords from '../../storage/words/words.service';
 import { TTranslate, TWord } from '../../storage/words/words.types';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -204,8 +204,8 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 		setInputWord('');
 	}
 
-	const getModalButtons = (): TModalButton[] => {
-		const buttons: TModalButton[] = [{
+	const getModalButtons = (): TAlertButton[] => {
+		const buttons: TAlertButton[] = [{
 			title: 'Закрыть',
 			onPress: () => {
 				setShowModal(!showModal);
@@ -356,7 +356,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 					/>
 				}
 			</KeyboardAvoidingView>
-			<ModalWindow
+			<Alert
 				show={showModal}
 				message={modalMessage}
 				onClose={() => setShowModal(!showModal)}

@@ -11,6 +11,14 @@ import IconsStrings from '../../assets/awesomeIcons';
 
 import containerStyles from '../../styles/container';
 
+import Animated, {
+	Easing,
+	useSharedValue,
+	useAnimatedStyle,
+	withSpring,
+	withTiming,
+} from 'react-native-reanimated';
+
 import {
 	SafeAreaView,
 	View,
@@ -18,8 +26,7 @@ import {
 	ScrollView,
 	Text,
 	TouchableOpacity,
-	Animated,
-	Easing,
+	// Animated,
 } from 'react-native';
 
 interface IWordsGroupsScreenProps {
@@ -35,15 +42,22 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 	const [isShowModal, setShowModal] = useState<boolean>(false);
 	const [isShowForm, setShowForm] = useState<boolean>(false);
 	const [start, setStart] = useState<boolean>(true);
+	const [shouldAnimate, setShouldAnimate] = useState<boolean>(false);
 
-	const [animationForm] = useState(new Animated.Value(0));
+	// const [animationForm] = useState(new Animated.Value(0));
 	const [animatedFormViewHeight, setAnimatedFormViewHeight] = useState(0);
 	const animatedFormViewRef = useRef(null);
+	const animationFormValue = useSharedValue(0);
 
 
 	useEffect(() => {
 		getData();
 	}, []);
+	
+	useEffect(() => {
+		console.log('yes');
+		formAnimation();
+	}, [isShowModal]);
 
 	const getData = async () => {
 		await getGroups();
@@ -67,26 +81,24 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 	}
 
 	const formAnimation = () => {
-		Animated.timing(animationForm, {
-			toValue: isShowForm ? 0 : 1,
-			duration: animationFormDuration,
-			useNativeDriver: true,
-			easing: Easing.ease,
-		}).start(() => setShowForm(!isShowForm));
+		animationFormValue.value = !isShowModal ? 1 : 0;
 	}
 
-	const translateY = animationForm.interpolate({
-		inputRange: [0, 1],
-		outputRange: [animatedFormViewHeight, 0],
+	const animatedStyle = useAnimatedStyle(() => {
+		return {
+			transform: [
+				{
+					translateY: withTiming(
+						(animatedFormViewHeight),
+						{
+							duration: 300,
+							easing: Easing.bezier(0.25, 0.1, 0.25, 1)
+						}
+					),
+				},
+			],
+		};
 	});
-
-	const animatedStyle = {
-		transform: [
-			{
-				translateY: translateY,
-			},
-		],
-	}
 
 	const onCloseForm = () => { }
 
@@ -125,7 +137,6 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 					type: IconsStrings.plus,
 					onPress: () => {
 						setShowModal(true);
-						formAnimation();
 					},
 				}}
 			/>
@@ -140,12 +151,11 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 				show={isShowModal}
 				onClose={() => onCloseForm()}
 				onOverlayPress={() => {
-					formAnimation();
-					setTimeout(() => setShowModal(false), animationFormDuration);
+					setShowModal(false);
 				}}
 			>
 				<Animated.View
-					style={[styles.groupForm, animatedStyle]}
+					style={[{bottom: animatedFormViewHeight}, styles.groupForm, animatedStyle]}
 					ref={animatedFormViewRef}
 					onLayout={() => onLayoutForm()}
 				>
@@ -159,8 +169,7 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 						<Button
 							title='Отменить'
 							onPress={() => {
-								formAnimation();
-								setTimeout(() => setShowModal(false), animationFormDuration);
+								setShowModal(false);
 							}}
 						/>
 					</View>
@@ -201,7 +210,7 @@ const styles = StyleSheet.create({
 
 	groupForm: {
 		position: 'absolute',
-		bottom: 0,
+		// bottom: 0,
 		left: 0,
 		width: '100%',
 		paddingBottom: 50,

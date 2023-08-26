@@ -3,9 +3,11 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 import {
 	View,
-	StyleSheet,
 	TextInput,
 	Text,
+	StyleSheet,
+	StyleProp,
+	ViewStyle,
 } from 'react-native';
 
 interface IInputProps {
@@ -15,7 +17,7 @@ interface IInputProps {
 	label?: string;
 	value?: string;
 	placeholder?: string;
-	style?: any;
+	style?: StyleProp<ViewStyle>;
 	focusedStyle?: any;
 	multiline?: boolean;
 	numberOfLines?: number;
@@ -54,7 +56,7 @@ export function Input({
 	const inputTemplate = () => {
 		return (
 			<TextInput
-				style={[{ paddingTop: 0, paddingBottom: 0, }, style]}
+				style={[{ paddingTop: 0, paddingBottom: 0, }]}
 				placeholder={placeholder}
 				value={value}
 				onChangeText={onChangeText}
@@ -69,7 +71,7 @@ export function Input({
 	}
 
 	const pressIcon = () => {
-		if(icon && icon.onPress) {
+		if (icon && icon.onPress) {
 			icon.onPress();
 		}
 	}
@@ -80,7 +82,7 @@ export function Input({
 			name={icon.type}
 			size={16}
 			style={[icon.style, { flexShrink: 1 }]}
-			onPress={()=>pressIcon()}
+			onPress={() => pressIcon()}
 		/>
 	}
 
@@ -106,7 +108,7 @@ export function Input({
 	}
 
 	return (
-		<View style={styles.container}>
+		<View style={[styles.container, style]}>
 			{label && <Text style={styles.label}>{label}:</Text>}
 			{getInput()}
 		</View>
@@ -116,7 +118,6 @@ export function Input({
 const styles = StyleSheet.create({
 	container: {
 		width: '100%',
-		marginBottom: 16,
 	},
 
 	inputContainer: {
@@ -126,14 +127,12 @@ const styles = StyleSheet.create({
 	},
 
 	label: {
-		fontSize: 16,
 		marginBottom: 8,
+		fontSize: 16,
 	},
 
 	inputRow: {
 		width: '100%',
-		flex: 1,
-		flexGrow: 1,
 		flexDirection: 'row',
 		alignItems: 'center',
 	},

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect, NavigationProp, useRoute } from '@react-navigation/native';
 import { Header } from '../../modules/Header';
-import { ModalWindow, TModalButton } from '../../modules/ModalWindow';
+import { Alert, TAlertButton } from '../../modules/Alert';
 import SWords from '../../storage/words/words.service';
 import { TTranslate, TWord } from '../../storage/words/words.types';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -84,7 +84,7 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 					</View>
 				))}
 			</ScrollView>
-			<ModalWindow
+			<Alert
 				show={showModal}
 				message='Удалить слово из словаря?'
 				onClose={() => setShowModal(!showModal)}

@@ -1,12 +1,20 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
-import { Text, StyleSheet, TouchableNativeFeedback, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+
+import {
+	Text,
+	TouchableNativeFeedback,
+	View,
+	StyleSheet,
+	StyleProp,
+	ViewStyle,
+} from 'react-native';
 
 export type IButtonProps = PropsWithChildren<{
 	title: string,
 	onPress: () => void,
-	style?: object,
+	style?: StyleProp<ViewStyle>,
 	textStyle?: object,
 	disabled?: boolean,
 	icon?: {
