@@ -27,7 +27,7 @@ interface IWordsGroupsScreenProps {
 }
 
 export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Element {
-	const animationFormDuration: number = 300;
+	const animationFormDuration: number = 350;
 
 	const [groups, setGroups] = useState<TGroup[]>([]);
 	const [dictionaryCount, setDictionaryCount] = useState<number>(0);
