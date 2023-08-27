@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
+import { NavigationProp } from '@react-navigation/native';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { ModalWithOverlay } from '../../modules/ModalWithOverlay';
@@ -15,15 +15,19 @@ import {
 } from 'react-native';
 
 interface IGroupFormScreenProps {
+	navigation: NavigationProp<any>,
 	isVisible: boolean,
 	onClose: () => void,
+	onCreate: () => void,
 }
 
 export function GroupForm({
+	navigation,
 	isVisible,
 	onClose,
+	onCreate,
 }: IGroupFormScreenProps): JSX.Element {
-	const animationFormDuration: number = 200;
+	const animationFormDuration: number = 250;
 
 	const [isGroupFormVisible, setGroupFormVisible] = useState<boolean>(false);
 	const [name, setName] = useState('');
@@ -36,6 +40,13 @@ export function GroupForm({
 	const [isError, setError] = useState<boolean>(false);
 	const [isAlertVisible, setAlertVisible] = useState<boolean>(false);
 	const [alertMessage, setAlertMessage] = useState<string>('');
+
+	const [groupID, setGroupID] = useState<number | null>(null);
+	const [isSuccess, setSuccess] = useState<boolean>(false);
+
+	useEffect(() => {
+		onCreate();
+	}, [groupID])
 
 	useEffect(() => {
 		if (isVisible) openGroupForm();
@@ -57,11 +68,9 @@ export function GroupForm({
 	});
 
 	const animatedStyle = {
-		transform: [
-			{
-				translateY: translateY,
-			},
-		],
+		transform: [{
+			translateY: translateY,
+		}],
 	}
 
 	const onLayoutForm = () => {
@@ -83,21 +92,25 @@ export function GroupForm({
 			setGroupFormVisible(false);
 		}, animationFormDuration);
 	}
-	
+
 	const getAlertButtons = (): TAlertButton[] => {
 		const buttons: TAlertButton[] = [{
 			title: 'Закрыть',
 			onPress: () => {
 				setAlertVisible(!isAlertVisible);
 				if (isError) setError(false);
+				if (!isSuccess) return;
+				onClose();
+				resetForm();
+				setSuccess(false);
 			}
 		}];
 		if (!isError) {
 			buttons.push({
-				title: 'Добавить слова в список',
+				title: 'Добавить слова в группу',
 				onPress: () => {
 					setAlertVisible(!isAlertVisible);
-					navigation.navigate('WordData', { backPathRoute: 'Words', isShowWord: false });
+					navigation.navigate('WordData', { backPathRoute: 'Words', isShowWord: false, groupID: groupID });
 				}
 			});
 		}
@@ -128,7 +141,18 @@ export function GroupForm({
 			setError(true);
 			setAlertVisible(true);
 		}
-		console.log(result);
+		if (typeof result === 'number') {
+			setSuccess(true);
+			setGroupID(result);
+			setAlertMessage('Группа cоздана!');
+			setError(false);
+			setAlertVisible(true);
+		}
+	}
+
+	const resetForm = () => {
+		setName('');
+		setDescription('');
 	}
 
 	return (

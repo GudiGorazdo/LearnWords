@@ -26,15 +26,21 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 	const [withoutGroupsCount, setWithoutGroupsCount] = useState<number>(0);
 	const [isGroupFormVisible, setGroupFormVisible] = useState<boolean>(false);
 
+	const [switchData, activateSwitchData] = useState<boolean>(false);
 
 	useEffect(() => {
 		getData();
-	}, []);
+	}, [switchData]);
+
 
 	const getData = async () => {
-		await getGroups();
-		await getAllCount();
-		await getWordsWithoutGroups();
+		try {
+			await getGroups();
+			await getAllCount();
+			await getWordsWithoutGroups();
+		} catch (error: any) {
+			console.log(error);
+		}
 	}
 
 	const getGroups = async () => {
@@ -88,8 +94,10 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 				</ScrollView>
 			</SafeAreaView >
 			<GroupForm
+				navigation={navigation}
 				onClose={() => setGroupFormVisible(false)}
 				isVisible={isGroupFormVisible}
+				onCreate={() => activateSwitchData(!switchData)}
 			/>
 		</>
 	);
