@@ -35,16 +35,18 @@ export function ModalWithOverlay({
 			transparent={transparent}
 			visible={isVisible}
 		>
-			<TouchableWithoutFeedback onPress={() => { if (onOverlayPress) onOverlayPress(); }} >
-				<View style={[styles.modalOverlay, overlayStyle]}/>
-			</TouchableWithoutFeedback>
-			{children}
+			<View style={styles.centeredView}>
+				<TouchableWithoutFeedback onPress={() => { if (onOverlayPress) onOverlayPress(); }} >
+					<View style={[styles.overlay, overlayStyle]} />
+				</TouchableWithoutFeedback>
+				{children}
+			</View>
 		</Modal>
 	);
 }
 
 const styles = StyleSheet.create({
-	modalOverlay: {
+	overlay: {
 		position: 'absolute',
 		top: 0,
 		left: 0,
@@ -52,6 +54,13 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		backgroundColor: 'rgba(0, 0, 0, 0.5)',
 	},
+
+	centeredView: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+
 });
 
 

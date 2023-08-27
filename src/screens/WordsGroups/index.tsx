@@ -200,15 +200,13 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 					{rowTemplate('Слова без групп', withoutGroupsCount)}
 				</ScrollView>
 			</SafeAreaView >
-			{
-				// <Alert
-				// 	style={styles.alert}
-				// 	isVisible={isAlertVisible}
-				// 	message={alertMessage}
-				// 	buttons={getAlertButtons()}
-				// 	onOverlayPress={() => setAlertVisible(!isAlertVisible)}
-				// />
-			}
+			<Alert
+				style={styles.alert}
+				isVisible={isAlertVisible}
+				message={alertMessage}
+				buttons={getAlertButtons()}
+				onOverlayPress={() => setAlertVisible(false)}
+			/>
 			<ModalWithOverlay
 				animation="fade"
 				transparent={true}

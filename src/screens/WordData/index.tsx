@@ -302,68 +302,69 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	};
 
 	return (
-		<SafeAreaView style={styles.safeArea}>
-			{isShowWord ? (
-				<Header
-					backPath={() => {
-						setStart(true);
-						navigation.navigate(backPathRoute);
-					}}
-					rightIcon={{
-						type: IconsStrings.edit,
-						onPress: () => {
-							setWordEdit(true);
-							setWordShow(false);
-						},
-					}}
-				/>
-			) : (
-				<Header
-					backPath={() => {
-						setStart(true);
-						navigation.navigate(backPathRoute);
-					}}
-					accept={() => saveWord()}
-				/>
-			)}
-			<KeyboardAvoidingView
-				style={styles.flex}
-				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-				keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-			>
-				<ScrollView ref={scrollViewRef} contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
-					<View style={styles.section}>
-						{isEditWord ? (
-							<Input
-								label="Слово"
-								placeholder="Введите слово"
-								value={inputWord}
-								onChangeText={(word) => setInputWord(word)}
-							/>
-						) : <Text>{inputWord}</Text>
-						}
-						{inputsGroups.map((data, index) => data.removed ? null : inputGroupTemplate(index, data))}
-					</View>
-				</ScrollView>
-				{isEditWord &&
-					<Button
-						style={buttonBottomFreeze}
-						title='Добавить перевод'
-						onPress={() => {
-							setStartScroll(false);
-							addNewTranslate();
+		<>
+			<SafeAreaView style={styles.safeArea}>
+				{isShowWord ? (
+					<Header
+						backPath={() => {
+							setStart(true);
+							navigation.navigate(backPathRoute);
+						}}
+						rightIcon={{
+							type: IconsStrings.edit,
+							onPress: () => {
+								setWordEdit(true);
+								setWordShow(false);
+							},
 						}}
 					/>
-				}
-			</KeyboardAvoidingView>
+				) : (
+					<Header
+						backPath={() => {
+							setStart(true);
+							navigation.navigate(backPathRoute);
+						}}
+						accept={() => saveWord()}
+					/>
+				)}
+				<KeyboardAvoidingView
+					style={styles.flex}
+					behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+					keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+				>
+					<ScrollView ref={scrollViewRef} contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
+						<View style={styles.section}>
+							{isEditWord ? (
+								<Input
+									label="Слово"
+									placeholder="Введите слово"
+									value={inputWord}
+									onChangeText={(word) => setInputWord(word)}
+								/>
+							) : <Text>{inputWord}</Text>
+							}
+							{inputsGroups.map((data, index) => data.removed ? null : inputGroupTemplate(index, data))}
+						</View>
+					</ScrollView>
+					{isEditWord &&
+						<Button
+							style={buttonBottomFreeze}
+							title='Добавить перевод'
+							onPress={() => {
+								setStartScroll(false);
+								addNewTranslate();
+							}}
+						/>
+					}
+				</KeyboardAvoidingView>
+			</SafeAreaView>
 			<Alert
 				isVisible={isAlertVisible}
 				message={alertMessage}
 				buttons={getAlertButtons()}
-				onClose={() => setAlertVisible(!isAlertVisible)}
 				onOverlayPress={() => setAlertVisible(!isAlertVisible)}
 			/>
-		</SafeAreaView>
+		</>
 	);
 }
 

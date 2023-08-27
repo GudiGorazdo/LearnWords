@@ -30,6 +30,7 @@ export function Alert({
 	buttons,
 	style,
 	onOverlayPress,
+	x,
 }: IAlertProps): JSX.Element {
 	return (
 		<ModalWithOverlay
@@ -37,47 +38,31 @@ export function Alert({
 			transparent={true}
 			animation="fade"
 			isVisible={isVisible}
-			onOverlayPress={() => {
-				if (onOverlayPress) onOverlayPress();
-			}}
+			onOverlayPress={() => { if (onOverlayPress) onOverlayPress(); }}
 		>
-			<View style={styles.centeredView}>
-				<View style={styles.modalView}>
-					<Text style={styles.modalText}>{message}</Text>
-					{buttons.map((button: TAlertButton, index: number) => (
-						<Button
-							key={index}
-							style={[
-								(buttons.length - 1 != index) ? styles.modalButtonMB : {},
-								button.style
-							]}
-							title={button.title}
-							onPress={() => button.onPress()}
-						/>))}
-				</View>
+			<View style={styles.container}>
+				<Text style={[styles.message, styles.marginBottom]}>{message}</Text>
+				{buttons.map((button: TAlertButton, index: number) => (
+					<Button
+						key={index}
+						style={[
+							(buttons.length - 1 != index) ? styles.marginBottom : {},
+							button.style
+						]}
+						title={button.title}
+						onPress={() => button.onPress()}
+					/>))}
 			</View>
 		</ModalWithOverlay>
 	);
 }
 
 const styles = StyleSheet.create({
-	centeredView: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		marginTop: 22,
+	marginBottom: {
+		marginBottom: 15,
 	},
 
-	modalOverlay: {
-		position: 'absolute',
-		top: 0,
-		left: 0,
-		right: 0,
-		bottom: 0,
-		backgroundColor: 'rgba(0, 0, 0, 0.5)',
-	},
-
-	modalView: {
+	container: {
 		margin: 20,
 		backgroundColor: 'white',
 		borderRadius: 20,
@@ -90,15 +75,11 @@ const styles = StyleSheet.create({
 		},
 	},
 
-	modalText: {
-		marginBottom: 15,
+	message: {
 		fontSize: 22,
 		textAlign: 'center',
 	},
 
-	modalButtonMB: {
-		marginBottom: 15,
-	},
 
 	textStyle: {
 		color: 'white',
