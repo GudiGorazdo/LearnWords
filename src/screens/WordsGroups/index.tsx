@@ -3,6 +3,7 @@ import { useFocusEffect, NavigationProp } from '@react-navigation/native';
 import { Header } from '../../modules/Header';
 import { Button } from '../../components/Button';
 import { ModalWithOverlay } from '../../modules/ModalWithOverlay';
+import { Alert, TAlertButton } from '../../modules/Alert';
 import { GroupForm } from '../../modules/GroupForm';
 import SWords from '../../storage/words/words.service';
 import { TTranslate, TWord, TGroup } from '../../storage/words/words.types';
@@ -27,14 +28,18 @@ interface IWordsGroupsScreenProps {
 }
 
 export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Element {
-	const animationFormDuration: number = 350;
+	const animationFormDuration: number = 200;
 
 	const [groups, setGroups] = useState<TGroup[]>([]);
 	const [dictionaryCount, setDictionaryCount] = useState<number>(0);
 	const [withoutGroupsCount, setWithoutGroupsCount] = useState<number>(0);
-	const [isShowModal, setShowModal] = useState<boolean>(false);
+	const [isGroupFormVisible, setGroupFormVisible] = useState<boolean>(false);
 	const [isShowForm, setShowForm] = useState<boolean>(false);
-	const [start, setStart] = useState<boolean>(true);
+
+	const [newGroupData, setNewGroupData] = useState<TGroup | null>(null);
+	const [isAlertVisible, setAlertVisible] = useState<boolean>(false);
+	const [alertMessage, setAlertMessage] = useState<string>('');
+	const [isError, setError] = useState<boolean>(false);
 
 	const [animationForm] = useState(new Animated.Value(0));
 	const [animatedFormViewHeight, setAnimatedFormViewHeight] = useState(0);
@@ -44,6 +49,10 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 	useEffect(() => {
 		getData();
 	}, []);
+
+	useEffect(() => {
+		console.log(isAlertVisible);
+	}, [isAlertVisible]);
 
 	const getData = async () => {
 		await getGroups();
@@ -96,7 +105,65 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 				setAnimatedFormViewHeight(height);
 			});
 		}
-	};
+	}
+
+	const saveNewGroup = async (): Promise<string | number> => {
+		return new Promise<string | number>((resolve, reject) => {
+			try {
+				const result = SWords.createGroup(newGroupData.name, newGroupData.description);
+				resolve(result);
+			} catch (error: any) {
+				reject(error);
+			}
+		});
+	}
+
+	const submitGroupForm = async () => {
+		console.log('work!');
+		if (!newGroupData || !newGroupData.name) {
+			setError(true);
+			setAlertMessage('Введите название группы');
+			setAlertVisible(true);
+			return;
+		}
+		// const result = await saveNewGroup();
+		// if (result === 'duplicate') {
+		// 	setAlertMessage('Группа с таким названием уже существует!');
+		// 	setError(true);
+		// 	setAlertVisible(true);
+		// }
+		// console.log(result);
+	}
+
+	const openGroupForm = () => {
+		setGroupFormVisible(true);
+		setTimeout(() => formAnimation(), animationFormDuration);
+	}
+
+	const closeGroupForm = () => {
+		formAnimation();
+		setTimeout(() => setGroupFormVisible(false), animationFormDuration);
+	}
+
+	const getAlertButtons = (): TAlertButton[] => {
+		const buttons: TAlertButton[] = [{
+			title: 'Закрыть',
+			onPress: () => {
+				setAlertVisible(!isAlertVisible);
+				if (isError) setError(false);
+			}
+		}];
+		if (!isError) {
+			buttons.push({
+				title: 'Добавить слова в список',
+				onPress: () => {
+					setAlertVisible(!isAlertVisible);
+					navigation.navigate('WordData', { backPathRoute: 'Words', isShowWord: false });
+				}
+			});
+		}
+		return buttons;
+	}
 
 	const rowTemplate = (name: string, count: number, id?: number) => {
 		return (
@@ -118,55 +185,56 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 	}
 
 	return (
-		<SafeAreaView style={styles.container}>
-			<Header
-				backPath={() => navigation.navigate('Home')}
-				rightIcon={{
-					type: IconsStrings.plus,
-					onPress: () => {
-						setShowModal(true);
-						formAnimation();
-					},
-				}}
-			/>
-			<ScrollView contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
-				{groups.map((group: TGroup) => rowTemplate(group.name, group.count ?? 0, group.id))}
-				{rowTemplate('Все слова', dictionaryCount, 0)}
-				{rowTemplate('Слова без групп', withoutGroupsCount)}
-			</ScrollView>
+		<>
+			<SafeAreaView style={styles.container}>
+				<Header
+					backPath={() => navigation.navigate('Home')}
+					rightIcon={{
+						type: IconsStrings.plus,
+						onPress: () => openGroupForm(),
+					}}
+				/>
+				<ScrollView contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
+					{groups.map((group: TGroup) => rowTemplate(group.name, group.count ?? 0, group.id))}
+					{rowTemplate('Все слова', dictionaryCount, 0)}
+					{rowTemplate('Слова без групп', withoutGroupsCount)}
+				</ScrollView>
+			</SafeAreaView >
+			{
+				// <Alert
+				// 	style={styles.alert}
+				// 	isVisible={isAlertVisible}
+				// 	message={alertMessage}
+				// 	buttons={getAlertButtons()}
+				// 	onOverlayPress={() => setAlertVisible(!isAlertVisible)}
+				// />
+			}
 			<ModalWithOverlay
 				animation="fade"
 				transparent={true}
-				show={isShowModal}
-				onClose={() => onCloseForm()}
-				onOverlayPress={() => {
-					formAnimation();
-					setTimeout(() => setShowModal(false), animationFormDuration);
-				}}
+				isVisible={isGroupFormVisible}
+				onOverlayPress={() => closeGroupForm()}
 			>
 				<Animated.View
 					style={[styles.groupForm, animatedStyle]}
 					ref={animatedFormViewRef}
 					onLayout={() => onLayoutForm()}
 				>
-					<GroupForm />
+					<GroupForm getNewGroupData={(data: TGroup) => setNewGroupData(data)} />
 					<View style={containerStyles}>
 						<Button
 							style={{ marginBottom: 15 }}
 							title='Сохранить'
-							onPress={() => { }}
+							onPress={() => submitGroupForm()}
 						/>
 						<Button
 							title='Отменить'
-							onPress={() => {
-								formAnimation();
-								setTimeout(() => setShowModal(false), animationFormDuration);
-							}}
+							onPress={() => closeGroupForm()}
 						/>
 					</View>
 				</Animated.View>
 			</ModalWithOverlay>
-		</SafeAreaView >
+		</>
 	);
 }
 
@@ -207,6 +275,10 @@ const styles = StyleSheet.create({
 		paddingBottom: 50,
 		backgroundColor: 'white',
 		zIndex: 100,
+	},
+
+	alert: {
+		zIndex: 101,
 	}
 });
 

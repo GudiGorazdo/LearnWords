@@ -16,24 +16,30 @@ export type TAlertButton = {
 	onPress: () => void,
 }
 
-interface IModalWindowProps {
+interface IAlertProps {
 	message: string,
-	show: boolean,
+	isVisible: boolean,
 	buttons: TAlertButton[],
-	onClose: () => void,
+	style?: StyleProp<ViewStyle>,
+	onOverlayPress?: () => void,
 }
 
 export function Alert({
 	message,
-	show,
+	isVisible,
 	buttons,
-	onClose,
-}: IModalWindowProps): JSX.Element {
+	style,
+	onOverlayPress,
+}: IAlertProps): JSX.Element {
 	return (
 		<ModalWithOverlay
+			style={style ?? {}}
+			transparent={true}
 			animation="fade"
-			show={show}
-			onClose={() => onClose()}
+			isVisible={isVisible}
+			onOverlayPress={() => {
+				if (onOverlayPress) onOverlayPress();
+			}}
 		>
 			<View style={styles.centeredView}>
 				<View style={styles.modalView}>

@@ -12,39 +12,31 @@ import {
 interface IModalWithOverlayProps {
 	animation: "none" | "fade" | "slide",
 	children: React.ReactNode;
-	show: boolean,
-	onClose: () => void,
+	isVisible: boolean,
 	overlayStyle?: StyleProp<ViewStyle>,
 	transparent: boolean,
+	style?: StyleProp<ViewStyle>,
 	onOverlayPress?: () => void,
 }
 
 export function ModalWithOverlay({
 	children,
 	animation,
-	show,
-	onClose,
+	isVisible,
 	overlayStyle,
 	transparent = false,
+	style,
 	onOverlayPress,
 }: IModalWithOverlayProps): JSX.Element {
-	const callBackOverlay = () => {
-		if (onOverlayPress) onOverlayPress();
-	}
-
 	return (
 		<Modal
+			style={style ?? {}}
 			animationType={animation ?? "none"}
 			transparent={transparent}
-			visible={show}
-			onRequestClose={() => onClose()}
+			visible={isVisible}
 		>
-			<TouchableWithoutFeedback
-				onPress={() => callBackOverlay()}
-
-			>
-				<View style={[styles.modalOverlay, overlayStyle]}>
-				</View>
+			<TouchableWithoutFeedback onPress={() => { if (onOverlayPress) onOverlayPress(); }} >
+				<View style={[styles.modalOverlay, overlayStyle]}/>
 			</TouchableWithoutFeedback>
 			{children}
 		</Modal>

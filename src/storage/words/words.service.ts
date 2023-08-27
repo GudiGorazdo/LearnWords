@@ -107,7 +107,6 @@ export default class SWords implements ISwords {
 						[],
 						(tx: Transaction, results: ResultSet) => {
 							const result = results.rows.item(0);
-							console.log(result);
 							if (result) resolve(result.count);
 							else reject(0)
 						},

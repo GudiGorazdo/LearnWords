@@ -32,7 +32,7 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 	const [words, setWords] = useState(startArr);
 
 	const [wordToRemove, setWordToRemove] = useState<TWord | null>(null);
-	const [showModal, setShowModal] = useState(false);
+	const [isAlertVisible, setAlertVisible] = useState(false);
 
 	useEffect(() => {
 		fetchWords();
@@ -77,7 +77,7 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 						</TouchableOpacity>
 						<TouchableOpacity style={{ padding: 5 }} onPress={() => {
 							setWordToRemove(word);
-							setShowModal(!showModal);
+							setAlertVisible(!isAlertVisible);
 						}}>
 							<Icon name={IconsStrings.remove} size={24} />
 						</TouchableOpacity>
@@ -85,21 +85,21 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 				))}
 			</ScrollView>
 			<Alert
-				show={showModal}
+				isVisible={isAlertVisible}
 				message='Удалить слово из словаря?'
-				onClose={() => setShowModal(!showModal)}
+				onClose={() => setAlertVisible(!isAlertVisible)}
 				buttons={[
 					{
 						title: 'Удалить',
 						onPress: () => {
 							wordToRemove && removeWord(wordToRemove);
-							setShowModal(!showModal);
+							setAlertVisible(!isAlertVisible);
 						}
 					},
 					{
 						title: 'Отмена',
 						onPress: () => {
-							setShowModal(!showModal);
+							setAlertVisible(!isAlertVisible);
 						}
 					}
 				]}

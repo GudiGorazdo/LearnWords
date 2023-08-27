@@ -29,7 +29,7 @@ interface IWordDataScreenProps {
 export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	const route = useRoute();
 	const backPathRoute = route.params.backPathRoute;
-	const wordNew = route.params.wordNew ?? false;
+	const isNewWord = route.params.isNewWord ?? false;
 	const wordID = route.params.wordID ?? null;
 
 	const inputDataGroup: TTranslate = {
@@ -38,13 +38,13 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 		new: true,
 	};
 
-	const [wordShow, setWordShow] = useState(route.params.wordShow ?? false)
-	const [wordEdit, setWordEdit] = useState(route.params.wordEdit ?? false);
+	const [isShowWord, setWordShow] = useState(route.params.wordShow ?? false)
+	const [isEditWord, setWordEdit] = useState(route.params.isEditWord ?? false);
 
 	const [start, setStart] = useState(true);
-	const [showModal, setShowModal] = useState(false);
-	const [modalMessage, setModalMessage] = useState('');
-	const [saveWordError, setSaveWordError] = useState(false);
+	const [isAlertVisible, setAlertVisible] = useState(false);
+	const [alertMessage, setAlertMessage] = useState('');
+	const [isSaveWordError, setSaveWordError] = useState(false);
 	const [inputWord, setInputWord] = useState('');
 	const [inputsGroups, setInputsGroup] = useState<TTranslate[]>([inputDataGroup]);
 	const [startScroll, setStartScroll] = useState(true);
@@ -58,7 +58,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	}, [scrollBottom]);
 
 	useFocusEffect(() => {
-		if (wordShow && start) {
+		if (isShowWord && start) {
 			fetchWord();
 			setStart(false);
 		}
@@ -130,14 +130,14 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	const validationWord = (): boolean => {
 		if (!inputWord) {
 			setSaveWordError(true);
-			setModalMessage('Введите слово');
-			setShowModal(true);
+			setAlertMessage('Введите слово');
+			setAlertVisible(true);
 			return true;
 		}
 		if (!inputsGroups[0].value) {
 			setSaveWordError(true);
-			setModalMessage('Введите перевод');
-			setShowModal(true);
+			setAlertMessage('Введите перевод');
+			setAlertVisible(true);
 			return true;
 		}
 
@@ -160,8 +160,8 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	const dbSaveWord = async (word: TWord) => {
 		return new Promise(async (resolve, reject) => {
 			let result = null;
-			console.log('wordNew: ', wordNew);
-			if (wordNew) {
+			console.log('isNewWord: ', isNewWord);
+			if (isNewWord) {
 				result = await SWords.save(word);
 			} else {
 				result = await updateWord(word);
@@ -181,21 +181,21 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 		}
 
 		setSaveWordError(false);
-		setModalMessage('Слово сохранено');
+		setAlertMessage('Слово сохранено');
 		try {
 			const result = await dbSaveWord(word);
 			if (result === 'dublicate') {
-				setModalMessage('Слово уже есть в словаре');
+				setAlertMessage('Слово уже есть в словаре');
 			}
-			if (wordNew) setShowModal(true);
+			if (isNewWord) setAlertVisible(true);
 			else {
 				setWordShow(true)
 				setWordEdit(false)
 			}
 		} catch (error: any) {
 			console.log(error);
-			setModalMessage('При сохранении слова произошла ошибка');
-			return setShowModal(true);
+			setAlertMessage('При сохранении слова произошла ошибка');
+			return setAlertVisible(true);
 		}
 	}
 
@@ -204,32 +204,32 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 		setInputWord('');
 	}
 
-	const getModalButtons = (): TAlertButton[] => {
+	const getAlertButtons = (): TAlertButton[] => {
 		const buttons: TAlertButton[] = [{
 			title: 'Закрыть',
 			onPress: () => {
-				setShowModal(!showModal);
+				setAlertVisible(!isAlertVisible);
 				setStart(true);
-				if (!saveWordError) {
-					if (wordShow) navigation.navigate('WordsList');
+				if (!isSaveWordError) {
+					if (isShowWord) navigation.navigate('WordsList');
 					else navigation.navigate('Home');
 				}
 			},
 		}];
-		if (!saveWordError && !wordShow) {
+		if (!isSaveWordError && !isShowWord) {
 			buttons.push({
 				title: 'Добавить новое слово',
 				onPress: () => {
-					setShowModal(!showModal);
+					setAlertVisible(!isAlertVisible);
 					resetForm();
 					setStart(true);
-					navigation.navigate('WordData', { backPathRoute: 'Words', wordShow: false });
+					navigation.navigate('WordData', { backPathRoute: 'Words', isShowWord: false });
 				}
 			});
 			buttons.push({
 				title: 'К списку слов',
 				onPress: () => {
-					setShowModal(!showModal);
+					setAlertVisible(!isAlertVisible);
 					setStart(true);
 					navigation.navigate('WordList');
 				}
@@ -242,7 +242,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 		return (
 			<React.Fragment key={`group-${index}`} >
 				<View style={styles.groupInputs}>
-					{wordEdit ? (
+					{isEditWord ? (
 						<Input
 							key={`translate-${index}`}
 							label="Перевод"
@@ -269,7 +269,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 
 					{data.context &&
 						data.context.map((contextValue: string, contextIndex: number) => {
-							return wordEdit ? (
+							return isEditWord ? (
 								<Input
 									key={`context-${index}-${contextIndex}`}
 									label="Контекст"
@@ -295,7 +295,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 							);
 						})
 					}
-					{wordEdit && <Button title='Добавить контекст' onPress={() => addNewContext(index)} />}
+					{isEditWord && <Button title='Добавить контекст' onPress={() => addNewContext(index)} />}
 				</View>
 			</React.Fragment>
 		);
@@ -303,7 +303,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 
 	return (
 		<SafeAreaView style={styles.safeArea}>
-			{wordShow ? (
+			{isShowWord ? (
 				<Header
 					backPath={() => {
 						setStart(true);
@@ -333,7 +333,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 			>
 				<ScrollView ref={scrollViewRef} contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
 					<View style={styles.section}>
-						{wordEdit ? (
+						{isEditWord ? (
 							<Input
 								label="Слово"
 								placeholder="Введите слово"
@@ -345,7 +345,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 						{inputsGroups.map((data, index) => data.removed ? null : inputGroupTemplate(index, data))}
 					</View>
 				</ScrollView>
-				{wordEdit &&
+				{isEditWord &&
 					<Button
 						style={buttonBottomFreeze}
 						title='Добавить перевод'
@@ -357,10 +357,11 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 				}
 			</KeyboardAvoidingView>
 			<Alert
-				show={showModal}
-				message={modalMessage}
-				onClose={() => setShowModal(!showModal)}
-				buttons={getModalButtons()}
+				isVisible={isAlertVisible}
+				message={alertMessage}
+				buttons={getAlertButtons()}
+				onClose={() => setAlertVisible(!isAlertVisible)}
+				onOverlayPress={() => setAlertVisible(!isAlertVisible)}
 			/>
 		</SafeAreaView>
 	);

@@ -5,6 +5,7 @@ import { Input } from '../../components/Input';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IconsStrings from '../../assets/awesomeIcons';
 import { TGroup } from '../../storage/words/words.types';
+import SWords from '../../storage/words/words.service';
 
 import containerStyles from '../../styles/container';
 
@@ -18,10 +19,17 @@ import {
 
 interface IGroupFormScreenProps {
 	style?: StyleProp<ViewStyle>,
+	getNewGroupData: (data: TGroup) => void,
 }
 
-export function GroupForm({ style, }: IGroupFormScreenProps): JSX.Element {
+export function GroupForm({ style, getNewGroupData }: IGroupFormScreenProps): JSX.Element {
 	const [name, setName] = useState('');
+	const [description, setDescription] = useState('');
+
+	useEffect(() => {
+		const data: TGroup = {name: name, description: description};
+		getNewGroupData(data);
+	}, [name, description])
 
 	return (
 		<SafeAreaView >
@@ -37,8 +45,8 @@ export function GroupForm({ style, }: IGroupFormScreenProps): JSX.Element {
 					style={styles.input}
 					label="Описание"
 					placeholder="Введите описание"
-					value={name}
-					onChangeText={(name) => setName(name)}
+					value={description}
+					onChangeText={(description) => setDescription(description)}
 				/>
 			</View>
 		</SafeAreaView>
