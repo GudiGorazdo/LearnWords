@@ -123,7 +123,7 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 		if (!newGroupData || !newGroupData.name) {
 			setError(true);
 			setAlertMessage('Введите название группы');
-			setAlertVisible(true);
+			setAlertVisible(!isAlertVisible);
 			return;
 		}
 		// const result = await saveNewGroup();
@@ -200,19 +200,19 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 					{rowTemplate('Слова без групп', withoutGroupsCount)}
 				</ScrollView>
 			</SafeAreaView >
-			<Alert
-				style={styles.alert}
-				isVisible={isAlertVisible}
-				message={alertMessage}
-				buttons={getAlertButtons()}
-				onOverlayPress={() => setAlertVisible(false)}
-			/>
 			<ModalWithOverlay
 				animation="fade"
 				transparent={true}
 				isVisible={isGroupFormVisible}
 				onOverlayPress={() => closeGroupForm()}
 			>
+				<Alert
+					style={styles.alert}
+					isVisible={isAlertVisible}
+					message={alertMessage}
+					buttons={getAlertButtons()}
+					onOverlayPress={() => setAlertVisible(!isAlertVisible)}
+				/>
 				<Animated.View
 					style={[styles.groupForm, animatedStyle]}
 					ref={animatedFormViewRef}
