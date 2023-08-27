@@ -1,39 +1,154 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import IconsStrings from '../../assets/awesomeIcons';
-import { TGroup } from '../../storage/words/words.types';
+import { ModalWithOverlay } from '../../modules/ModalWithOverlay';
+import { Alert, TAlertButton } from '../../modules/Alert';
 import SWords from '../../storage/words/words.service';
 
 import containerStyles from '../../styles/container';
 
 import {
-	SafeAreaView,
-	View,
 	StyleSheet,
-	StyleProp,
-	ViewStyle,
+	Animated,
+	Easing,
 } from 'react-native';
 
 interface IGroupFormScreenProps {
-	style?: StyleProp<ViewStyle>,
-	getNewGroupData: (data: TGroup) => void,
+	isVisible: boolean,
+	onClose: () => void,
 }
 
-export function GroupForm({ style, getNewGroupData }: IGroupFormScreenProps): JSX.Element {
+export function GroupForm({
+	isVisible,
+	onClose,
+}: IGroupFormScreenProps): JSX.Element {
+	const animationFormDuration: number = 200;
+
+	const [isGroupFormVisible, setGroupFormVisible] = useState<boolean>(false);
 	const [name, setName] = useState('');
 	const [description, setDescription] = useState('');
+	const [animatedFormViewHeight, setAnimatedFormViewHeight] = useState(0);
+	const animatedFormViewRef = useRef(null);
+	const [animationForm] = useState(new Animated.Value(0));
+	const [isShowForm, setShowForm] = useState<boolean>(true);
+
+	const [isError, setError] = useState<boolean>(false);
+	const [isAlertVisible, setAlertVisible] = useState<boolean>(false);
+	const [alertMessage, setAlertMessage] = useState<string>('');
 
 	useEffect(() => {
-		const data: TGroup = {name: name, description: description};
-		getNewGroupData(data);
-	}, [name, description])
+		if (isVisible) openGroupForm();
+		else closeGroupForm();
+	}, [isVisible]);
+
+	const formAnimation = () => {
+		Animated.timing(animationForm, {
+			toValue: isShowForm ? 0 : 1,
+			duration: animationFormDuration,
+			useNativeDriver: true,
+			easing: Easing.ease,
+		}).start(() => setShowForm(!isShowForm));
+	}
+
+	const translateY = animationForm.interpolate({
+		inputRange: [0, 1],
+		outputRange: [animatedFormViewHeight, 0],
+	});
+
+	const animatedStyle = {
+		transform: [
+			{
+				translateY: translateY,
+			},
+		],
+	}
+
+	const onLayoutForm = () => {
+		if (animatedFormViewRef.current) {
+			animatedFormViewRef.current.measure((x, y, width, height) => {
+				setAnimatedFormViewHeight(height);
+			});
+		}
+	}
+
+	const openGroupForm = () => {
+		setGroupFormVisible(true);
+		setTimeout(() => formAnimation(), animationFormDuration);
+	}
+
+	const closeGroupForm = () => {
+		formAnimation();
+		setTimeout(() => {
+			setGroupFormVisible(false);
+		}, animationFormDuration);
+	}
+	
+	const getAlertButtons = (): TAlertButton[] => {
+		const buttons: TAlertButton[] = [{
+			title: 'Закрыть',
+			onPress: () => {
+				setAlertVisible(!isAlertVisible);
+				if (isError) setError(false);
+			}
+		}];
+		if (!isError) {
+			buttons.push({
+				title: 'Добавить слова в список',
+				onPress: () => {
+					setAlertVisible(!isAlertVisible);
+					navigation.navigate('WordData', { backPathRoute: 'Words', isShowWord: false });
+				}
+			});
+		}
+		return buttons;
+	}
+
+	const saveNewGroup = async (): Promise<string | number> => {
+		return new Promise<string | number>((resolve, reject) => {
+			try {
+				const result = SWords.createGroup(name, description);
+				resolve(result);
+			} catch (error: any) {
+				reject(error);
+			}
+		});
+	}
+
+	const submitGroupForm = async () => {
+		if (!name) {
+			setError(true);
+			setAlertMessage('Введите название группы');
+			setAlertVisible(!isAlertVisible);
+			return;
+		}
+		const result = await saveNewGroup();
+		if (result === 'duplicate') {
+			setAlertMessage('Группа с таким названием уже существует!');
+			setError(true);
+			setAlertVisible(true);
+		}
+		console.log(result);
+	}
 
 	return (
-		<SafeAreaView >
-			<View style={[containerStyles, styles.body, style]}>
+		<ModalWithOverlay
+			animation="fade"
+			transparent={true}
+			isVisible={isGroupFormVisible}
+			onOverlayPress={() => onClose()}
+		>
+			<Alert
+				isVisible={isAlertVisible}
+				message={alertMessage}
+				buttons={getAlertButtons()}
+				onOverlayPress={() => setAlertVisible(!isAlertVisible)}
+			/>
+			<Animated.View
+				style={[containerStyles, styles.groupForm, animatedStyle]}
+				ref={animatedFormViewRef}
+				onLayout={() => onLayoutForm()}
+			>
 				<Input
 					style={styles.input}
 					label="Название"
@@ -48,19 +163,35 @@ export function GroupForm({ style, getNewGroupData }: IGroupFormScreenProps): JS
 					value={description}
 					onChangeText={(description) => setDescription(description)}
 				/>
-			</View>
-		</SafeAreaView>
+				<Button
+					style={{ marginBottom: 15 }}
+					title='Сохранить'
+					onPress={() => submitGroupForm()}
+				/>
+				<Button
+					title='Отменить'
+					onPress={() => onClose()}
+				/>
+			</Animated.View>
+		</ModalWithOverlay>
 	);
 }
 
 const styles = StyleSheet.create({
-	body: {
-		paddingVertical: 30,
-	},
-
 	input: {
 		marginBottom: 10,
-	}
+	},
+
+	groupForm: {
+		position: 'absolute',
+		bottom: 0,
+		left: 0,
+		width: '100%',
+		paddingTop: 30,
+		paddingBottom: 50,
+		backgroundColor: 'white',
+		zIndex: 100,
+	},
 });
 
 
