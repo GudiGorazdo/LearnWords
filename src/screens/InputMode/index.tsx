@@ -35,7 +35,7 @@ export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
 
 	const emptyAnswer: TAnswer = { correct: false, value: '' };
 
-	const [showModal, setShowModal] = useState(false);
+	const [isAlertVisible, setAlertVisible] = useState(false);
 	const [activeWord, setActiveWord] = useState<TWord | null>(null);
 	const [checked, setChecked] = useState(false);
 	const [checkButtonDisabled, setCheckButtonDisabled] = useState(true);
@@ -80,14 +80,14 @@ export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
 			{
 				title: 'Прервать',
 				onPress: () => {
-					setShowModal(!showModal);
+					setAlertVisible(!isAlertVisible);
 					navigation.navigate('Training');
 				},
 			},
 			{
 				title: 'Продолжить',
 				onPress: () => {
-					setShowModal(!showModal);
+					setAlertVisible(!isAlertVisible);
 				},
 			}
 		];
@@ -144,7 +144,7 @@ export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
 
 	return (
 		<SafeAreaView style={styles.safeArea}>
-			<Header backPath={() => setShowModal(true)} />
+			<Header backPath={() => setAlertVisible(true)} />
 			<Text style={styles.word}>{activeWord?.word}</Text>
 			<KeyboardAvoidingView
 				style={[styles.flex]}
@@ -185,10 +185,10 @@ export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
 				}}
 			/>
 			<Alert
-				show={showModal}
+				isVisible={isAlertVisible}
 				message="Прервать тренировку?"
-				onClose={() => setShowModal(!showModal)}
 				buttons={getModalButtons()}
+				onOverlayPress={() => setAlertVisible(!isAlertVisible)}
 			/>
 		</SafeAreaView>
 	);

@@ -87,7 +87,7 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 			<Alert
 				isVisible={isAlertVisible}
 				message='Удалить слово из словаря?'
-				onClose={() => setAlertVisible(!isAlertVisible)}
+				onOverlayPress={() => setAlertVisible(!isAlertVisible)}
 				buttons={[
 					{
 						title: 'Удалить',

@@ -16,9 +16,9 @@ export const Home = ({ navigation }: IHomeScreenProps): JSX.Element => {
 					'WordData',
 					{
 						backPathRoute: 'Home',
-						wordShow: false,
-						wordEdit: true,
-						wordNew: true,
+						isShowWord: false,
+						isEditWord: true,
+						isNewWord: true,
 					}
 				)}
 			/>

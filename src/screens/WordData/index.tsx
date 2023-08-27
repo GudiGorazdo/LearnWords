@@ -38,7 +38,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 		new: true,
 	};
 
-	const [isShowWord, setWordShow] = useState(route.params.wordShow ?? false)
+	const [isShowWord, setWordShow] = useState(route.params.isShowWord ?? false)
 	const [isEditWord, setWordEdit] = useState(route.params.isEditWord ?? false);
 
 	const [start, setStart] = useState(true);
@@ -231,7 +231,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 				onPress: () => {
 					setAlertVisible(!isAlertVisible);
 					setStart(true);
-					navigation.navigate('WordList');
+					navigation.navigate('WordsList');
 				}
 			});
 		}
@@ -244,6 +244,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 				<View style={styles.groupInputs}>
 					{isEditWord ? (
 						<Input
+							style={[styles.mb]}
 							key={`translate-${index}`}
 							label="Перевод"
 							placeholder="Введите перевод"
@@ -271,6 +272,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 						data.context.map((contextValue: string, contextIndex: number) => {
 							return isEditWord ? (
 								<Input
+									style={[styles.mb]}
 									key={`context-${index}-${contextIndex}`}
 									label="Контекст"
 									placeholder="Добавьте контекст"
@@ -336,6 +338,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 						<View style={styles.section}>
 							{isEditWord ? (
 								<Input
+									style={[styles.mb]}
 									label="Слово"
 									placeholder="Введите слово"
 									value={inputWord}
@@ -369,6 +372,10 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 }
 
 const styles = StyleSheet.create({
+	mb: {
+		marginBottom: 10,
+	},
+
 	safeArea: {
 		flex: 1,
 	},

@@ -27,7 +27,7 @@ type TAnswer = TTranslate & {
 }
 
 export function TestMode({ navigation }: ITestModeScreenProps): JSX.Element {
-	const [showModal, setShowModal] = useState(false);
+	const [isAlertVisible, setAlertVisible] = useState(false);
 	const [activeWord, setActiveWord] = useState<TWord | null>(null);
 	const [correctAnswers, setCorrectAnswers] = useState<TAnswer[]>([]);
 	const [inCorrectAnswers, setInCorrectAnswers] = useState<TAnswer[]>([]);
@@ -115,14 +115,14 @@ export function TestMode({ navigation }: ITestModeScreenProps): JSX.Element {
 			{
 				title: 'Прервать',
 				onPress: () => {
-					setShowModal(!showModal);
+					setAlertVisible(!isAlertVisible);
 					navigation.navigate('Training');
 				},
 			},
 			{
 				title: 'Продолжить',
 				onPress: () => {
-					setShowModal(!showModal);
+					setAlertVisible(!isAlertVisible);
 				},
 			}
 		];
@@ -149,7 +149,7 @@ export function TestMode({ navigation }: ITestModeScreenProps): JSX.Element {
 
 	return (
 		<SafeAreaView style={styles.safeArea}>
-			<Header backPath={() => setShowModal(true)} />
+			<Header backPath={() => setAlertVisible(true)} />
 			<Text style={styles.word}>{activeWord?.word}</Text>
 			<ScrollView style={containerStyles}>
 				{activeAnswers.map((answer, index) => (
@@ -183,10 +183,10 @@ export function TestMode({ navigation }: ITestModeScreenProps): JSX.Element {
 				}}
 			/>
 			<Alert
-				show={showModal}
+				isVisible={isAlertVisible}
 				message="Прервать тренировку?"
-				onClose={() => setShowModal(!showModal)}
 				buttons={getModalButtons()}
+				onOverlayPress={() => setAlertVisible(!isAlertVisible)}
 			/>
 		</SafeAreaView>
 	);
