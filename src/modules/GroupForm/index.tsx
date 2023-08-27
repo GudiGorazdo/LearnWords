@@ -43,6 +43,7 @@ export function GroupForm({
 
 	const [groupID, setGroupID] = useState<number | null>(null);
 	const [isSuccess, setSuccess] = useState<boolean>(false);
+	const [isCancel, setCancel] = useState<boolean>(false);
 
 	useEffect(() => {
 		onCreate();
@@ -102,10 +103,19 @@ export function GroupForm({
 				if (!isSuccess) return;
 				onClose();
 				resetForm();
-				setSuccess(false);
 			}
 		}];
-		if (!isError) {
+		if (isCancel) {
+			buttons.push({
+				title: 'Не сохранять',
+				onPress: () => {
+					setAlertVisible(false);
+					onClose();
+					resetForm();
+				}
+			});
+		}
+		if (!isError && !isCancel) {
 			buttons.push({
 				title: 'Добавить слова в группу',
 				onPress: () => {
@@ -150,9 +160,19 @@ export function GroupForm({
 		}
 	}
 
+	const cancel = () => {
+		if (!name) return onClose();
+		setCancel(true);
+		setAlertMessage('Введенные данные не сохраянятся');
+		setError(false);
+		setAlertVisible(true);
+	}
+
 	const resetForm = () => {
 		setName('');
 		setDescription('');
+		setCancel(false);
+		setSuccess(false);
 	}
 
 	return (
@@ -194,7 +214,7 @@ export function GroupForm({
 				/>
 				<Button
 					title='Отменить'
-					onPress={() => onClose()}
+					onPress={() => cancel()}
 				/>
 			</Animated.View>
 		</ModalWithOverlay>
