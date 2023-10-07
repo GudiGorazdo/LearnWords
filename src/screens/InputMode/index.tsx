@@ -70,7 +70,6 @@ export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
   }, [activeWord])
 
   useEffect(() => {
-    // console.log(inputsGroups);
   }, [inputsGroups]);
 
   const fetchWord = async () => {
@@ -186,7 +185,6 @@ export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
   }
 
   const getTitle = (): string => {
-    console.log(activeWord);
     switch (activeMode) {
       case 'word':
           return activeTranslate ?? '';
@@ -197,9 +195,7 @@ export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
 
   const removeTranslateInput = (index: number): void => {
     let newInputsGroups: TAnswer[] = [... inputsGroups];
-    console.log(newInputsGroups);
     newInputsGroups.splice(index, 1);
-    console.log(newInputsGroups);
     setInputsGroups(newInputsGroups);
   }
 

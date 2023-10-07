@@ -171,6 +171,33 @@ export default class SWords implements ISwords {
 		});
 	}
 
+  private createWordData(results: ResultSet): TWord {
+    const wordTranslations: TTranslate[] = this.createTranslationData(results);
+    const word: TWord = {
+      id: results.rows.item(0).id,
+      word: results.rows.item(0).word,
+      translate: wordTranslations,
+    };
+
+    return word;
+  }
+
+  private createTranslationData(results: ResultSet): TTranslate[] {
+    const wordTranslations: TTranslate[] = [];
+
+    for (let i = 0; i < results.rows.length; i++) {
+      const result = results.rows.item(i);
+      const translation: TTranslate = {
+        id: result.t_id,
+        value: result.translate,
+        context: JSON.parse(result.context),
+      };
+      wordTranslations.push(translation);
+    }
+
+    return wordTranslations;
+  }
+
 	static getRandom(): Promise<TWord | null> {
 		return new Promise<TWord | null>(async (resolve, reject) => {
 			const instance = await SWords.getInstance();
@@ -181,32 +208,94 @@ export default class SWords implements ISwords {
 							word_translate.translate, 
 							word_translate.context
 						FROM words 
-						left join word_translate on words.id=word_translate.word_id 
+						LEFT JOIN word_translate on words.id=word_translate.word_id 
 						ORDER BY RANDOM() 
 						LIMIT 1
 					;`,
 					[],
 					(tx: Transaction, results: ResultSet) => {
 						if (results.rows.length > 0) {
-							const wordTranslations: TTranslate[] = [];
-
-							for (let i = 0; i < results.rows.length; i++) {
-								const result = results.rows.item(i);
-								const translation: TTranslate = {
-									id: result.t_id,
-									value: result.translate,
-									context: JSON.parse(result.context),
-								};
-								wordTranslations.push(translation);
-							}
-
-							const word: TWord = {
-								id: results.rows.item(0).id,
-								word: results.rows.item(0).word,
-								translate: wordTranslations,
-							};
-
+              const word: TWord = instance.createWordData(results);
 							resolve(word);
+						} else {
+							resolve(null);
+						}
+					},
+					(error: any) => {
+						console.error(error);
+						reject(error);
+					}
+				);
+			});
+		});
+	}
+
+	static getNextWordInGroup(wordID: number, groupID: number, order: 'next'|'prev'): Promise<TWord | null> {
+		return new Promise<TWord | null>(async (resolve, reject) => {
+			const instance = await SWords.getInstance();
+			instance.db.transaction((tx: Transaction) => {
+				tx.executeSql(`
+						SELECT 
+              words.*, 
+              word_translate.id as t_id, 
+              word_translate.translate, 
+              word_translate.context 
+            FROM words 
+            LEFT JOIN word_translate ON words.id = word_translate.word_id 
+            LEFT JOIN word_group ON word_group.word_id = words.id
+            LEFT JOIN groups ON groups.id = word_group.group_id
+            WHERE 
+              groups.id = (SELECT groups.id FROM words 
+                           LEFT JOIN word_group ON word_group.word_id = words.id
+                           LEFT JOIN groups ON groups.id = word_group.group_id
+                           WHERE words.id = ?)
+              AND words.word ${order === 'next' ? '>' : '<'} (SELECT words.word FROM words WHERE id = ?)
+            ORDER BY words.word ${order === 'next' ? 'ASC' : 'DESC'}
+            LIMIT 1
+					;`,
+					[groupID, wordID],
+					(tx: Transaction, results: ResultSet) => {
+						if (results.rows.length > 0) {
+							const word: TWord = instance.createWordData(results);
+              resolve(word);
+						} else {
+							resolve(null);
+						}
+					},
+					(error: any) => {
+						console.error(error);
+						reject(error);
+					}
+				);
+			});
+		});
+	}
+
+	static getExtremeWordInGroup(groupID: number, extreme: 'first'|'last'): Promise<TWord | null> {
+		return new Promise<TWord | null>(async (resolve, reject) => {
+      const order = extreme === 'first' ? 'ASC' : 'DESC';
+			const instance = await SWords.getInstance();
+			instance.db.transaction((tx: Transaction) => {
+				tx.executeSql(`
+						SELECT 
+              words.*, 
+              word_translate.id as t_id, 
+              word_translate.translate, 
+              word_translate.context 
+            FROM words 
+            LEFT JOIN word_translate ON words.id = word_translate.word_id 
+            LEFT JOIN word_group ON word_group.word_id = words.id
+            LEFT JOIN groups ON groups.id = word_group.group_id
+            WHERE groups.id = (?)
+            ORDER BY words.word ${order}
+            LIMIT 1
+					;`,
+					[groupID],
+					// [wordID],
+					(tx: Transaction, results: ResultSet) => {
+						if (results.rows.length > 0) {
+							const word: TWord = instance.createWordData(results);
+              resolve(word);
 						} else {
 							resolve(null);
 						}
@@ -233,18 +322,7 @@ export default class SWords implements ISwords {
 					[wordID],
 					(tx: Transaction, results: ResultSet) => {
 						if (results.rows.length > 0) {
-							const wordTranslations: TTranslate[] = [];
-
-							for (let i = 0; i < results.rows.length; i++) {
-								const result = results.rows.item(i);
-								const translation: TTranslate = {
-									id: result.id,
-									value: result.translate,
-									context: JSON.parse(result.context),
-								};
-								wordTranslations.push(translation);
-							}
-
+							const wordTranslations: TTranslate[] = instance.createTranslationData(results);
 							resolve(wordTranslations);
 						} else {
 							const wordTranslations: TTranslate[] = [];
@@ -276,24 +354,7 @@ export default class SWords implements ISwords {
 					[id],
 					(tx: Transaction, results: ResultSet) => {
 						if (results.rows.length > 0) {
-							const wordTranslations: TTranslate[] = [];
-
-							for (let i = 0; i < results.rows.length; i++) {
-								const result = results.rows.item(i);
-								const translation: TTranslate = {
-									id: result.t_id,
-									value: result.translate,
-									context: JSON.parse(result.context),
-								};
-								wordTranslations.push(translation);
-							}
-
-							const word: TWord = {
-								id: results.rows.item(0).id,
-								word: results.rows.item(0).word,
-								translate: wordTranslations,
-							};
-
+							const word: TWord = instance.createWordData(results);
 							resolve(word);
 						} else {
 							resolve(null);

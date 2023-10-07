@@ -6,7 +6,9 @@ import SWords from '../../storage/words/words.service';
 import { TTranslate, TWord } from '../../storage/words/words.types';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IconsStrings from '../../assets/awesomeIcons';
+import { Button } from '../../components/Button';
 
+import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
 import containerStyles from '../../styles/container';
 
 import {
@@ -69,7 +71,8 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 								{
 									backPathRoute: 'WordsList',
 									isShowWord: true,
-									wordID: word.id
+									wordID: word.id,
+                  groupID: groupID,
 								}
 							)}
 						>
@@ -84,6 +87,19 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 					</View>
 				))}
 			</ScrollView>
+      <Button
+        style={buttonBottomFreeze}
+        title='Учить'
+        onPress={() => navigation.navigate(
+            'WordData',
+            {
+              backPathRoute: 'WordsList',
+              isShowWord: true,
+              wordID: words[0].id,
+              groupID: groupID,
+            }
+          )}
+      />
 			<Alert
 				isVisible={isAlertVisible}
 				message='Удалить слово из словаря?'
@@ -114,6 +130,7 @@ const styles = StyleSheet.create({
 	},
 
 	scrollViewContent: {
+    paddingBottom: 50,
 		flexGrow: 1,
 	},
 

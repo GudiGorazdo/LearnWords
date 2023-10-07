@@ -30,7 +30,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	const route = useRoute();
 	const backPathRoute = route.params.backPathRoute;
 	const isNewWord = route.params.isNewWord ?? false;
-	const wordID = route.params.wordID ?? null;
+	const groupID = route.params.groupID ?? null;
 
 
 	const inputDataGroup: TTranslate = {
@@ -39,6 +39,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 		new: true,
 	};
 
+	const [wordID, setWordID] = useState(route.params.wordID ?? null)
 	const [isShowWord, setWordShow] = useState(route.params.isShowWord ?? false)
 	const [isEditWord, setWordEdit] = useState(route.params.isEditWord ?? false);
 
@@ -238,6 +239,20 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 		return buttons;
 	}
 
+  const nextWord = async (order: 'next'|'prev') => {
+		let word = await SWords.getNextWordInGroup(wordID, groupID, order);
+    console.log(word);
+    if (!word) {
+      const extreme = order === 'next' ? 'first' : 'last';
+      word = await SWords.getExtremeWordInGroup(groupID, extreme);
+    }
+		if (word) {
+      setWordID(word.id);
+      setInputWord(word.word);
+      setInputsGroup(word.translate);
+    } 
+  }
+
 	const inputGroupTemplate = (index: number, data: TTranslate): JSX.Element => {
 		return (
 			<React.Fragment key={`group-${index}`} >
@@ -334,6 +349,12 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 					behavior={Platform.OS === 'ios' ? 'padding' : undefined}
 					keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
 				>
+					{!isEditWord &&
+            <Button
+              title='Предыдущее слово'
+              onPress={() => nextWord('prev')}
+            />
+					}
 					<ScrollView ref={scrollViewRef} contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
 						<View style={styles.section}>
 							{isEditWord ? (
@@ -358,6 +379,13 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 								addNewTranslate();
 							}}
 						/>
+					}
+					{!isEditWord &&
+            <Button
+              style={buttonBottomFreeze}
+              title='Следующее слово'
+              onPress={() => nextWord('next')}
+            />
 					}
 				</KeyboardAvoidingView>
 			</SafeAreaView>
