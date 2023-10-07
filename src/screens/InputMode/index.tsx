@@ -63,6 +63,13 @@ export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
   }, []);
 
   useEffect(() => {
+    if (isRandomMode) {
+      const shuffledModes = shuffle(modes);
+      setActiveMode(shuffledModes[0]);
+    }
+  }, [activeWord])
+
+  useEffect(() => {
     // console.log(inputsGroups);
   }, [inputsGroups]);
 
@@ -119,10 +126,6 @@ export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
   }
 
   const reset = () => {    
-    if (isRandomMode) {
-      const shuffledModes = shuffle(modes);
-      setActiveMode(shuffledModes[0]);
-    }
     setInputsGroups([emptyAnswer]);
     setCheckButtonDisabled(true);
     setActiveWord(null);
@@ -132,6 +135,10 @@ export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
   const next = () => {
     reset();
     fetchWord();
+    // if (isRandomMode) {
+    //   const shuffledModes = shuffle(modes);
+    //   setActiveMode(shuffledModes[0]);
+    // }
   }
 
   const check = () => {
@@ -180,7 +187,6 @@ export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
 
   const getTitle = (): string => {
     console.log(activeWord);
-    console.log(activeTranslate);
     switch (activeMode) {
       case 'word':
           return activeTranslate ?? '';
