@@ -195,6 +195,14 @@ export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
     }
   }
 
+  const removeTranslateInput = (index: number): void => {
+    let newInputsGroups: TAnswer[] = [... inputsGroups];
+    console.log(newInputsGroups);
+    newInputsGroups.splice(index, 1);
+    console.log(newInputsGroups);
+    setInputsGroups(newInputsGroups);
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <Header backPath={() => setAlertVisible(true)} />
@@ -241,11 +249,11 @@ export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
                     right: '-12%',
                     padding: 10,
                   },
-                  onPress: () => null,
+                  onPress: () => removeTranslateInput(index),
                 } : undefined}
               />
             ))}
-            <Button title='Добавить перевод' onPress={() => addNewTranslate()} disabled={checked} />
+            {activeMode === 'translate' && <Button title='Добавить перевод' onPress={() => addNewTranslate()} disabled={checked} />}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
