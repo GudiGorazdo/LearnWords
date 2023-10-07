@@ -233,6 +233,7 @@ export default class SWords implements ISwords {
 	static getNextWordInGroup(wordID: number, groupID: number, order: 'next'|'prev'): Promise<TWord | null> {
 		return new Promise<TWord | null>(async (resolve, reject) => {
 			const instance = await SWords.getInstance();
+      console.log(groupID);
 			instance.db.transaction((tx: Transaction) => {
 				tx.executeSql(`
 						SELECT 
@@ -242,14 +243,14 @@ export default class SWords implements ISwords {
               word_translate.context 
             FROM words 
             LEFT JOIN word_translate ON words.id = word_translate.word_id 
-            ${ groupID ? `
+            ${ groupID  ? `
               LEFT JOIN word_group ON word_group.word_id = words.id
               LEFT JOIN groups ON groups.id = word_group.group_id
             ` : ''}
             WHERE  
               ${ groupID ? `groups.id = (?) AND` : '' }
-              words.word ${order === 'next' ? '>' : '<'} (SELECT words.word FROM words WHERE id = ?)
-            ORDER BY words.word ${order === 'next' ? 'ASC' : 'DESC'}
+              words.word COLLATE NOCASE ${order === 'next' ? '>' : '<'} (SELECT words.word FROM words WHERE id = ?)
+            ORDER BY words.word COLLATE NOCASE ${order === 'next' ? 'ASC' : 'DESC'}
             LIMIT 1
 					;`,
 					groupID ? [groupID, wordID ] : [wordID],
@@ -291,7 +292,7 @@ export default class SWords implements ISwords {
             ORDER BY words.word ${order}
             LIMIT 1
 					;`,
-					[groupID],
+					groupID ? [groupID] : [],
 					// [wordID],
 					(tx: Transaction, results: ResultSet) => {
 						if (results.rows.length > 0) {
