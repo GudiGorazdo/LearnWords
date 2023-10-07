@@ -32,6 +32,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	const isNewWord = route.params.isNewWord ?? false;
 	const wordID = route.params.wordID ?? null;
 
+
 	const inputDataGroup: TTranslate = {
 		value: '',
 		context: [],
@@ -160,7 +161,6 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 	const dbSaveWord = async (word: TWord) => {
 		return new Promise(async (resolve, reject) => {
 			let result = null;
-			console.log('isNewWord: ', isNewWord);
 			if (isNewWord) {
 				result = await SWords.save(word);
 			} else {

@@ -3,6 +3,7 @@ import ISwords from './words.service';
 import SDB from '../db/db.service';
 
 import { TWord, TTranslate, TGroup } from './words.types';
+import { KeyboardAvoidingViewBase } from 'react-native';
 
 
 type TStructureTable = {
@@ -128,8 +129,8 @@ export default class SWords implements ISwords {
 				let sqlQuery = `
 					SELECT 
 						words.*,
-						groups.id as group_id,
 						groups.name as group_name,
+						groups.id as group_id,
 						groups.description as group_description
 					FROM words
 					LEFT JOIN word_group ON word_group.word_id = words.id

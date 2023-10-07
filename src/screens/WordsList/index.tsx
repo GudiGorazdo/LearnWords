@@ -68,7 +68,7 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 								'WordData',
 								{
 									backPathRoute: 'WordsList',
-									wordShow: true,
+									isShowWord: true,
 									wordID: word.id
 								}
 							)}

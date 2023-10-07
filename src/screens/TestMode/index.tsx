@@ -5,6 +5,7 @@ import { Header } from '../../modules/Header';
 import { Alert, TAlertButton } from '../../modules/Alert';
 import SWords from '../../storage/words/words.service';
 import { TTranslate, TWord } from '../../storage/words/words.types';
+import shuffle from '../../helpers/shuffleArray';
 
 import containerStyles from '../../styles/container';
 import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
@@ -62,7 +63,7 @@ export function TestMode({ navigation }: ITestModeScreenProps): JSX.Element {
 			...correctAnswers,
 			...inCorrectAnswers.slice(0, 6 - correctAnswers.length)
 		];
-		setActiveAnswers(answers.slice().sort(() => 0.5 - Math.random()));
+		setActiveAnswers(shuffle(answers));
 	}
 
 	const fetchWord = async () => {
@@ -94,8 +95,9 @@ export function TestMode({ navigation }: ITestModeScreenProps): JSX.Element {
 
 	function getRandomFromArr<T>(array: T[]): T[] {
 		const count = Math.floor(Math.random() * array.length) + 1;
-		const shuffledArray = array.slice().sort(() => 0.5 - Math.random());
-		return shuffledArray.slice(0, Math.min(count, shuffledArray.length));
+		const shuffledArray = shuffle(array);
+    const toSlice = Math.min(count, shuffledArray.length);
+		return shuffledArray.slice(0, toSlice);
 	}
 
 	const handleAnswerClick = (index: number) => {
