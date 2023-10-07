@@ -242,18 +242,17 @@ export default class SWords implements ISwords {
               word_translate.context 
             FROM words 
             LEFT JOIN word_translate ON words.id = word_translate.word_id 
-            LEFT JOIN word_group ON word_group.word_id = words.id
-            LEFT JOIN groups ON groups.id = word_group.group_id
-            WHERE 
-              groups.id = (SELECT groups.id FROM words 
-                           LEFT JOIN word_group ON word_group.word_id = words.id
-                           LEFT JOIN groups ON groups.id = word_group.group_id
-                           WHERE words.id = ?)
-              AND words.word ${order === 'next' ? '>' : '<'} (SELECT words.word FROM words WHERE id = ?)
+            ${ groupID ? `
+              LEFT JOIN word_group ON word_group.word_id = words.id
+              LEFT JOIN groups ON groups.id = word_group.group_id
+            ` : ''}
+            WHERE  
+              ${ groupID ? `groups.id = (?) AND` : '' }
+              words.word ${order === 'next' ? '>' : '<'} (SELECT words.word FROM words WHERE id = ?)
             ORDER BY words.word ${order === 'next' ? 'ASC' : 'DESC'}
             LIMIT 1
 					;`,
-					[groupID, wordID],
+					groupID ? [groupID, wordID ] : [wordID],
 					(tx: Transaction, results: ResultSet) => {
 						if (results.rows.length > 0) {
 							const word: TWord = instance.createWordData(results);
@@ -284,9 +283,11 @@ export default class SWords implements ISwords {
               word_translate.context 
             FROM words 
             LEFT JOIN word_translate ON words.id = word_translate.word_id 
-            LEFT JOIN word_group ON word_group.word_id = words.id
-            LEFT JOIN groups ON groups.id = word_group.group_id
-            WHERE groups.id = (?)
+            ${ groupID ? `
+              LEFT JOIN word_group ON word_group.word_id = words.id
+              LEFT JOIN groups ON groups.id = word_group.group_id
+              WHERE groups.id = (?)
+            ` : ''}
             ORDER BY words.word ${order}
             LIMIT 1
 					;`,
