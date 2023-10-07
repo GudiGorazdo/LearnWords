@@ -241,7 +241,6 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 
   const nextWord = async (order: 'next'|'prev') => {
 		let word = await SWords.getNextWordInGroup(wordID, groupID, order);
-    console.log(word);
     if (!word) {
       const extreme = order === 'next' ? 'first' : 'last';
       word = await SWords.getExtremeWordInGroup(groupID, extreme);
