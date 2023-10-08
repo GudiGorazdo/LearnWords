@@ -414,75 +414,49 @@ export default class SWords implements ISwords {
     }
   }
 
-  //TODO REFACTOR UPDATE FUNCTION
+  private static async updateWord(word: TWord): Promise<ResultSet> {
+    const sql = 'UPDATE words SET word = ? WHERE id = ?';
+    const params = [word.word, word.id];
+    return SWords.execute(sql, params);
+  }
+
+  private static async updateTranslation(translateData: TTranslate): Promise<ResultSet> {
+    const sql = 'UPDATE word_translate SET translate = ?, context = ? WHERE id = ?';
+    const contextJson: string = JSON.stringify(translateData?.context?.filter(item => item !== ''));
+    const params = [translateData.value, contextJson, translateData.id];
+    return SWords.execute(sql, params);
+  }
+
+  private static async deleteTranslation(translateData: TTranslate): Promise<ResultSet> {
+    const sql = 'DELETE FROM word_translate WHERE id = ?';
+    return SWords.execute(sql, [translateData.id]);
+  }
+
   static async update(word: TWord): Promise<boolean> {
     if (word.word === '') return false;
 
-    return new Promise<boolean>(async (resolve, reject) => {
-      const instance = await SWords.getInstance();
-      instance.db.transaction((tx: Transaction) => {
-        tx.executeSql(
-          'UPDATE words SET word = ? WHERE id = ?',
-          [word.word, word.id],
-          () => {
-            if (word.translate && Array.isArray(word.translate)) {
-              const promises = word.translate.map((translateData: TTranslate) => {
-                return new Promise<void>((resolve, reject) => {
-                  let { id, context, value } = translateData;
-                  context = context && context.filter(item => item !== '');
-                  const contextJson: string = JSON.stringify(context);
+    try {
+      await SWords.updateWord(word);
 
-                  if (translateData.new && word.id) {
-                    SWords.insertTranslation(translateData, word.id)
-                      .then(() => resolve())
-                      .catch(error => reject(error));
-                  } else if (translateData.removed) {
-                    tx.executeSql(
-                      'DELETE FROM word_translate WHERE id = ?',
-                      [id],
-                      () => {
-                        console.log(`Translation deleted.`);
-                        resolve();
-                      },
-                      (error: any) => {
-                        console.error(error);
-                        reject(error);
-                      }
-                    );
-                  } else {
-                    tx.executeSql(
-                      'UPDATE word_translate SET translate = ?, context = ? WHERE id = ?',
-                      [value, contextJson, id],
-                      () => {
-                        console.log(`Word ${word.word} updated.`);
-                        resolve();
-                      },
-                      (error: any) => {
-                        console.error(error);
-                        reject(error);
-                      }
-                    );
-                  }
-                });
-              });
-
-              Promise.all(promises)
-                .then(() => resolve(true))
-                .catch(error => {
-                  console.error(error);
-                  resolve(false);
-                });
-            } else {
-              resolve(true);
-            }
-          },
-          (error: any) => {
-            console.error(error);
-            resolve(false);
+      if (word.translate && Array.isArray(word.translate)) {
+        const promises = word.translate.map(async (translateData: TTranslate) => {
+          if (translateData.new && word.id) {
+            await SWords.insertTranslation(translateData, word.id);
+          } else if (translateData.removed) {
+            await SWords.deleteTranslation(translateData);
+          } else {
+            await SWords.updateTranslation(translateData);
           }
-        );
-      });
-    });
+        });
+
+        await Promise.all(promises);
+        return true;
+      }
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
   }
 
   static async removeByID(id: number) {
@@ -545,7 +519,7 @@ export default class SWords implements ISwords {
           const resultsInsert: ResultSet = await SWords.execute(insertQuery, insertParams);
           if (resultsInsert.insertId) resolve(resultsInsert.insertId);
         }
-      } catch(error) {
+      } catch (error) {
         reject(error);
         console.log(error);
       }
@@ -558,7 +532,7 @@ export default class SWords implements ISwords {
     try {
       await SWords.execute(sql, params);
       console.log(`word ${wordID} added to ${groupID} group`);
-    } catch(error) {
+    } catch (error) {
       throw error;
     }
   }
