@@ -74,74 +74,72 @@ export default class SWords implements ISwords {
   private static async execute(sql: string, params: Array<any> = []): Promise<ResultSet> {
     const instance = await SWords.getInstance();
     return new Promise(async (resolve, reject) => {
-      try {
-        instance.db.transaction((tx: Transaction) => {
-          tx.executeSql(sql, params,
-            (tx: Transaction, results: ResultSet) => {
-              resolve(results)
-            },
-            (error: any) => {
-              reject(error);
-              console.error(error);
-            }
-          );
-        });
-      } catch (error: any) {
-        reject(error);
-        console.log(error);
-      }
+      instance.db.transaction((tx: Transaction) => {
+        tx.executeSql(sql, params,
+          (tx: Transaction, results: ResultSet) => {
+            resolve(results)
+          },
+          (error: any) => {
+            reject(error);
+            console.error(error);
+          }
+        );
+      });
     });
   }
 
   static async getDictionaryCount(): Promise<number> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const results: ResultSet = await SWords.execute(`SELECT COUNT(id) as count FROM words`);
-        const result = results.rows.item(0);
-        if (result) resolve(result.count);
-        else reject(0)
-      } catch (error: any) {
-        reject(error);
-        console.log(error);
+    try {
+      const results: ResultSet = await SWords.execute(`SELECT COUNT(id) as count FROM words`);
+      const result = results.rows.item(0);
+      if (result) {
+        return result.count;
       }
-    });
+      throw new Error("No count result");
+    } catch (error: any) {
+      console.error(error);
+      throw error;
+    }
   }
 
   static async getWithoutGroupsCount(): Promise<number> {
     const sql = `
-							SELECT COUNT(words.id) as count
-							FROM words
-							LEFT JOIN word_group ON word_group.word_id = words.id
-							WHERE word_group.word_id IS NULL
-						`;
-    return new Promise(async (resolve, reject) => {
-      try {
-        const results: ResultSet = await SWords.execute(sql);
-        const result = results.rows.item(0);
-        if (result) resolve(result.count);
-        else reject(0)
-      } catch (error: any) {
-        reject(error);
-        console.log(error);
+        SELECT COUNT(words.id) as count
+        FROM words
+        LEFT JOIN word_group ON word_group.word_id = words.id
+        WHERE word_group.word_id IS NULL
+    `;
+
+    try {
+      const results: ResultSet = await SWords.execute(sql);
+      const result = results.rows.item(0);
+      if (result) {
+        return result.count;
+      } else {
+        throw new Error("Result is null");
       }
-    });
+    } catch (error: any) {
+      console.error(error);
+      throw error;
+    }
   }
 
   static async getWordsList(groups?: number | number[] | 'null'): Promise<TWord[]> {
     let sql = `
-					SELECT 
-						words.*,
-						groups.name as group_name,
-						groups.id as group_id,
-						groups.description as group_description
-					FROM words
-					LEFT JOIN word_group ON word_group.word_id = words.id
-					LEFT JOIN groups ON groups.id = word_group.group_id
-				`;
+        SELECT
+          words.*,
+          groups.name as group_name,
+          groups.id as group_id,
+          groups.description as group_description
+        FROM words
+        LEFT JOIN word_group ON word_group.word_id = words.id
+        LEFT JOIN groups ON groups.id = word_group.group_id
+      `;
+
     if (groups) {
       if (Array.isArray(groups)) {
-        groups = groups.join(' ,');
-        sql += ` WHERE groups.id IN (${groups})`;
+        const groupList = groups.join(', ');
+        sql += ` WHERE groups.id IN (${groupList})`;
       }
       if (typeof groups === "number") {
         sql += ` WHERE groups.id = ${groups}`;
@@ -151,22 +149,20 @@ export default class SWords implements ISwords {
       }
     }
 
-    return new Promise<TWord[]>(async (resolve, reject) => {
-      try {
-        const results: ResultSet = await SWords.execute(sql);
-        const len = results.rows.length;
-        const words: TWord[] = [];
+    try {
+      const results: ResultSet = await SWords.execute(sql);
+      const len = results.rows.length;
+      const words: TWord[] = [];
 
-        for (let i = 0; i < len; i++) {
-          const row = results.rows.item(i);
-          words.push(row);
-        }
-        resolve(words);
-      } catch (error) {
-        reject(error);
-        console.log(error);
+      for (let i = 0; i < len; i++) {
+        const row = results.rows.item(i);
+        words.push(row);
       }
-    });
+      return words;
+    } catch (error: any) {
+      console.error(error);
+      throw error;
+    }
   }
 
   private static createWordData(results: ResultSet): TWord {
@@ -196,76 +192,71 @@ export default class SWords implements ISwords {
     return wordTranslations;
   }
 
-  static getRandom(): Promise<TWord | null> {
+  static async getRandom(): Promise<TWord | null> {
     const sql = `
-						SELECT words.*, 
-							word_translate.id as t_id, 
-							word_translate.translate, 
-							word_translate.context
-						FROM words 
-						LEFT JOIN word_translate on words.id=word_translate.word_id 
-						ORDER BY RANDOM() 
-						LIMIT 1
-					;`
+        SELECT words.*,
+          word_translate.id as t_id,
+          word_translate.translate,
+          word_translate.context
+        FROM words
+        LEFT JOIN word_translate on words.id=word_translate.word_id
+        ORDER BY RANDOM()
+        LIMIT 1
+      ;`
 
-    return new Promise<TWord | null>(async (resolve, reject) => {
-      try {
-        const results: ResultSet = await SWords.execute(sql);
-        const word: TWord = SWords.createWordData(results);
-        resolve(word);
-      } catch (error) {
-        reject(error);
-        console.log(error);
-      }
-    });
+    try {
+      const results: ResultSet = await SWords.execute(sql);
+      const word: TWord = SWords.createWordData(results);
+      return word;
+    } catch (error: any) {
+      console.error(error);
+      throw error;
+    }
   }
 
-  static getNextWordInGroup(wordID: number, groupID: number, order: 'next' | 'prev'): Promise<TWord | null> {
+  static async getNextWordInGroup(wordID: number, groupID: number, order: 'next' | 'prev'): Promise<TWord | null> {
     const sql = `
-						SELECT 
-              words.*, 
-              word_translate.id as t_id, 
-              word_translate.translate, 
-              word_translate.context 
-            FROM words 
-            LEFT JOIN word_translate ON words.id = word_translate.word_id 
+            SELECT
+              words.*,
+              word_translate.id as t_id,
+              word_translate.translate,
+              word_translate.context
+            FROM words
+            LEFT JOIN word_translate ON words.id = word_translate.word_id
             ${groupID ? `
               LEFT JOIN word_group ON word_group.word_id = words.id
               LEFT JOIN groups ON groups.id = word_group.group_id
             ` : ''}
-            WHERE  
+            WHERE
               ${groupID ? `groups.id = (?) AND` : ''}
               words.word COLLATE NOCASE ${order === 'next' ? '>' : '<'} (SELECT words.word FROM words WHERE id = ?)
             ORDER BY words.word COLLATE NOCASE ${order === 'next' ? 'ASC' : 'DESC'}
             LIMIT 1
-					;`;
+          `;
     const params = groupID ? [groupID, wordID] : [wordID];
 
-    return new Promise<TWord | null>(async (resolve, reject) => {
-      try {
-        const results: ResultSet = await SWords.execute(sql, params);
-        if (results.rows.length > 0) {
-          const word: TWord = SWords.createWordData(results);
-          resolve(word);
-        } else {
-          resolve(null);
-        }
-      } catch (error) {
-        reject(error);
-        console.log(error);
+    try {
+      const results: ResultSet = await SWords.execute(sql, params);
+      if (results.rows.length > 0) {
+        const word: TWord = SWords.createWordData(results);
+        return word;
       }
-    });
+      return null;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 
-  static getExtremeWordInGroup(groupID: number, extreme: 'first' | 'last'): Promise<TWord | null> {
+  static async getExtremeWordInGroup(groupID: number, extreme: 'first' | 'last'): Promise<TWord | null> {
     const sql = `
-						SELECT 
-              words.*, 
-              word_translate.id as t_id, 
-              word_translate.translate, 
-              word_translate.context 
-            FROM words 
-            LEFT JOIN word_translate ON words.id = word_translate.word_id 
+            SELECT
+              words.*,
+              word_translate.id as t_id,
+              word_translate.translate,
+              word_translate.context
+            FROM words
+            LEFT JOIN word_translate ON words.id = word_translate.word_id
             ${groupID ? `
               LEFT JOIN word_group ON word_group.word_id = words.id
               LEFT JOIN groups ON groups.id = word_group.group_id
@@ -273,131 +264,122 @@ export default class SWords implements ISwords {
             ` : ''}
             ORDER BY words.word ${extreme === 'first' ? 'ASC' : 'DESC'}
             LIMIT 1
-					;`;
+          `;
     const params = groupID ? [groupID] : [];
 
-    return new Promise<TWord | null>(async (resolve, reject) => {
-      try {
-        const results: ResultSet = await SWords.execute(sql, params);
-        if (results.rows.length > 0) {
-          const word: TWord = SWords.createWordData(results);
-          resolve(word);
-        } else {
-          resolve(null);
-        }
-      } catch (error) {
-        console.error(error);
-        reject(error);
+    try {
+      const results: ResultSet = await SWords.execute(sql, params);
+      if (results.rows.length > 0) {
+        const word: TWord = SWords.createWordData(results);
+        return word;
       }
-    });
+      return null;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 
-  static getRandomAnswers(wordID: number): Promise<TTranslate[]> {
+  static async getRandomAnswers(wordID: number): Promise<TTranslate[]> {
     const sql = `
-						SELECT *
-						FROM word_translate 
-						WHERE word_id <> (?) 
-						ORDER BY RANDOM() LIMIT 5
-					;`;
+            SELECT *
+            FROM word_translate
+            WHERE word_id <> (?)
+            ORDER BY RANDOM() LIMIT 5
+          `;
     const params = [wordID];
 
-    return new Promise<TTranslate[]>(async (resolve, reject) => {
-      try {
-        const results: ResultSet = await SWords.execute(sql, params);
-        if (results.rows.length > 0) {
-          const wordTranslations: TTranslate[] = SWords.createTranslationData(results);
-          resolve(wordTranslations);
-        } else {
-          resolve([]);
-        }
-      } catch (error) {
-        reject(error);
-        console.log(error)
+    try {
+      const results: ResultSet = await SWords.execute(sql, params);
+      if (results.rows.length > 0) {
+        const wordTranslations: TTranslate[] = SWords.createTranslationData(results);
+        return wordTranslations;
       }
-    });
+      return [];
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 
-  static getByID(id: number): Promise<TWord | null> {
+  static async getByID(id: number): Promise<TWord | null> {
     const sql = `
-						SELECT 
-							words.*, 
-							word_translate.id as t_id, 
-							word_translate.translate, 
-							word_translate.context 
-						FROM words left join word_translate on words.id=word_translate.word_id 
-						where words.id=(?)
-					;`;
+            SELECT
+                words.*,
+                word_translate.id as t_id,
+                word_translate.translate,
+                word_translate.context
+            FROM words
+            LEFT JOIN word_translate ON words.id = word_translate.word_id
+            WHERE words.id = (?)
+          `;
     const params = [id];
 
-    return new Promise<TWord | null>(async (resolve, reject) => {
-      try {
-        const results: ResultSet = await SWords.execute(sql, params);
-        if (results.rows.length > 0) {
-          const word: TWord = SWords.createWordData(results);
-          resolve(word);
-        } else {
-          resolve(null);
-        }
-      } catch (error) {
-        reject(error);
-        console.log(error)
+    try {
+      const results: ResultSet = await SWords.execute(sql, params);
+      if (results.rows.length > 0) {
+        const word: TWord = SWords.createWordData(results);
+        return word;
       }
-    });
+      return null;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 
   static async save(word: TWord): Promise<string> {
-    const sql = `SELECT id FROM words where word=(?)`;
+    const sql = `SELECT id FROM words WHERE word=(?)`;
     const params = [word.word];
 
-    return new Promise<string>(async (resolve, reject) => {
-      try {
-        const results: ResultSet = await SWords.execute(sql, params);
-        if (results.rows.length === 0) {
-          try {
-            await SWords.insertWordAndTranslations(word);
-            resolve('ok');
-          } catch (error: any) {
-            resolve('error');
-          }
-        } else {
-          resolve('dublicate');
+    try {
+      const results: ResultSet = await SWords.execute(sql, params);
+      if (results.rows.length === 0) {
+        try {
+          await SWords.insertWordAndTranslations(word);
+          return 'ok';
+        } catch (error: any) {
+          console.log(error);
+          return 'error';
         }
-      } catch (error) {
-        reject(error);
-        console.log(error);
+      } else {
+        return 'duplicate';
       }
-    });
+    } catch (error: any) {
+      console.log(error);
+      throw error;
+    }
   }
 
   private static async insertWordAndTranslations(word: TWord): Promise<boolean> {
     const sql = 'INSERT INTO words (word) VALUES (?)';
     const params = [word.word];
 
-    return new Promise<boolean>(async (resolve, reject) => {
-      try {
-        const results: ResultSet = await SWords.execute(sql, params);
-        const insertedWordID: number = results.insertId;
+    try {
+      const results: ResultSet = await SWords.execute(sql, params);
+      const insertedWordID: number = results.insertId;
 
-        if (word.groups) {
-          word.groups.forEach(async (group: number) => {
-            await SWords.insertGroup(group, insertedWordID);
-          });
-        }
-
-        if (word.translate && Array.isArray(word.translate)) {
-          word.translate.forEach(async (translateData: TTranslate) => {
-            if (translateData.value > '') {
-              await SWords.insertTranslation(translateData, insertedWordID);
-            }
-          });
-        }
-
-        resolve(true);
-      } catch (error) {
-        reject(error);
-        console.log(error);
+      if (word.groups) {
+        const groupPromises = word.groups.map(async (group: number) => {
+          await SWords.insertGroup(group, insertedWordID);
+        });
+        await Promise.all(groupPromises);
       }
-    });
+
+      if (word.translate && Array.isArray(word.translate)) {
+        const translationPromises = word.translate.map(async (translateData: TTranslate) => {
+          if (translateData.value > '') {
+            await SWords.insertTranslation(translateData, insertedWordID);
+          }
+        });
+        await Promise.all(translationPromises);
+      }
+
+      return true;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 
   private static async insertTranslation(translate: TTranslate, insertedWordId: number) {
@@ -466,41 +448,40 @@ export default class SWords implements ISwords {
       await SWords.execute('DELETE FROM words WHERE id = ?', [id]);
       console.log(`Word with ID ${id} has been deleted from words table.`);
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }
 
   static async getGroups(): Promise<TGroup[]> {
-    const sql = ` 
-						SELECT 
-							groups.*, 
-							COUNT(words.id) AS count
-						FROM groups
-						LEFT JOIN word_group ON groups.id = word_group.group_id
-						LEFT JOIN words ON word_group.word_id = words.id
-						GROUP BY groups.id
-					;`;
+    const sql = `
+            SELECT
+              groups.*,
+              COUNT(words.id) AS count
+            FROM groups
+            LEFT JOIN word_group ON groups.id = word_group.group_id
+            LEFT JOIN words ON word_group.word_id = words.id
+            GROUP BY groups.id
+          ;`;
 
-    return new Promise<TGroup[]>(async (resolve, reject) => {
-      try {
-        const results: ResultSet = await SWords.execute(sql);
-        const groups: TGroup[] = [];
-        for (let i = 0; i < results.rows.length; i++) {
-          const result = results.rows.item(i) as TGroup;
-          const group: TGroup = {
-            id: result.id,
-            description: result.description ?? undefined,
-            name: result.name,
-            count: result.count,
-          }
-          groups.push(group);
-        }
-        resolve(groups);
-      } catch (error) {
-        reject(error);
-        console.log(error);
+    try {
+      const results: ResultSet = await SWords.execute(sql);
+      const groups: TGroup[] = [];
+      for (let i = 0; i < results.rows.length; i++) {
+        const result = results.rows.item(i) as TGroup;
+        const group: TGroup = {
+          id: result.id,
+          description: result.description ?? undefined,
+          name: result.name,
+          count: result.count,
+        };
+        groups.push(group);
       }
-    });
+      return groups;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 
   static async createGroup(name: string, description?: string): Promise<string | number> {
@@ -509,21 +490,21 @@ export default class SWords implements ISwords {
     const insertQuery = 'INSERT INTO groups (name, description) VALUES (?, ?)';
     const insertParams = [name, description ?? null];
 
-    return new Promise<string | number>(async (resolve, reject) => {
-      try {
-        const resultsSelect: ResultSet = await SWords.execute(selectQuery, selectParams);
-        const count = resultsSelect.rows.item(0).count;
-        if (count > 0) {
-          resolve('duplicate');
-        } else {
-          const resultsInsert: ResultSet = await SWords.execute(insertQuery, insertParams);
-          if (resultsInsert.insertId) resolve(resultsInsert.insertId);
-        }
-      } catch (error) {
-        reject(error);
-        console.log(error);
+    try {
+      const resultsSelect: ResultSet = await SWords.execute(selectQuery, selectParams);
+      const count = resultsSelect.rows.item(0).count;
+
+      if (count > 0) {
+        return 'duplicate';
       }
-    });
+
+      const resultsInsert: ResultSet = await SWords.execute(insertQuery, insertParams);
+      return resultsInsert.insertId;
+
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 
   private static async insertGroup(groupID: number, wordID: number) {
@@ -533,6 +514,7 @@ export default class SWords implements ISwords {
       await SWords.execute(sql, params);
       console.log(`word ${wordID} added to ${groupID} group`);
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }
@@ -543,7 +525,8 @@ export default class SWords implements ISwords {
       await this.db.executeSql(dropTableQuery);
       console.log(`Таблица "${table.name}" успешно удалена`);
     } catch (error) {
-      console.log('DROP ERR: ', error); ''
+      console.log('DROP ERR: ', error);
+      throw error;
     }
   }
 
@@ -554,40 +537,39 @@ export default class SWords implements ISwords {
       console.log(table.name, ' table is ok.');
     } catch (error) {
       console.log('Ошибка при создании таблицы:', error);
+      throw error;
     }
   }
 
   private async reset() {
-    for (const table of this.tables) {
-      await this.dropTable(table);
-      await this.checkTable(table);
-    }
-
     try {
+      for (const table of this.tables) {
+        await this.dropTable(table);
+        await this.checkTable(table);
+      }
       const result: TStartDB = await this.getFromJSON();
       for (const word of result.data) {
         word.groups = result.groups;
         await SWords.save(word);
       }
-    } catch (error: any) {
-      console.log('error');
+    } catch (error) {
       console.log(error);
+      throw error;
     }
   }
 
-  private getFromJSON(): Promise<TStartDB> {
-    return new Promise<TStartDB>(async (resolve, reject) => {
-      try {
-        const data: TWord[] = await require('../../assets/startDB/basic.json');
-        const groupIDResult = await SWords.createGroup('Первая группа');
-        let groupID: number = 0;
-        if (typeof groupIDResult === 'number') groupID = groupIDResult;
-        const result: TStartDB = { data: data, groups: [groupID] };
-        resolve(result)
-      } catch (error: any) {
-        reject({})
-      }
-    });
+  private async getFromJSON(): Promise<TStartDB> {
+    try {
+      const data: TWord[] = await require('../../assets/startDB/basic.json');
+      const groupIDResult = await SWords.createGroup('Первая группа');
+      let groupID: number = 0;
+      if (typeof groupIDResult === 'number') groupID = groupIDResult;
+      const result: TStartDB = { data: data, groups: [groupID] };
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 
   static async getInstance() {
@@ -596,7 +578,6 @@ export default class SWords implements ISwords {
     await SWords.instance.init();
     return SWords.instance;
   }
-
 }
 
 

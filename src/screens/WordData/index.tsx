@@ -185,7 +185,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 		setAlertMessage('Слово сохранено');
 		try {
 			const result = await dbSaveWord(word);
-			if (result === 'dublicate') {
+			if (result === 'duplicate') {
 				setAlertMessage('Слово уже есть в словаре');
 			}
 			if (isNewWord) setAlertVisible(true);
@@ -249,7 +249,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
       setWordID(word.id);
       setInputWord(word.word);
       setInputsGroup(word.translate);
-    } 
+    }
   }
 
 	const inputGroupTemplate = (index: number, data: TTranslate): JSX.Element => {
