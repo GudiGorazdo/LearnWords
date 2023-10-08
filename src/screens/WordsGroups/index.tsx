@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavigationProp } from '@react-navigation/native';
+import { NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { Header } from '../../modules/Header';
 import { GroupForm } from '../../modules/GroupForm';
 import SWords from '../../storage/words/words.service';
@@ -32,6 +32,9 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 		getData();
 	}, [switchData]);
 
+	useFocusEffect(() => {
+		getData();
+	});
 
 	const getData = async () => {
 		try {

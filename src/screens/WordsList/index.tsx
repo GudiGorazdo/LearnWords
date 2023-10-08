@@ -36,9 +36,9 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 	const [wordToRemove, setWordToRemove] = useState<TWord | null>(null);
 	const [isAlertVisible, setAlertVisible] = useState(false);
 
-	useEffect(() => {
+	useFocusEffect(() => {
 		fetchWords();
-	}, []);
+	});
 
 	const fetchWords = async () => {
 		try {
