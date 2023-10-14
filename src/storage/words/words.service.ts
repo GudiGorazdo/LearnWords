@@ -69,6 +69,7 @@ export default class SWords implements ISwords {
     for (const table of this.tables) {
       await this.checkTable(table);
     }
+    // this.reset();
     this.isInitialized = true;
   }
 

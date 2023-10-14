@@ -13,11 +13,9 @@ export const Home = ({ navigation }: IHomeScreenProps): JSX.Element => {
 			<Button
 				title='Добавить'
 				onPress={() => navigation.navigate(
-					'WordData',
+					'WordEdit',
 					{
 						backPathRoute: 'Home',
-						isShowWord: false,
-						isEditWord: true,
 						isNewWord: true,
 					}
 				)}
