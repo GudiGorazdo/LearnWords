@@ -47,7 +47,7 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 	}
 
 	const getGroups = async () => {
-		const allArr: TGroup[] = await SWords.getGroups();
+    const allArr: TGroup[] = await SWords.getGroups();
 		setGroups(allArr);
 	}
 

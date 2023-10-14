@@ -47,6 +47,7 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 			setWords(words);
 		} catch (error) {
 			console.log(error);
+      throw error;
 		}
 	}
 
@@ -60,7 +61,22 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 
 	return (
 		<SafeAreaView style={styles.container}>
-			<Header backPath={() => navigation.navigate(backPathRoute)} />
+			<Header 
+        backPath={() => navigation.navigate(backPathRoute)} 
+        rightIcon={{
+          type: IconsStrings.plus,
+          onPress: () => navigation.navigate(
+					'WordData',
+					{
+						backPathRoute: 'Home',
+            groupID: groupID,
+						isShowWord: false,
+						isEditWord: true,
+						isNewWord: true,
+					}
+				),
+        }}
+      />
 			<ScrollView contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
 				{words.map((word: TWord) => (
 					<View key={word.id} style={styles.rowContainer} >

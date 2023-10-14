@@ -5,17 +5,15 @@
 // }
 //
 
-import {
-	StyleSheet,
-} from 'react-native';
+import {StyleSheet} from 'react-native';
 
 const centeredContent = StyleSheet.create({
-	style: {
-		marginTop: 'auto',
-		marginBottom: 'auto',
-		justifyContent: 'center',
-		rowGap: 20,
-	}
+  style: {
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    justifyContent: 'center',
+    rowGap: 20,
+  },
 });
 
 export default centeredContent.style;

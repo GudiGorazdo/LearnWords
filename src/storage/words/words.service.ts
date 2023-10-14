@@ -15,6 +15,7 @@ type TStructureTable = {
 type TStartDB = { data: TWord[], groups: number[] };
 
 export default class SWords implements ISwords {
+  private isInitialized = false;
   private static instance: ISwords;
   private db: SQLiteDatabase | null = null;
 
@@ -65,10 +66,23 @@ export default class SWords implements ISwords {
   private async init() {
     const instanceDB = await SDB.getInstance();
     this.db = await instanceDB.getDBConnection();
-    // await this.reset();
-    this.tables.forEach(async table => {
+    for (const table of this.tables) {
       await this.checkTable(table);
-    });
+    }
+    this.isInitialized = true;
+  }
+
+  static async getInstance() {
+    if (!SWords.instance) {
+      SWords.instance = new SWords();
+      await SWords.instance.init();
+    }
+    let timeout = 0;
+    while (!SWords.instance.isInitialized && timeout < 100) {
+      await new Promise(resolve => setTimeout(resolve as unknown as () => void, 100));
+      timeout++;
+    }
+    return SWords.instance;
   }
 
   private static async execute(sql: string, params: Array<any> = []): Promise<ResultSet> {
@@ -166,7 +180,7 @@ export default class SWords implements ISwords {
   }
 
   private static createWordData(results: ResultSet): TWord {
-    const wordTranslations: TTranslate[] = SWords.createTranslationData(results);
+    const wordTranslations: TTranslate[] = SWords.createTranslationsData(results);
     const word: TWord = {
       id: results.rows.item(0).id,
       word: results.rows.item(0).word,
@@ -176,7 +190,7 @@ export default class SWords implements ISwords {
     return word;
   }
 
-  private static createTranslationData(results: ResultSet): TTranslate[] {
+  private static createTranslationsData(results: ResultSet): TTranslate[] {
     const wordTranslations: TTranslate[] = [];
 
     for (let i = 0; i < results.rows.length; i++) {
@@ -292,7 +306,7 @@ export default class SWords implements ISwords {
     try {
       const results: ResultSet = await SWords.execute(sql, params);
       if (results.rows.length > 0) {
-        const wordTranslations: TTranslate[] = SWords.createTranslationData(results);
+        const wordTranslations: TTranslate[] = SWords.createTranslationsData(results);
         return wordTranslations;
       }
       return [];
@@ -443,17 +457,15 @@ export default class SWords implements ISwords {
 
   static async removeByID(id: number) {
     try {
-      await SWords.execute('DELETE FROM word_translate WHERE word_id = ?', [id]);
-      console.log(`Word with ID ${id} has been deleted from word_translate table.`);
       await SWords.execute('DELETE FROM words WHERE id = ?', [id]);
-      console.log(`Word with ID ${id} has been deleted from words table.`);
+      console.log(`Word with ID ${id} has been deleted.`);
     } catch (error) {
       console.log(error);
       throw error;
     }
   }
 
-  static async getGroups(): Promise<TGroup[]> {
+  static async getGroups(wordID: number|null = null): Promise<TGroup[]> {
     const sql = `
             SELECT
               groups.*,
@@ -461,21 +473,18 @@ export default class SWords implements ISwords {
             FROM groups
             LEFT JOIN word_group ON groups.id = word_group.group_id
             LEFT JOIN words ON word_group.word_id = words.id
+            ${ wordID ? 'WHERE words.id = (?)' : ''}
             GROUP BY groups.id
           ;`;
+    const params = wordID ? [wordID] : [];
 
     try {
-      const results: ResultSet = await SWords.execute(sql);
+      const results: ResultSet = await SWords.execute(sql, params);
       const groups: TGroup[] = [];
+      if (!results || !results.rows) return [];
       for (let i = 0; i < results.rows.length; i++) {
         const result = results.rows.item(i) as TGroup;
-        const group: TGroup = {
-          id: result.id,
-          description: result.description ?? undefined,
-          name: result.name,
-          count: result.count,
-        };
-        groups.push(group);
+        groups.push(result);
       }
       return groups;
     } catch (error) {
@@ -570,13 +579,6 @@ export default class SWords implements ISwords {
       console.log(error);
       throw error;
     }
-  }
-
-  static async getInstance() {
-    if (SWords.instance) return SWords.instance;
-    SWords.instance = new SWords();
-    await SWords.instance.init();
-    return SWords.instance;
   }
 }
 
