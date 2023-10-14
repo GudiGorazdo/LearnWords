@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { CenteredContent } from '../../modules/CenteredContent';
 import { Button } from '../../components/Button';
 
@@ -10,14 +10,14 @@ import {
 } from 'react-native';
 
 interface ITrainingScreenProps {
-	navigation: NavigationProp<any>,
+	navigation: StackNavigationProp<any>,
 }
 
 export function Training ({ navigation }: ITrainingScreenProps): JSX.Element {
 	return (
-		<CenteredContent navigation={navigation} header={true} backPath="Home">
-			<Button title='Режим теста' onPress={() => navigation.navigate('TestMode')} />
-			<Button title='Режим ввода' onPress={() => navigation.navigate('InputMode')} />
+		<CenteredContent navigation={navigation} header={true} >
+			<Button title='Режим теста' onPress={() => navigation.push('TestMode')} />
+			<Button title='Режим ввода' onPress={() => navigation.push('InputMode')} />
 		</CenteredContent>
 	);
 }

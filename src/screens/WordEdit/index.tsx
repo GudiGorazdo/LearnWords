@@ -37,7 +37,6 @@ interface IWordEditScreenProps {
 
 export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const route = useRoute();
-  const backPathRoute = route.params.backPathRoute;
   const isNewWord = route.params.isNewWord ?? false;
   const wordID = route.params.wordID ?? null;
 
@@ -237,9 +236,8 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
           setAlertVisible(!isAlertVisible);
           resetForm();
           setStart(true);
-          navigation.navigate('WordEdit', {
-            backPathRoute: backPathRoute,
-          });
+          // navigation.navigate('WordEdit', {
+          // });
         },
       });
     }
@@ -248,7 +246,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
       onPress: () => {
         setAlertVisible(!isAlertVisible);
         setStart(true);
-        navigation.navigate(backPathRoute);
+        // navigation.navigate(backPathRoute);
       },
     });
 
@@ -324,7 +322,8 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
         <Header
           backPath={() => {
             setStart(true);
-            if (!isNewWord) navigation.navigate(backPathRoute);
+            navigation.goBack();
+            // if (!isNewWord) navigation.navigate(backPathRoute);
           }}
           accept={() => saveWord()}
         />

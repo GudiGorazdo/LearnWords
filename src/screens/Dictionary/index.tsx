@@ -15,7 +15,6 @@ export const Dictionary = ({ navigation }: IDictionaryScreenProps): JSX.Element 
 				onPress={() => navigation.navigate(
 					'WordData',
 					{
-						backPathRoute: 'Dictionary',
 						wordShow: false,
 						wordEdit: true,
 						wordNew: true,

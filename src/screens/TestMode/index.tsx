@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { Button } from '../../components/Button';
 import { Header } from '../../modules/Header';
 import { Alert, TAlertButton } from '../../modules/Alert';
@@ -19,7 +19,7 @@ import {
 } from 'react-native';
 
 interface ITestModeScreenProps {
-	navigation: NavigationProp<any>;
+	navigation: StackNavigationProp<any>;
 }
 
 type TAnswer = TTranslate & {
@@ -118,7 +118,7 @@ export function TestMode({ navigation }: ITestModeScreenProps): JSX.Element {
 				title: 'Прервать',
 				onPress: () => {
 					setAlertVisible(!isAlertVisible);
-					navigation.navigate('Training');
+					navigation.goBack();
 				},
 			},
 			{

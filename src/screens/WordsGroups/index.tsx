@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavigationProp, useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { Header } from '../../modules/Header';
 import { GroupForm } from '../../modules/GroupForm';
 import SWords from '../../storage/words/words.service';
@@ -17,7 +18,7 @@ import {
 } from 'react-native';
 
 interface IWordsGroupsScreenProps {
-	navigation: NavigationProp<any>,
+	navigation: StackNavigationProp<any>,
 }
 
 export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Element {
@@ -66,10 +67,9 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 			<TouchableOpacity
 				key={`group-${id ?? 'no-group'}`}
 				style={[styles.rowContainer]}
-				onPress={() => navigation.navigate(
+				onPress={() => navigation.push(
 					'WordsList',
 					{
-						backPathRoute: 'WordsGroups',
 						groupID: id ?? 'null',
 					}
 				)}
@@ -84,7 +84,7 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 		<>
 			<SafeAreaView style={styles.container}>
 				<Header
-					backPath={() => navigation.navigate('Home')}
+					backPath={() => navigation.goBack()}
 					rightIcon={{
 						type: IconsStrings.plus,
 						onPress: () => setGroupFormVisible(true),

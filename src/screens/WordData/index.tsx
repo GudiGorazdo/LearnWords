@@ -1,13 +1,6 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-} from 'react';
-import {
-  NavigationProp,
-  useRoute,
-  useFocusEffect,
-} from '@react-navigation/native';
+import React, { useState } from 'react';
+import { useRoute, useFocusEffect, } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { Button } from '../../components/Button';
 import { Header } from '../../modules/Header';
 import SWords from '../../storage/words/words.service';
@@ -28,12 +21,11 @@ import {
 } from 'react-native';
 
 interface IWordDataScreenProps {
-  navigation: NavigationProp<any>;
+  navigation: StackNavigationProp<any>;
 }
 
 export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
   const route = useRoute();
-  const backPathRoute = route.params.backPathRoute;
   const groupID = route.params.groupID ?? null;
 
   const wordDataGroup: TTranslate = {
@@ -79,18 +71,12 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
     <>
       <SafeAreaView style={styles.safeArea}>
         <Header
-          backPath={() => {
-            navigation.navigate(backPathRoute);
-          }}
+          backPath={() => navigation.goBack() }
           rightIcon={{
             type: IconsStrings.edit,
-            onPress: () => navigation.navigate(
+            onPress: () => navigation.push(
               'WordEdit',
-              {
-                backPathRoute: 'WordData',
-                isNewWord: false,
-                wordID: wordID,
-              }
+              { isNewWord: false, wordID: wordID, }
             ),
           }}
         />

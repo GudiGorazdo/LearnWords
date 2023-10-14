@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useFocusEffect, NavigationProp, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { Header } from '../../modules/Header';
 import { Alert, TAlertButton } from '../../modules/Alert';
 import SWords from '../../storage/words/words.service';
@@ -21,13 +22,12 @@ import {
 } from 'react-native';
 
 interface IWordsListScreenProps {
-	navigation: NavigationProp<any>,
+	navigation: StackNavigationProp<any>,
 }
 
 
 export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 	const route = useRoute();
-	const backPathRoute = route.params?.backPathRoute || 'Home';
 	const [groupID, setGroupID] = useState(route.params?.groupID ?? null);
 
 	const startArr: TWord[] = [];
@@ -62,16 +62,13 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 	return (
 		<SafeAreaView style={styles.container}>
 			<Header 
-        backPath={() => navigation.navigate(backPathRoute)} 
+        backPath={() => navigation.goBack()} 
         rightIcon={{
           type: IconsStrings.plus,
-          onPress: () => navigation.navigate(
-					'WordData',
+          onPress: () => navigation.push(
+					'WordEdit',
 					{
-						backPathRoute: 'Home',
             groupID: groupID,
-						isShowWord: false,
-						isEditWord: true,
 						isNewWord: true,
 					}
 				),
@@ -82,10 +79,9 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 					<View key={word.id} style={styles.rowContainer} >
 						<TouchableOpacity
 							style={styles.wordContainer}
-							onPress={() => navigation.navigate(
+							onPress={() => navigation.push(
 								'WordData',
 								{
-									backPathRoute: 'WordsList',
 									isShowWord: true,
 									wordID: word.id,
                   groupID: groupID,
@@ -106,10 +102,9 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
       <Button
         style={buttonBottomFreeze}
         title='Учить'
-        onPress={() => navigation.navigate(
+        onPress={() => navigation.push(
             'WordData',
             {
-              backPathRoute: 'WordsList',
               isShowWord: true,
               wordID: words[0].id,
               groupID: groupID,

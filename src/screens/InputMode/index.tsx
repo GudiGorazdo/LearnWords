@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo, MutableRefObject } from 'react';
-import { NavigationProp, useRoute, useFocusEffect } from '@react-navigation/native';
+import { useRoute, useFocusEffect } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
@@ -23,7 +24,7 @@ import {
 } from 'react-native';
 
 interface IInputModeScreenProps {
-  navigation: NavigationProp<any>;
+  navigation: StackNavigationProp<any>;
 }
 
 type TAnswer = {
@@ -100,7 +101,7 @@ export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
         title: 'Прервать',
         onPress: () => {
           setAlertVisible(!isAlertVisible);
-          navigation.navigate('Training');
+          navigation.goBack();
         },
       },
       {
