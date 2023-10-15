@@ -105,7 +105,6 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
         onPress={() => navigation.push(
             'WordData',
             {
-              isShowWord: true,
               wordID: words[0].id,
               groupID: groupID,
             }

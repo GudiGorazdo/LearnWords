@@ -36,7 +36,6 @@ export function TestMode({ navigation }: ITestModeScreenProps): JSX.Element {
 	const [isAnyAnswerSelected, setIsAnyAnswerSelected] = useState(false);
 	const [checked, setChecked] = useState(false);
 
-
 	useEffect(() => {
 		fetchWord();
 	}, []);
@@ -55,7 +54,6 @@ export function TestMode({ navigation }: ITestModeScreenProps): JSX.Element {
 	}, [correctAnswers, inCorrectAnswers]);
 
 	useEffect(() => {
-		// if (activeAnswers) console.log('answers\n', activeAnswers);
 	}, [activeAnswers]);
 
 	const getAnswers = () => {
@@ -197,6 +195,7 @@ export function TestMode({ navigation }: ITestModeScreenProps): JSX.Element {
 const styles = StyleSheet.create({
 	safeArea: {
 		flex: 1,
+    justifyContent: 'flex-end',
 	},
 
 	flex: {

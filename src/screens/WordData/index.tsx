@@ -80,11 +80,6 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
             ),
           }}
         />
-        <KeyboardAvoidingView
-          style={styles.flex}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-        >
           <Button title="Предыдущее слово" onPress={() => nextWord('prev')} />
           <ScrollView
             contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
@@ -114,12 +109,11 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
               })}
             </View>
           </ScrollView>
-          <Button
-            style={buttonBottomFreeze}
-            title="Следующее слово"
-            onPress={() => nextWord('next')}
-          />
-        </KeyboardAvoidingView>
+        <Button
+          style={buttonBottomFreeze}
+          title="Следующее слово"
+          onPress={() => nextWord('next')}
+        />
       </SafeAreaView>
     </>
   );

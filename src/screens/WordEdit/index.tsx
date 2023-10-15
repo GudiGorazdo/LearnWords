@@ -1,13 +1,6 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-} from 'react';
-import {
-  NavigationProp,
-  useRoute,
-  useFocusEffect,
-} from '@react-navigation/native';
+import React, { useState, useRef, useEffect, } from 'react';
+import { useRoute, useFocusEffect, } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
@@ -18,6 +11,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import IconsStrings from '../../assets/awesomeIcons';
 import SelectDropdown from 'react-native-select-dropdown';
 import { BottomModalWindow } from '../../modules/BottomModalWindow';
+import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 
 import containerStyles from '../../styles/container';
 import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
@@ -32,7 +26,7 @@ import {
 } from 'react-native';
 
 interface IWordEditScreenProps {
-  navigation: NavigationProp<any>;
+  navigation: StackNavigationProp<any>;
 }
 
 export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
@@ -236,8 +230,9 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
           setAlertVisible(!isAlertVisible);
           resetForm();
           setStart(true);
-          // navigation.navigate('WordEdit', {
-          // });
+          navigation.push('WordEdit', {
+            isNewWord: true, 
+          });
         },
       });
     }
@@ -246,7 +241,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
       onPress: () => {
         setAlertVisible(!isAlertVisible);
         setStart(true);
-        // navigation.navigate(backPathRoute);
+        navigation.goBack();
       },
     });
 
@@ -323,14 +318,13 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
           backPath={() => {
             setStart(true);
             navigation.goBack();
-            // if (!isNewWord) navigation.navigate(backPathRoute);
           }}
           accept={() => saveWord()}
         />
         <KeyboardAvoidingView
           style={styles.flex}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
+          keyboardVerticalOffset={Platform.OS === 'ios' ? getStatusBarHeight(true) : 0}>
           <ScrollView
             ref={scrollViewRef}
             contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
@@ -351,15 +345,15 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
               )}
             </View>
           </ScrollView>
-          <Button
-            style={buttonBottomFreeze}
-            title="Добавить перевод"
-            onPress={() => {
-              setStartScroll(false);
-              addNewTranslate();
-            }}
-          />
         </KeyboardAvoidingView>
+        <Button
+          style={buttonBottomFreeze}
+          title="Добавить перевод"
+          onPress={() => {
+            setStartScroll(false);
+            addNewTranslate();
+          }}
+        />
       </SafeAreaView>
       <BottomModalWindow
         isVisible={isGroupListVisible}
