@@ -28,13 +28,13 @@ interface IWordsListScreenProps {
 
 export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 	const route = useRoute();
-	const [groupID, setGroupID] = useState(route.params?.groupID ?? null);
+	const [groupID, setGroupID] = useState<number|null>(route.params?.groupID ?? null);
 
 	const startArr: TWord[] = [];
-	const [words, setWords] = useState(startArr);
+	const [words, setWords] = useState<TWord[]>(startArr);
 
 	const [wordToRemove, setWordToRemove] = useState<TWord | null>(null);
-	const [isAlertVisible, setAlertVisible] = useState(false);
+	const [isAlertVisible, setAlertVisible] = useState<boolean>(false);
 
 	useFocusEffect(() => {
 		fetchWords();
@@ -42,7 +42,7 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 
 	const fetchWords = async () => {
 		try {
-			let words = await SWords.getWordsList(groupID ?? undefined);
+			let words = await SWords.getWordsList(groupID);
 			words = words.sort((a, b) => a.word.localeCompare(b.word));
 			setWords(words);
 		} catch (error) {

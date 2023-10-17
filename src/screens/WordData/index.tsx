@@ -26,7 +26,7 @@ interface IWordDataScreenProps {
 
 export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
   const route = useRoute();
-  const groupID = route.params.groupID ?? null;
+  const groupID: number|null = route.params.groupID ?? null;
 
   const wordDataGroup: TTranslate = {
     value: '',
@@ -35,7 +35,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
   };
 
   const [start, setStart] = useState<boolean>(true);
-  const [wordID, setWordID] = useState(route.params.wordID ?? null);
+  const [wordID, setWordID] = useState<number|null>(route.params.wordID ?? null);
   const [wordName, setWordName] = useState<string>('');
   const [wordData, setWordData] = useState<TTranslate[]>([wordDataGroup]);
 
@@ -47,6 +47,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
   });
 
   const fetchWord = async () => {
+    if (!wordID) return;
     const word = await SWords.getByID(wordID);
     if (word) {
       setWordName(word.word);
@@ -55,13 +56,14 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
   };
 
   const nextWord = async (order: 'next' | 'prev') => {
+    if (!wordID || !groupID) return;
     let word = await SWords.getNextWordInGroup(wordID, groupID, order);
     if (!word) {
       const extreme = order === 'next' ? 'first' : 'last';
       word = await SWords.getExtremeWordInGroup(groupID, extreme);
     }
     if (word) {
-      setWordID(word.id);
+      setWordID(word.id ?? null);
       setWordName(word.word);
       setWordData(word.translate);
     }
