@@ -139,7 +139,10 @@ export default class SWords implements ISwords {
     }
   }
 
-  static async getWordsList(groupID?: number | 'null'): Promise<TWord[]> {
+  // static async getWordsList(groupID?: number | null | 'null'): Promise<TWord[]> {
+  static async getWordsList(groupID?: number | null): Promise<TWord[]> {
+    console.log('groupID: ', groupID);
+    console.log(typeof groupID);
     let sql = `
       SELECT
         words.*,
@@ -151,11 +154,13 @@ export default class SWords implements ISwords {
       LEFT JOIN groups ON groups.id = word_group.group_id
     `;
 
-    if (groupID == 'null') {
+    // if (groupID == 'null' || groupID === null) {
+    if (groupID === null) {
       sql += ` WHERE word_group.word_id IS NULL`;
     } else if (groupID !== 0) {
       sql += ` WHERE groups.id = ${groupID}`;
     }
+    console.log(sql);
 
     try {
       const results: ResultSet = await SWords.execute(sql);
