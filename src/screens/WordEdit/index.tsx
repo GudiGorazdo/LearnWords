@@ -251,7 +251,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
       onPress: () => {
         setAlertVisible(!isAlertVisible);
         setStart(true);
-        navigation.push('WordsList', { groupID: groupID});
+        navigation.navigate('WordsList', { groupID: groupID});
       },
     });
 
