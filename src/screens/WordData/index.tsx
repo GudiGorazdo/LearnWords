@@ -1,24 +1,24 @@
-import React, { useState } from 'react';
-import { useRoute, useFocusEffect, } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { Button } from '../../components/Button';
-import { Header } from '../../modules/Header';
-import SWords from '../../storage/words/words.service';
-import { TTranslate, TWord } from '../../storage/words/words.types';
-import IconsStrings from '../../assets/awesomeIcons';
+import React, { useState } from "react";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { Button } from "../../components/Button";
+import { Header } from "../../modules/Header";
+import SWords from "../../storage/words/words.service";
+import { TTranslate, TWord } from "../../storage/words/words.types";
+import IconsStrings from "../../assets/awesomeIcons";
 
-import containerStyles from '../../styles/container';
-import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
+import containerStyles from "../../styles/container";
+import buttonBottomFreeze from "../../styles/buttonBottomFreeze";
 
 import {
-  SafeAreaView,
-  View,
-  ScrollView,
   KeyboardAvoidingView,
-  StyleSheet,
   Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
   Text,
-} from 'react-native';
+  View,
+} from "react-native";
 
 interface IWordDataScreenProps {
   navigation: StackNavigationProp<any>;
@@ -26,17 +26,19 @@ interface IWordDataScreenProps {
 
 export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
   const route = useRoute();
-  const groupID: number|null = route.params.groupID ?? null;
+  const groupID: number | null = route.params.groupID ?? null;
 
   const wordDataGroup: TTranslate = {
-    value: '',
+    value: "",
     context: [],
     new: true,
   };
 
   const [start, setStart] = useState<boolean>(true);
-  const [wordID, setWordID] = useState<number|null>(route.params.wordID ?? null);
-  const [wordName, setWordName] = useState<string>('');
+  const [wordID, setWordID] = useState<number | null>(
+    route.params.wordID ?? null,
+  );
+  const [wordName, setWordName] = useState<string>("");
   const [wordData, setWordData] = useState<TTranslate[]>([wordDataGroup]);
 
   useFocusEffect(() => {
@@ -55,11 +57,11 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
     }
   };
 
-  const nextWord = async (order: 'next' | 'prev') => {
+  const nextWord = async (order: "next" | "prev") => {
     if (!wordID || !groupID) return;
     let word = await SWords.getNextWordInGroup(wordID, groupID, order);
     if (!word) {
-      const extreme = order === 'next' ? 'first' : 'last';
+      const extreme = order === "next" ? "first" : "last";
       word = await SWords.getExtremeWordInGroup(groupID, extreme);
     }
     if (word) {
@@ -73,48 +75,54 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
     <>
       <SafeAreaView style={styles.safeArea}>
         <Header
-          backPath={() => navigation.goBack() }
+          backPath={() => navigation.goBack()}
           rightIcon={{
             type: IconsStrings.edit,
-            onPress: () => navigation.push(
-              'WordEdit',
-              { isNewWord: false, wordID: wordID, }
-            ),
+            onPress: () => {
+              setStart(true);
+              navigation.push(
+                "WordEdit",
+                { isNewWord: false, wordID: wordID, groupID: groupID },
+              );
+            },
           }}
         />
-          <Button title="Предыдущее слово" onPress={() => nextWord('prev')} />
-          <ScrollView
-            contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
-            <View style={styles.section}>
-              <Text>{wordName}</Text>
-              {wordData.map((data, index) => {
-                return (
-                  <React.Fragment key={`group-${index}`}>
-                    <View style={styles.groupWord}>
-                      <View key={`translate-${index}`}>
-                        <Text>Перевод:</Text>
-                        <Text>{data.value}</Text>
-                      </View>
+        <Button title="Предыдущее слово" onPress={() => nextWord("prev")} />
+        <ScrollView
+          contentContainerStyle={[styles.scrollViewContent, containerStyles]}
+        >
+          <View style={styles.section}>
+            <Text>{wordName}</Text>
+            {wordData.map((data, index) => {
+              return (
+                <React.Fragment key={`group-${index}`}>
+                  <View style={styles.groupWord}>
+                    <View key={`translate-${index}`}>
+                      <Text>Перевод:</Text>
+                      <Text>{data.value}</Text>
+                    </View>
 
-                      {data.context &&
-                        data.context.map((contextValue: string, contextIndex: number) => {
+                    {data.context &&
+                      data.context.map(
+                        (contextValue: string, contextIndex: number) => {
                           return (
                             <View key={`context-${index}-${contextIndex}`}>
                               <Text>Контекст:</Text>
                               <Text>{contextValue}</Text>
                             </View>
                           );
-                        })}
-                    </View>
-                  </React.Fragment>
-                );
-              })}
-            </View>
-          </ScrollView>
+                        },
+                      )}
+                  </View>
+                </React.Fragment>
+              );
+            })}
+          </View>
+        </ScrollView>
         <Button
           style={buttonBottomFreeze}
           title="Следующее слово"
-          onPress={() => nextWord('next')}
+          onPress={() => nextWord("next")}
         />
       </SafeAreaView>
     </>
@@ -132,11 +140,11 @@ const styles = StyleSheet.create({
 
   scrollViewContent: {
     flexGrow: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
 
   section: {
-    width: '80%',
+    width: "80%",
     paddingBottom: 30,
   },
 
@@ -147,5 +155,3 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
 });
-
-

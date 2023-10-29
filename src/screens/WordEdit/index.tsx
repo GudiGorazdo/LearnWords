@@ -33,6 +33,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const route = useRoute();
   const isNewWord = route.params.isNewWord ?? false;
   const wordID = route.params.wordID ?? null;
+  const groupID = route.params.groupID ?? null;
 
   const inputDataGroup: TTranslate = {
     value: '',
@@ -237,11 +238,20 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
       });
     }
     buttons.push({
-      title: 'К списку слов',
+      title: 'Назад',
       onPress: () => {
         setAlertVisible(!isAlertVisible);
         setStart(true);
         navigation.goBack();
+      },
+    });
+
+    buttons.push({
+      title: 'К списку слов',
+      onPress: () => {
+        setAlertVisible(!isAlertVisible);
+        setStart(true);
+        navigation.push('WordsList', { groupID: groupID});
       },
     });
 

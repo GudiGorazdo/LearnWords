@@ -70,7 +70,7 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 				onPress={() => navigation.push(
 					'WordsList',
 					{
-						groupID: id ?? 'null',
+						groupID: id ?? null,
 					}
 				)}
 			>

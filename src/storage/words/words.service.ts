@@ -139,24 +139,22 @@ export default class SWords implements ISwords {
     }
   }
 
-  static async getWordsList(groupID?: number | null): Promise<TWord[]> {
-    console.log('group: ', groupID);
+  static async getWordsList(groupID?: number | 'null'): Promise<TWord[]> {
     let sql = `
-        SELECT
-          words.*,
-          groups.name as group_name,
-          groups.id as group_id,
-          groups.description as group_description
-        FROM words
-        LEFT JOIN word_group ON word_group.word_id = words.id
-        LEFT JOIN groups ON groups.id = word_group.group_id
-      `;
+      SELECT
+        words.*,
+        groups.name as group_name,
+        groups.id as group_id,
+        groups.description as group_description
+      FROM words
+      LEFT JOIN word_group ON word_group.word_id = words.id
+      LEFT JOIN groups ON groups.id = word_group.group_id
+    `;
 
-    if (typeof groupID === "number") {
-      sql += ` WHERE groups.id = ${groupID}`;
-    }
-    if (groupID === null) {
+    if (groupID == 'null') {
       sql += ` WHERE word_group.word_id IS NULL`;
+    } else if (groupID !== 0) {
+      sql += ` WHERE groups.id = ${groupID}`;
     }
 
     try {
@@ -204,15 +202,15 @@ export default class SWords implements ISwords {
 
   static async getRandom(): Promise<TWord | null> {
     const sql = `
-        SELECT words.*,
-          word_translate.id as t_id,
-          word_translate.translate,
-          word_translate.context
-        FROM words
-        LEFT JOIN word_translate on words.id=word_translate.word_id
-        ORDER BY RANDOM()
-        LIMIT 1
-      ;`
+      SELECT words.*,
+        word_translate.id as t_id,
+        word_translate.translate,
+        word_translate.context
+      FROM words
+      LEFT JOIN word_translate on words.id=word_translate.word_id
+      ORDER BY RANDOM()
+      LIMIT 1
+    ;`
 
     try {
       const results: ResultSet = await SWords.execute(sql);
@@ -226,23 +224,23 @@ export default class SWords implements ISwords {
 
   static async getNextWordInGroup(wordID: number, groupID: number, order: 'next' | 'prev'): Promise<TWord | null> {
     const sql = `
-            SELECT
-              words.*,
-              word_translate.id as t_id,
-              word_translate.translate,
-              word_translate.context
-            FROM words
-            LEFT JOIN word_translate ON words.id = word_translate.word_id
-            ${groupID ? `
-              LEFT JOIN word_group ON word_group.word_id = words.id
-              LEFT JOIN groups ON groups.id = word_group.group_id
-            ` : ''}
-            WHERE
-              ${groupID ? `groups.id = (?) AND` : ''}
-              words.word COLLATE NOCASE ${order === 'next' ? '>' : '<'} (SELECT words.word FROM words WHERE id = ?)
-            ORDER BY words.word COLLATE NOCASE ${order === 'next' ? 'ASC' : 'DESC'}
-            LIMIT 1
-          `;
+      SELECT
+        words.*,
+        word_translate.id as t_id,
+        word_translate.translate,
+        word_translate.context
+      FROM words
+      LEFT JOIN word_translate ON words.id = word_translate.word_id
+      ${groupID ? `
+        LEFT JOIN word_group ON word_group.word_id = words.id
+        LEFT JOIN groups ON groups.id = word_group.group_id
+      ` : ''}
+      WHERE
+        ${groupID ? `groups.id = (?) AND` : ''}
+        words.word COLLATE NOCASE ${order === 'next' ? '>' : '<'} (SELECT words.word FROM words WHERE id = ?)
+      ORDER BY words.word COLLATE NOCASE ${order === 'next' ? 'ASC' : 'DESC'}
+      LIMIT 1
+    `;
     const params = groupID ? [groupID, wordID] : [wordID];
 
     try {
@@ -260,21 +258,21 @@ export default class SWords implements ISwords {
 
   static async getExtremeWordInGroup(groupID: number, extreme: 'first' | 'last'): Promise<TWord | null> {
     const sql = `
-            SELECT
-              words.*,
-              word_translate.id as t_id,
-              word_translate.translate,
-              word_translate.context
-            FROM words
-            LEFT JOIN word_translate ON words.id = word_translate.word_id
-            ${groupID ? `
-              LEFT JOIN word_group ON word_group.word_id = words.id
-              LEFT JOIN groups ON groups.id = word_group.group_id
-              WHERE groups.id = (?)
-            ` : ''}
-            ORDER BY words.word ${extreme === 'first' ? 'ASC' : 'DESC'}
-            LIMIT 1
-          `;
+      SELECT
+        words.*,
+        word_translate.id as t_id,
+        word_translate.translate,
+        word_translate.context
+      FROM words
+      LEFT JOIN word_translate ON words.id = word_translate.word_id
+      ${groupID ? `
+        LEFT JOIN word_group ON word_group.word_id = words.id
+        LEFT JOIN groups ON groups.id = word_group.group_id
+        WHERE groups.id = (?)
+      ` : ''}
+      ORDER BY words.word ${extreme === 'first' ? 'ASC' : 'DESC'}
+      LIMIT 1
+    `;
     const params = groupID ? [groupID] : [];
 
     try {
@@ -292,11 +290,11 @@ export default class SWords implements ISwords {
 
   static async getRandomAnswers(wordID: number): Promise<TTranslate[]> {
     const sql = `
-            SELECT *
-            FROM word_translate
-            WHERE word_id <> (?)
-            ORDER BY RANDOM() LIMIT 5
-          `;
+      SELECT *
+      FROM word_translate
+      WHERE word_id <> (?)
+      ORDER BY RANDOM() LIMIT 5
+    `;
     const params = [wordID];
 
     try {
@@ -314,15 +312,15 @@ export default class SWords implements ISwords {
 
   static async getByID(id: number): Promise<TWord | null> {
     const sql = `
-            SELECT
-                words.*,
-                word_translate.id as t_id,
-                word_translate.translate,
-                word_translate.context
-            FROM words
-            LEFT JOIN word_translate ON words.id = word_translate.word_id
-            WHERE words.id = (?)
-          `;
+      SELECT
+          words.*,
+          word_translate.id as t_id,
+          word_translate.translate,
+          word_translate.context
+      FROM words
+      LEFT JOIN word_translate ON words.id = word_translate.word_id
+      WHERE words.id = (?)
+    `;
     const params = [id];
 
     try {
@@ -463,15 +461,15 @@ export default class SWords implements ISwords {
 
   static async getGroups(wordID: number|null = null): Promise<TGroup[]> {
     const sql = `
-            SELECT
-              groups.*,
-              COUNT(words.id) AS count
-            FROM groups
-            LEFT JOIN word_group ON groups.id = word_group.group_id
-            LEFT JOIN words ON word_group.word_id = words.id
-            ${ wordID ? 'WHERE words.id = (?)' : ''}
-            GROUP BY groups.id
-          ;`;
+      SELECT
+        groups.*,
+        COUNT(words.id) AS count
+      FROM groups
+      LEFT JOIN word_group ON groups.id = word_group.group_id
+      LEFT JOIN words ON word_group.word_id = words.id
+      ${ wordID ? 'WHERE words.id = (?)' : ''}
+      GROUP BY groups.id
+    ;`;
     const params = wordID ? [wordID] : [];
 
     try {

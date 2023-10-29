@@ -36,13 +36,16 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
 	const [wordToRemove, setWordToRemove] = useState<TWord | null>(null);
 	const [isAlertVisible, setAlertVisible] = useState<boolean>(false);
 
-	useFocusEffect(() => {
-		fetchWords();
-	});
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchWords();
+      return () => {};
+    }, [groupID])
+  );
 
 	const fetchWords = async () => {
 		try {
-			let words = await SWords.getWordsList(groupID);
+			let words = await SWords.getWordsList(groupID ?? null);
 			words = words.sort((a, b) => a.word.localeCompare(b.word));
 			setWords(words);
 		} catch (error) {
