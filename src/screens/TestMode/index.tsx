@@ -3,7 +3,6 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Button } from '../../components/Button';
 import { Header } from '../../modules/Header';
 import { Alert, TAlertButton } from '../../modules/Alert';
-import SWords from '../../storage/words/words.service';
 import { TTranslate, TWord } from '../../types';
 import shuffle from '../../helpers/shuffleArray';
 

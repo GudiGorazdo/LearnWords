@@ -45,21 +45,21 @@ export const Header = ({
           <TouchableOpacity
             style={[styles.buttonsPadding, {paddingLeft: 0}]}
             onPress={() => backPath()}>
-            <Icon style={styles.icon} name={IconsStrings.arrowBack} size={24} />
+            <Icon style={styles.icon} name={IconsStrings.arrowBack} size={32} />
           </TouchableOpacity>
         )}
         {accept && (
           <TouchableOpacity
             style={[styles.buttonsPadding, {paddingRight: 0}]}
             onPress={() => accept()}>
-            <Icon style={styles.icon} name={IconsStrings.accept} size={24} />
+            <Icon style={styles.icon} name={IconsStrings.accept} size={32} />
           </TouchableOpacity>
         )}
         {rightIcon && (
           <TouchableOpacity
             style={[styles.buttonsPadding, {paddingRight: 0}]}
             onPress={() => rightIcon.onPress()}>
-            <Icon style={styles.icon} name={rightIcon.type} size={24} />
+            <Icon style={styles.icon} name={rightIcon.type} size={32} />
           </TouchableOpacity>
         )}
       </View>
@@ -70,7 +70,9 @@ export const Header = ({
 const styles = StyleSheet.create({
   header: {
     // marginTop: getStatusBarMargin(),
-    height: 50,
+    // height: 50,
+    paddingTop: 10,
+    paddingBottom: 10,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
@@ -83,6 +85,7 @@ const styles = StyleSheet.create({
   },
 
   icon: {
+    fontWeight: 'bold',
     color: theme.textColor,
   },
 });

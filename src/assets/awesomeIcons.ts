@@ -1,6 +1,6 @@
 export default {
   remove: 'trash-outline',
-  arrowBack: 'arrow-back-outline',
+  arrowBack: 'arrow-back',
   accept: 'checkmark-outline',
   acceptCircle: 'checkcircle',
   cancel: 'remove',
