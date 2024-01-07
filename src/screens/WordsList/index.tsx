@@ -1,171 +1,175 @@
-import React, { useState, useEffect } from 'react';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { Header } from '../../modules/Header';
-import { Alert, TAlertButton } from '../../modules/Alert';
-import SWords from '../../storage/words/words.service';
-import { TTranslate, TWord } from '../../storage/words/words.types';
+import React, {useState, useEffect} from 'react';
+import {useFocusEffect, useRoute} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {Header} from '../../modules/Header';
+import {Alert, TAlertButton} from '../../modules/Alert';
+import {TWordListItem} from '../../storage/words/words.types';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IconsStrings from '../../assets/awesomeIcons';
-import { Button } from '../../components/Button';
+import {Button} from '../../components/Button';
+import {useQuery} from '../../store/RealmContext';
+import Word from '../../store/models/Word';
 
 import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
 import containerStyles from '../../styles/container';
+import theme from '../../styles/themeLight';
+console.log(theme);
 
 import {
-	SafeAreaView,
-	View,
-	StyleSheet,
-	ScrollView,
-	Text,
-	TouchableOpacity,
+  SafeAreaView,
+  View,
+  StyleSheet,
+  ScrollView,
+  Text,
+  TouchableOpacity,
 } from 'react-native';
 
 interface IWordsListScreenProps {
-	navigation: StackNavigationProp<any>,
+  navigation: StackNavigationProp<any>;
 }
 
+export function WordsList({navigation}: IWordsListScreenProps): JSX.Element {
+  // const route = useRoute();
+  // const [groupID, setGroupID] = useState<number | null>(
+  //   route.params?.groupID ?? null,
+  // );
 
-export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
-	const route = useRoute();
-	const [groupID, setGroupID] = useState<number|null>(route.params?.groupID ?? null);
+  const words: TWordListItem[] = useQuery(Word, words => {
+    return words.sorted('value', false);
+  }).map(word => ({id: word._id.toString(), value: word.value}));
+  console.log(words);
+  // const startArr: TWord[] = [];
+  // const [words, setWords] = useState<TWord[]>(startArr);
 
-	const startArr: TWord[] = [];
-	const [words, setWords] = useState<TWord[]>(startArr);
+  const [wordToRemove, setWordToRemove] = useState<TWordListItem | null>(null);
+  const [isAlertVisible, setAlertVisible] = useState<boolean>(false);
 
-	const [wordToRemove, setWordToRemove] = useState<TWord | null>(null);
-	const [isAlertVisible, setAlertVisible] = useState<boolean>(false);
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     fetchWords();
+  //     return () => {};
+  //   }, [groupID]),
+  // );
 
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchWords();
-      return () => {};
-    }, [groupID])
-  );
+  // const fetchWords = async () => {
+  //   try {
+  //     // let words = await SWords.getWordsList(groupID ?? null);
+  //     words = words.sort((a, b) => a.word.localeCompare(b.word));
+  //     setWords(words);
+  //   } catch (error) {
+  //     console.log(error);
+  //     throw error;
+  //   }
+  // };
 
-	const fetchWords = async () => {
-		try {
-			let words = await SWords.getWordsList(groupID ?? null);
-			words = words.sort((a, b) => a.word.localeCompare(b.word));
-			setWords(words);
-		} catch (error) {
-			console.log(error);
-      throw error;
-		}
-	}
+  const removeWord = async (word: TWordListItem) => {
+    if (word.id) {
+      // setWords(words.filter(item => item.id !== word.id));
+      // // SWords.removeByID(word.id);
+    }
+  };
 
-
-	const removeWord = async (word: TWord) => {
-		if (word.id) {
-			setWords(words.filter(item => item.id !== word.id));
-			SWords.removeByID(word.id);
-		}
-	}
-
-	return (
-		<SafeAreaView style={styles.container}>
-			<Header 
-        backPath={() => navigation.goBack()} 
+  return (
+    <SafeAreaView style={[styles.container]}>
+      <Header
+        backPath={() => navigation.goBack()}
         rightIcon={{
           type: IconsStrings.plus,
-          onPress: () => navigation.push(
-					'WordEdit',
-					{
-            groupID: groupID,
-						isNewWord: true,
-					}
-				),
+          onPress: () =>
+            navigation.push('WordEdit', {
+              // groupID: groupID,
+              isNewWord: true,
+            }),
         }}
       />
-			<ScrollView contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
-				{words.map((word: TWord) => (
-					<View key={word.id} style={styles.rowContainer} >
-						<TouchableOpacity
-							style={styles.wordContainer}
-							onPress={() => navigation.push(
-								'WordData',
-								{
-									isShowWord: true,
-									wordID: word.id,
-                  groupID: groupID,
-								}
-							)}
-						>
-							<Text>{word.word}</Text>
-						</TouchableOpacity>
-						<TouchableOpacity style={{ padding: 5 }} onPress={() => {
-							setWordToRemove(word);
-							setAlertVisible(!isAlertVisible);
-						}}>
-							<Icon name={IconsStrings.remove} size={24} />
-						</TouchableOpacity>
-					</View>
-				))}
-			</ScrollView>
+      <ScrollView
+        contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
+        {words.map((word: TWordListItem) => (
+          <View key={word.id} style={styles.rowContainer}>
+            <TouchableOpacity
+              style={styles.wordContainer}
+              onPress={() =>
+                navigation.push('WordData', {
+                  isShowWord: true,
+                  wordID: word.id,
+                  // groupID: groupID,
+                })
+              }>
+              <Text style={{color: theme.textColor}}>{word.value}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{padding: 5}}
+              onPress={() => {
+                setWordToRemove(word);
+                setAlertVisible(!isAlertVisible);
+              }}>
+              <Icon name={IconsStrings.remove} size={24} />
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
       <Button
         style={buttonBottomFreeze}
-        title='Учить'
-        onPress={() => navigation.push(
-            'WordData',
-            {
-              wordID: words[0].id,
-              groupID: groupID,
-            }
-          )}
+        title="Учить"
+        onPress={() =>
+          navigation.push('WordData', {
+            wordID: words[0].id,
+            // groupID: groupID,
+          })
+        }
       />
-			<Alert
-				isVisible={isAlertVisible}
-				message='Удалить слово из словаря?'
-				onOverlayPress={() => setAlertVisible(!isAlertVisible)}
-				buttons={[
-					{
-						title: 'Удалить',
-						onPress: () => {
-							wordToRemove && removeWord(wordToRemove);
-							setAlertVisible(!isAlertVisible);
-						}
-					},
-					{
-						title: 'Отмена',
-						onPress: () => {
-							setAlertVisible(!isAlertVisible);
-						}
-					}
-				]}
-			/>
-		</SafeAreaView>
-	);
+      <Alert
+        isVisible={isAlertVisible}
+        message="Удалить слово из словаря?"
+        onOverlayPress={() => setAlertVisible(!isAlertVisible)}
+        buttons={[
+          {
+            title: 'Удалить',
+            onPress: () => {
+              wordToRemove && removeWord(wordToRemove);
+              setAlertVisible(!isAlertVisible);
+            },
+          },
+          {
+            title: 'Отмена',
+            onPress: () => {
+              setAlertVisible(!isAlertVisible);
+            },
+          },
+        ]}
+      />
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
+  container: {
+    flex: 1,
+    backgroundColor: theme.backgroundColor,
+  },
 
-	scrollViewContent: {
+  scrollViewContent: {
     paddingBottom: 50,
-		flexGrow: 1,
-	},
+    flexGrow: 1,
+  },
 
-	rowContainer: {
-		marginBottom: 10,
-		display: 'flex',
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-	},
+  rowContainer: {
+    marginBottom: 10,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
 
-	wordContainer: {
-		flexGrow: 1,
-		paddingVertical: 10,
-	},
+  wordContainer: {
+    flexGrow: 1,
+    paddingVertical: 10,
+  },
 
-	removeButton: {
-		display: 'flex',
-		justifyContent: 'center',
-		alignItems: 'center',
-		backgroundColor: 'transparent',
-	},
+  removeButton: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
 });
-
-
