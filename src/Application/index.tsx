@@ -1,7 +1,7 @@
 import React from 'react';
 // import {StatusBar, useColorScheme} from 'react-native';
 import Navigation from '../navigation/Navigation';
-import {useQuery, useRealm} from '../store/RealmContext';
+import { useQuery, useRealm } from '../store/RealmContext';
 import Config from '../store/models/Config';
 import setup from '../store/setup';
 

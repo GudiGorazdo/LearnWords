@@ -1,13 +1,13 @@
 import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import {Home} from '../../screens/Home';
+import { Home } from '../../screens/Home';
 
 // import {Dictionary} from '../../screens/Dictionary';
-import {WordData} from '../../screens/WordData';
-import {WordEdit} from '../../screens/WordEdit';
-import {WordsList} from '../../screens/WordsList';
+import { WordData } from '../../screens/WordData';
+import { WordEdit } from '../../screens/WordEdit';
+import { WordsList } from '../../screens/WordsList';
 // import {WordsGroups} from '../../screens/WordsGroups';
 
 // import {Training} from '../../screens/Training';
@@ -23,9 +23,8 @@ export default function Navigation(): JSX.Element {
         <Stack.Screen
           name="Home"
           component={Home}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
-
         {/* <Stack.Screen
           name="Dictionary"
           component={Dictionary}
@@ -34,24 +33,23 @@ export default function Navigation(): JSX.Element {
         <Stack.Screen
           name="WordData"
           component={WordData}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="WordEdit"
           component={WordEdit}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="WordsList"
           component={WordsList}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         {/* <Stack.Screen
           name="WordsGroups"
           component={WordsGroups}
           options={{headerShown: false}}
         /> */}
-
         {/* <Stack.Screen
           name="Training"
           component={Training}
