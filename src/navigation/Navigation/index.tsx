@@ -5,8 +5,8 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Home} from '../../screens/Home';
 
 // import {Dictionary} from '../../screens/Dictionary';
-// import {WordData} from '../../screens/WordData';
-// import {WordEdit} from '../../screens/WordEdit';
+import {WordData} from '../../screens/WordData';
+import {WordEdit} from '../../screens/WordEdit';
 import {WordsList} from '../../screens/WordsList';
 // import {WordsGroups} from '../../screens/WordsGroups';
 
@@ -31,16 +31,16 @@ export default function Navigation(): JSX.Element {
           component={Dictionary}
           options={{headerShown: false}}
         /> */}
-        {/* <Stack.Screen
+        <Stack.Screen
           name="WordData"
           component={WordData}
           options={{headerShown: false}}
-        /> */}
-        {/* <Stack.Screen
+        />
+        <Stack.Screen
           name="WordEdit"
           component={WordEdit}
           options={{headerShown: false}}
-        /> */}
+        />
         <Stack.Screen
           name="WordsList"
           component={WordsList}

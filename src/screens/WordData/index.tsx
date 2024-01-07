@@ -1,24 +1,22 @@
-import React, { useState } from "react";
-import { useFocusEffect, useRoute } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { Button } from "../../components/Button";
-import { Header } from "../../modules/Header";
-import SWords from "../../storage/words/words.service";
-import { TTranslate, TWord } from "../../storage/words/words.types";
-import IconsStrings from "../../assets/awesomeIcons";
+import React from 'react';
+import { useRoute } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { Header } from '../../modules/Header';
+import IconsStrings from '../../assets/awesomeIcons';
+import { useObject } from '../../store/RealmContext';
+import Word from '../../store/models/Word';
+import Realm from 'realm';
 
-import containerStyles from "../../styles/container";
-import buttonBottomFreeze from "../../styles/buttonBottomFreeze";
+import containerStyles from '../../styles/container';
+import theme from '../../styles/themeLight';
 
 import {
-  KeyboardAvoidingView,
-  Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
-} from "react-native";
+} from 'react-native';
 
 interface IWordDataScreenProps {
   navigation: StackNavigationProp<any>;
@@ -26,50 +24,8 @@ interface IWordDataScreenProps {
 
 export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
   const route = useRoute();
-  const groupID: number | null = route.params.groupID ?? null;
-
-  const wordDataGroup: TTranslate = {
-    value: "",
-    context: [],
-    new: true,
-  };
-
-  const [start, setStart] = useState<boolean>(true);
-  const [wordID, setWordID] = useState<number | null>(
-    route.params.wordID ?? null,
-  );
-  const [wordName, setWordName] = useState<string>("");
-  const [wordData, setWordData] = useState<TTranslate[]>([wordDataGroup]);
-
-  useFocusEffect(() => {
-    if (start) {
-      fetchWord();
-      setStart(false);
-    }
-  });
-
-  const fetchWord = async () => {
-    if (!wordID) return;
-    const word = await SWords.getByID(wordID);
-    if (word) {
-      setWordName(word.word);
-      setWordData(word.translate);
-    }
-  };
-
-  const nextWord = async (order: "next" | "prev") => {
-    if (!wordID || !groupID) return;
-    let word = await SWords.getNextWordInGroup(wordID, groupID, order);
-    if (!word) {
-      const extreme = order === "next" ? "first" : "last";
-      word = await SWords.getExtremeWordInGroup(groupID, extreme);
-    }
-    if (word) {
-      setWordID(word.id ?? null);
-      setWordName(word.word);
-      setWordData(word.translate);
-    }
-  };
+  const wordID = (route.params as { wordID?: string })?.wordID;
+  const word = useObject(Word, new Realm.BSON.ObjectId(wordID));
 
   return (
     <>
@@ -79,36 +35,33 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
           rightIcon={{
             type: IconsStrings.edit,
             onPress: () => {
-              setStart(true);
-              navigation.push(
-                "WordEdit",
-                { isNewWord: false, wordID: wordID, groupID: groupID },
-              );
+              navigation.push('WordEdit', {
+                isNewWord: false,
+                wordID: wordID,
+              });
             },
           }}
         />
-        <Button title="Предыдущее слово" onPress={() => nextWord("prev")} />
         <ScrollView
-          contentContainerStyle={[styles.scrollViewContent, containerStyles]}
-        >
+          contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
           <View style={styles.section}>
-            <Text>{wordName}</Text>
-            {wordData.map((data, index) => {
+            <Text style={{ color: theme.textColor }}>{word?.value ?? ''}</Text>
+            {word && word.translates.map((translate, index) => {
               return (
                 <React.Fragment key={`group-${index}`}>
                   <View style={styles.groupWord}>
                     <View key={`translate-${index}`}>
-                      <Text>Перевод:</Text>
-                      <Text>{data.value}</Text>
+                      <Text style={{ color: theme.textColor }}>Перевод:</Text>
+                      <Text style={{ color: theme.textColor }}>{translate.value}</Text>
                     </View>
 
-                    {data.context &&
-                      data.context.map(
-                        (contextValue: string, contextIndex: number) => {
+                    {translate.contexts &&
+                      translate.contexts.map(
+                        (context, contextIndex) => {
                           return (
                             <View key={`context-${index}-${contextIndex}`}>
-                              <Text>Контекст:</Text>
-                              <Text>{contextValue}</Text>
+                              <Text style={{ color: theme.textColor }}>Контекст:</Text>
+                              <Text style={{ color: theme.textColor }}>{context.value}</Text>
                             </View>
                           );
                         },
@@ -119,11 +72,6 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
             })}
           </View>
         </ScrollView>
-        <Button
-          style={buttonBottomFreeze}
-          title="Следующее слово"
-          onPress={() => nextWord("next")}
-        />
       </SafeAreaView>
     </>
   );
@@ -140,11 +88,11 @@ const styles = StyleSheet.create({
 
   scrollViewContent: {
     flexGrow: 1,
-    alignItems: "center",
+    alignItems: 'center',
   },
 
   section: {
-    width: "80%",
+    width: '80%',
     paddingBottom: 30,
   },
 

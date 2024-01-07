@@ -20,7 +20,7 @@ const createContext = (realm, item, translate) => {
 const createTranslate = (realm, item, word) => {
   const translate = realm.create('Translate', {
     value: item.value,
-    group: word,
+    word: word,
   });
 
   const contexts = [];

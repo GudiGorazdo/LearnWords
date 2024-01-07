@@ -1,9 +1,10 @@
 import React from 'react';
-import {StatusBar, Platform} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+// import {StatusBar, Platform} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import IconsStrings from '../../assets/awesomeIcons';
 import containerStyles from '../../styles/container';
 import theme from '../../styles/themeLight';
+// import { createFromIconfontCN } from '@ant-design/icons';
 
 import {
   SafeAreaView,
@@ -25,10 +26,10 @@ interface IHeaderScreenProps {
   };
 }
 
-const getStatusBarMargin = (): number => {
-  const statusBarHeight = StatusBar.currentHeight ?? 0;
-  return Platform.OS === 'android' ? statusBarHeight : 0;
-};
+// const getStatusBarMargin = (): number => {
+//   const statusBarHeight = StatusBar.currentHeight ?? 0;
+//   return Platform.OS === 'android' ? statusBarHeight : 0;
+// };
 
 export const Header = ({
   style,
@@ -44,7 +45,7 @@ export const Header = ({
           <TouchableOpacity
             style={[styles.buttonsPadding, {paddingLeft: 0}]}
             onPress={() => backPath()}>
-            <Icon style={styles.icon} name={IconsStrings.arrow} size={24} />
+            <Icon style={styles.icon} name={IconsStrings.arrowBack} size={24} />
           </TouchableOpacity>
         )}
         {accept && (
@@ -68,7 +69,7 @@ export const Header = ({
 
 const styles = StyleSheet.create({
   header: {
-    marginTop: getStatusBarMargin(),
+    // marginTop: getStatusBarMargin(),
     height: 50,
     display: 'flex',
     flexDirection: 'row',

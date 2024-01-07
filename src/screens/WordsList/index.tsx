@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from 'react';
-import {useFocusEffect, useRoute} from '@react-navigation/native';
+import React, {useState} from 'react';
+// import {useFocusEffect, useRoute} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {Header} from '../../modules/Header';
-import {Alert, TAlertButton} from '../../modules/Alert';
+import {Alert} from '../../modules/Alert';
 import {TWordListItem} from '../../storage/words/words.types';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Ionicons';
 import IconsStrings from '../../assets/awesomeIcons';
 import {Button} from '../../components/Button';
 import {useQuery} from '../../store/RealmContext';
@@ -37,7 +37,6 @@ export function WordsList({navigation}: IWordsListScreenProps): JSX.Element {
   const words: TWordListItem[] = useQuery(Word, words => {
     return words.sorted('value', false);
   }).map(word => ({id: word._id.toString(), value: word.value}));
-  console.log(words);
   // const startArr: TWord[] = [];
   // const [words, setWords] = useState<TWord[]>(startArr);
 
@@ -92,7 +91,6 @@ export function WordsList({navigation}: IWordsListScreenProps): JSX.Element {
                 navigation.push('WordData', {
                   isShowWord: true,
                   wordID: word.id,
-                  // groupID: groupID,
                 })
               }>
               <Text style={{color: theme.textColor}}>{word.value}</Text>
@@ -103,7 +101,11 @@ export function WordsList({navigation}: IWordsListScreenProps): JSX.Element {
                 setWordToRemove(word);
                 setAlertVisible(!isAlertVisible);
               }}>
-              <Icon name={IconsStrings.remove} size={24} />
+              <Icon
+                style={{color: theme.textColor}}
+                name={IconsStrings.remove}
+                size={24}
+              />
             </TouchableOpacity>
           </View>
         ))}

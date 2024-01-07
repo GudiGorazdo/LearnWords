@@ -1,10 +1,10 @@
 export default {
-  remove: 'trash',
-  arrow: 'arrow-up',
-  accept: 'check',
+  remove: 'trash-outline',
+  arrowBack: 'arrow-back-outline',
+  accept: 'checkmark-outline',
   acceptCircle: 'checkcircle',
   cancel: 'remove',
-  edit: 'edit',
-  save: 'save',
-  plus: 'plus',
+  edit: 'create-outline',
+  save: 'save-outline',
+  plus: 'add-outline',
 };

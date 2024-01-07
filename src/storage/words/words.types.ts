@@ -1,25 +1,35 @@
+import Realm from 'realm';
+import Word from '../../store/models/Word';
+
 export type TGroup = {
   name: string;
-  id?: number;
+  _id: Realm.BSON.ObjectId;
   description?: string;
   count?: number;
 };
 
-export type TTranslate = {
-  [key: string]: number | string | string[] | undefined | boolean;
+export type TContenxt = {
+  [key: string]: any;
+  _id?: Realm.BSON.ObjectId;
   value: string;
-  context?: string[];
-  word_id?: number;
+}
+
+export type TTranslate = {
+  [key: string]: any;
+  _id?: Realm.BSON.ObjectId;
+  value: string;
+  context?: TContenxt[];
+  word: Word|null;
   removed?: boolean;
   new?: boolean;
 };
 
 export type TWord = {
   [key: string]: any;
-  word: string;
+  _id?: Realm.BSON.ObjectId;
+  value: string;
   translate: TTranslate[];
-  id?: number;
-  groups?: number[] | TGroup[];
+  group?: TGroup;
 };
 
 export type TWordListItem = {

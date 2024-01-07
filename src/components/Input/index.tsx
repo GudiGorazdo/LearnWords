@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import theme from '../../styles/themeLight';
 
 import {
 	View,
@@ -56,7 +57,7 @@ export function Input({
 	const inputTemplate = () => {
 		return (
 			<TextInput
-				style={[{ paddingTop: 0, paddingBottom: 0, }]}
+				style={[{ paddingTop: 0, paddingBottom: 0, color: theme.textColor}]}
 				placeholder={placeholder}
 				value={value}
 				onChangeText={onChangeText}
@@ -129,6 +130,7 @@ const styles = StyleSheet.create({
 	label: {
 		marginBottom: 8,
 		fontSize: 16,
+    color: theme.textColor
 	},
 
 	inputRow: {
