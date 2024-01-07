@@ -6,7 +6,7 @@ import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
 import { Alert, TAlertButton } from '../../modules/Alert';
 import SWords from '../../storage/words/words.service';
-import { TTranslate, TWord } from '../../storage/words/words.types';
+import { TTranslate, TWord } from '../../types';
 import IconsStrings from '../../assets/awesomeIcons';
 import shuffle from '../../helpers/shuffleArray';
 
@@ -125,7 +125,7 @@ export function InputMode({ navigation }: IInputModeScreenProps): JSX.Element {
     setScrollBottom(true);
   }
 
-  const reset = () => {    
+  const reset = () => {
     setInputsGroups([emptyAnswer]);
     setCheckButtonDisabled(true);
     setActiveWord(null);

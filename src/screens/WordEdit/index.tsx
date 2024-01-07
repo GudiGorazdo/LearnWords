@@ -6,7 +6,7 @@ import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
 import { Alert, TAlertButton } from '../../modules/Alert';
-import { TTranslate, TWord, TContenxt } from '../../storage/words/words.types';
+import { TTranslate, TWord, TContenxt } from '../../types';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IconsStrings from '../../assets/awesomeIcons';
 import SelectDropdown from 'react-native-select-dropdown';
@@ -264,7 +264,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   };
 
   const inputGroupTemplate = (index: number, data: TTranslate): JSX.Element => {
-    console.log(data);
     return (
       <React.Fragment key={`group-${index}`}>
         <View style={styles.groupInputs}>

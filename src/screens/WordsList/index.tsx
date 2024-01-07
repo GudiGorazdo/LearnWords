@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {Header} from '../../modules/Header';
 import {Alert} from '../../modules/Alert';
-import {TWordListItem} from '../../storage/words/words.types';
+import {TWordListItem} from '../../types';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconsStrings from '../../assets/awesomeIcons';
 import {Button} from '../../components/Button';
@@ -13,7 +13,6 @@ import Word from '../../store/models/Word';
 import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
 import containerStyles from '../../styles/container';
 import theme from '../../styles/themeLight';
-console.log(theme);
 
 import {
   SafeAreaView,

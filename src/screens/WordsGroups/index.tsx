@@ -4,7 +4,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Header } from '../../modules/Header';
 import { GroupForm } from '../../modules/GroupForm';
 import SWords from '../../storage/words/words.service';
-import { TGroup } from '../../storage/words/words.types';
+import { TGroup } from '../../types';
 import IconsStrings from '../../assets/awesomeIcons';
 
 import containerStyles from '../../styles/container';

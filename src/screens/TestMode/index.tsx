@@ -4,7 +4,7 @@ import { Button } from '../../components/Button';
 import { Header } from '../../modules/Header';
 import { Alert, TAlertButton } from '../../modules/Alert';
 import SWords from '../../storage/words/words.service';
-import { TTranslate, TWord } from '../../storage/words/words.types';
+import { TTranslate, TWord } from '../../types';
 import shuffle from '../../helpers/shuffleArray';
 
 import containerStyles from '../../styles/container';
@@ -42,8 +42,6 @@ export function TestMode({ navigation }: ITestModeScreenProps): JSX.Element {
 
 	useEffect(() => {
 		if (activeWord) {
-			console.log(activeWord);
-			console.log((activeWord.translate[0].context));
 			getCorrectAnswer();
 			fetchRandomAnswers();
 		}
@@ -229,7 +227,7 @@ const styles = StyleSheet.create({
 	},
 
 	unselectedAnswer: {
-		// backgroundColor: 'gray', 
+		// backgroundColor: 'gray',
 	},
 
 	answerText: {

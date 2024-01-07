@@ -1,5 +1,5 @@
 import Realm from 'realm';
-import Word from '../../store/models/Word';
+import Word from './store/models/Word';
 
 export type TGroup = {
   name: string;
