@@ -1,24 +1,13 @@
 import React from 'react';
-import { StatusBar, useColorScheme } from 'react-native';
-import Navigation from './src/navigation/Navigation';
-// import type {PropsWithChildren} from 'react';
-//
+import {RealmProvider} from './src/store/RealmContext';
+import {Application} from './src/Application';
 
 function App(): JSX.Element {
-	const isDarkMode = useColorScheme() === 'dark';
-
-	return (
-		<>
-			<StatusBar
-				translucent
-				barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-				backgroundColor="transparent"
-			/>
-			<Navigation />
-		</>
-	);
+  return (
+    <RealmProvider>
+      <Application />
+    </RealmProvider>
+  );
 }
-
-
 
 export default App;
