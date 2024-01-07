@@ -6,8 +6,8 @@ import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
 import { Alert, TAlertButton } from '../../modules/Alert';
-import { TTranslate, TWord, TContenxt } from '../../types';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { TTranslate, TWord, TContext } from '../../types';
+import Icon from 'react-native-vector-icons/Ionicons';
 import IconsStrings from '../../assets/awesomeIcons';
 import SelectDropdown from 'react-native-select-dropdown';
 import { BottomModalWindow } from '../../modules/BottomModalWindow';
@@ -32,26 +32,48 @@ interface IWordEditScreenProps {
   navigation: StackNavigationProp<any>;
 }
 
+const inputsTranslateInitialState = (word: Word | null) => {
+  return word?.translates.map((translate) => {
+    const contexts: TContext[] = translate.contexts?.map((context) => {
+      return {
+        _id: context._id,
+        value: context.value,
+      }
+    }) ?? [];
+
+    return {
+      _id: translate._id,
+      value: translate.value,
+      context: contexts,
+      word: word,
+      removed: false,
+      new: false,
+    }
+  })
+}
+
 export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const route = useRoute();
   const isNewWord = (route.params as { isNewWord?: boolean })?.isNewWord;
   const wordID = (route.params as { wordID?: string })?.wordID;
+  const word: Word | null = useObject<Word>("Word", new Realm.BSON.ObjectId(wordID));
 
-  const word = useObject(Word, new Realm.BSON.ObjectId(wordID));
-  const inputDataGroup = word ? word.translates : [{
+  const emptyInputTranslate: TTranslate = {
+    word: {} as Word,
+    context: [] as TContext[],
     value: '',
-    word: null,
-    context: [] as TContenxt[],
     new: true,
-  }];
+    removed: false,
+  };
+
+  const [inputWord, setInputWord] = useState(word?.value ?? '');
+  const [inputTranslate, setInputTranslate] = useState<TTranslate[]>(inputsTranslateInitialState(word) ?? [emptyInputTranslate]);
 
   const [isGroupListVisible, setGroupListVisible] = useState(false);
   // const [start, setStart] = useState(true);
   const [isAlertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [isSaveWordError, setSaveWordError] = useState(false);
-  const [inputWord, setInputWord] = useState('');
-  const [inputsGroups, setInputsGroup] = useState<TTranslate[]>(inputDataGroup as TTranslate[]);
   const [startScroll, setStartScroll] = useState(true);
   const [scrollBottom, setScrollBottom] = useState(false);
   const scrollViewRef = useRef(null);
@@ -73,7 +95,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     // const word = await SWords.getByID(wordID);
     // if (word) {
     //   setInputWord(word.word);
-    //   setInputsGroup(word.translate);
+    //   setInputTranslate(word.translate);
     // }
   };
 
@@ -83,49 +105,49 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     type: string,
     contextIndex?: number,
   ) => {
-    // setInputsGroup(prevInputGroups => {
-    //   const newInputsGroups = [...prevInputGroups];
-    //   switch (type) {
-    //     case 'translate':
-    //       newInputsGroups[index].value = value;
-    //       break;
-    //     case 'context':
-    //       if (newInputsGroups[index].context && contextIndex !== undefined) {
-    //         const context = newInputsGroups[index].context;
-    //         context && (context[contextIndex] = value);
-    //       }
-    //       break;
-    //   }
-    //   return newInputsGroups;
-    // });
+    setInputTranslate(prevInputGroups => {
+      const newinputTranslate = [...prevInputGroups];
+      switch (type) {
+        case 'translate':
+          newinputTranslate[index].value = value;
+          break;
+        case 'context':
+          if (!contextIndex) break;
+          if (!newinputTranslate[index].context) break;
+          const context = newinputTranslate[index].context;
+          context && (context[contextIndex].value = value);
+          break;
+      }
+      return newinputTranslate;
+    });
   };
 
   const addNewContext = (index: number) => {
-    const newInputsGroups = [...inputsGroups];
-    if (newInputsGroups[index] && newInputsGroups[index].context) {
-      newInputsGroups[index].context?.push({} as TContenxt);
-      setInputsGroup(newInputsGroups);
+    const newinputTranslate = [...inputTranslate];
+    if (newinputTranslate[index] && newinputTranslate[index].context) {
+      newinputTranslate[index].context?.push({} as TContext);
+      setInputTranslate(newinputTranslate);
     }
   };
 
   const removeContext = (index: number, contextIndex: number) => {
-    const newInputsGroups = [...inputsGroups];
-    if (newInputsGroups[index] && newInputsGroups[index].context) {
-      newInputsGroups[index].context?.splice(contextIndex, 1);
-      setInputsGroup(newInputsGroups);
+    const newinputTranslate = [...inputTranslate];
+    if (newinputTranslate[index] && newinputTranslate[index].context) {
+      newinputTranslate[index].context?.splice(contextIndex, 1);
+      setInputTranslate(newinputTranslate);
     }
   };
 
   const addNewTranslate = () => {
-    // const newInputsGroups = [...inputsGroups];
-    // newInputsGroups.push(inputDataGroup);
-    // setInputsGroup(newInputsGroups);
+    // const newinputTranslate = [...inputTranslate];
+    // newinputTranslate.push(emptyInputTranslate);
+    // setInputTranslate(newinputTranslate);
   };
 
   const removeTranslate = (index: number) => {
-    const newInputsGroups = [...inputsGroups];
-    newInputsGroups[index].removed = true;
-    setInputsGroup(newInputsGroups);
+    const newinputTranslate = [...inputTranslate];
+    newinputTranslate[index].removed = true;
+    setInputTranslate(newinputTranslate);
   };
 
   const handleLayout = () => {
@@ -146,7 +168,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
       setAlertVisible(true);
       return true;
     }
-    if (!inputsGroups[0].value) {
+    if (!inputTranslate[0].value) {
       setSaveWordError(true);
       setAlertMessage('Введите перевод');
       setAlertVisible(true);
@@ -156,8 +178,8 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     return false;
   };
 
-  const filterInputsGroups = () => {
-    // const filteredInputsGroups: TTranslate[] = inputsGroups.reduce(
+  const filterinputTranslate = () => {
+    // const filteredinputTranslate: TTranslate[] = inputTranslate.reduce(
     //   (acc: TTranslate[], item: TTranslate) => {
     //     if (item.value == '') {
     //       return acc;
@@ -170,8 +192,8 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     //   },
     //   [],
     // );
-    // setInputsGroup(filteredInputsGroups);
-    // return filteredInputsGroups;
+    // setInputTranslate(filteredinputTranslate);
+    // return filteredinputTranslate;
   };
 
   const dbSaveWord = async (word: TWord) => {
@@ -191,7 +213,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     // if (validationWord()) {
     //   return;
     // }
-    // const inputsData = filterInputsGroups();
+    // const inputsData = filterinputTranslate();
 
     // const word: TWord = {
     //   word: inputWord,
@@ -214,7 +236,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   };
 
   const resetForm = () => {
-    // setInputsGroup([inputDataGroup]);
+    // setInputTranslate([emptyInputTranslate]);
     // setInputWord('');
   };
 
@@ -264,6 +286,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   };
 
   const inputGroupTemplate = (index: number, data: TTranslate): JSX.Element => {
+    console.log(data);
     return (
       <React.Fragment key={`group-${index}`}>
         <View style={styles.groupInputs}>
@@ -278,7 +301,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
             }
             onLayout={() => handleLayout()}
             icon={
-              inputsGroups.length > 1
+              inputTranslate.length > 1
                 ? {
                   type: IconsStrings.remove,
                   style: {
@@ -292,8 +315,8 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
             }
           />
 
-          {data.contexts &&
-            data.contexts.map((context: TContenxt, contextIndex: number) => {
+          {data.context &&
+            data.context.map((context: TContext, contextIndex: number) => {
               return (
                 <Input
                   style={[styles.mb]}
@@ -308,9 +331,11 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
                   icon={{
                     type: IconsStrings.cancel,
                     style: {
+                      fontSize: 24,
                       position: 'absolute',
                       right: '-12%',
                       padding: 10,
+                      color: theme.textColor
                     },
                     onPress: () => removeContext(index, contextIndex),
                   }}
@@ -352,10 +377,10 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
                 style={[styles.mb]}
                 label="Слово"
                 placeholder="Введите слово"
-                value={word?.value ?? ''}
-                onChangeText={word => setInputWord(word)}
+                value={inputWord}
+                onChangeText={value => setInputWord(value)}
               />
-              {inputsGroups.map((data, index) =>
+              {inputTranslate.map((data, index) =>
                 data.removed ? null : inputGroupTemplate(index, data),
               )}
             </View>

@@ -8,7 +8,7 @@ export type TGroup = {
   count?: number;
 };
 
-export type TContenxt = {
+export type TContext = {
   [key: string]: any;
   _id?: Realm.BSON.ObjectId;
   value: string;
@@ -18,7 +18,7 @@ export type TTranslate = {
   [key: string]: any;
   _id?: Realm.BSON.ObjectId;
   value: string;
-  context?: TContenxt[];
+  context?: TContext[];
   word: Word|null;
   removed?: boolean;
   new?: boolean;
