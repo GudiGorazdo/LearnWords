@@ -36,7 +36,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const route = useRoute();
   const isNewWord = (route.params as { isNewWord?: boolean })?.isNewWord;
   const wordID = (route.params as { wordID?: string })?.wordID;
-  const groupID = (route.params as { groupID?: string })?.groupID;
 
   const word = useObject(Word, new Realm.BSON.ObjectId(wordID));
   const inputDataGroup = word ? word.translates : [{
@@ -270,7 +269,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
       <React.Fragment key={`group-${index}`}>
         <View style={styles.groupInputs}>
           <Input
-            style={[styles.mb, styles.text]}
+            style={[styles.mb]}
             key={`translate-${index}`}
             label="Перевод"
             placeholder="Введите перевод"
