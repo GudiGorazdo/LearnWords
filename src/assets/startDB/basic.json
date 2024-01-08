@@ -1,9 +1,9 @@
 [
   {
-    "group": "Первая группа",
+    "name": "Первая группа",
     "words": [
       {
-        "word": "meticulous",
+        "value": "meticulous",
         "translates": [
           {
             "value": "дотошный",
@@ -12,7 +12,7 @@
         ]
       },
       {
-        "word": "ubiquitous",
+        "value": "ubiquitous",
         "translates": [
           {
             "value": "вездесущий",
@@ -21,7 +21,7 @@
         ]
       },
       {
-        "word": "ephemeral",
+        "value": "ephemeral",
         "translates": [
           {
             "value": "кратковременный",
@@ -30,7 +30,7 @@
         ]
       },
       {
-        "word": "resilient",
+        "value": "resilient",
         "translates": [
           {
             "value": "устойчивый",
@@ -39,7 +39,7 @@
         ]
       },
       {
-        "word": "prolific",
+        "value": "prolific",
         "translates": [
           {
             "value": "плодовитый",
@@ -48,7 +48,7 @@
         ]
       },
       {
-        "word": "ambivalent",
+        "value": "ambivalent",
         "translates": [
           {
             "value": "амбивалентный",
@@ -57,7 +57,7 @@
         ]
       },
       {
-        "word": "innovative",
+        "value": "innovative",
         "translates": [
           {
             "value": "инновационный",
@@ -66,7 +66,7 @@
         ]
       },
       {
-        "word": "conundrum",
+        "value": "conundrum",
         "translates": [
           {
             "value": "загадка",
@@ -75,7 +75,7 @@
         ]
       },
       {
-        "word": "querulous",
+        "value": "querulous",
         "translates": [
           {
             "value": "капризный",
@@ -84,7 +84,7 @@
         ]
       },
       {
-        "word": "equivocal",
+        "value": "equivocal",
         "translates": [
           {
             "value": "двусмысленный",
@@ -93,7 +93,7 @@
         ]
       },
       {
-        "word": "meticulousness",
+        "value": "meticulousness",
         "translates": [
           {
             "value": "дотошность",
@@ -102,7 +102,7 @@
         ]
       },
       {
-        "word": "ephemerality",
+        "value": "ephemerality",
         "translates": [
           {
             "value": "кратковременность",
@@ -111,7 +111,7 @@
         ]
       },
       {
-        "word": "resilience",
+        "value": "resilience",
         "translates": [
           {
             "value": "устойчивость",
@@ -120,7 +120,7 @@
         ]
       },
       {
-        "word": "prolificacy",
+        "value": "prolificacy",
         "translates": [
           {
             "value": "плодовитость",
@@ -129,7 +129,7 @@
         ]
       },
       {
-        "word": "ambivalence",
+        "value": "ambivalence",
         "translates": [
           {
             "value": "амбивалентность",
@@ -138,7 +138,7 @@
         ]
       },
       {
-        "word": "innovation",
+        "value": "innovation",
         "translates": [
           {
             "value": "инновация",
@@ -147,7 +147,7 @@
         ]
       },
       {
-        "word": "conundrums",
+        "value": "conundrums",
         "translates": [
           {
             "value": "загадки",
@@ -156,7 +156,7 @@
         ]
       },
       {
-        "word": "querulousness",
+        "value": "querulousness",
         "translates": [
           {
             "value": "капризность",
@@ -165,7 +165,7 @@
         ]
       },
       {
-        "word": "equivocality",
+        "value": "equivocality",
         "translates": [
           {
             "value": "двусмысленность",
@@ -174,7 +174,7 @@
         ]
       },
       {
-        "word": "ubiquities",
+        "value": "ubiquities",
         "translates": [
           {
             "value": "вездесущие вещи",
@@ -183,7 +183,7 @@
         ]
       },
       {
-        "word": "obfuscation",
+        "value": "obfuscation",
         "translates": [
           {
             "value": "запутывание",
@@ -192,7 +192,7 @@
         ]
       },
       {
-        "word": "serendipitous",
+        "value": "serendipitous",
         "translates": [
           {
             "value": "серендипитный",
@@ -201,7 +201,7 @@
         ]
       },
       {
-        "word": "paragons",
+        "value": "paragons",
         "translates": [
           {
             "value": "идеальные образцы",
@@ -210,7 +210,7 @@
         ]
       },
       {
-        "word": "chicaneries",
+        "value": "chicaneries",
         "translates": [
           {
             "value": "хитрости",
@@ -219,7 +219,7 @@
         ]
       },
       {
-        "word": "esoterica",
+        "value": "esoterica",
         "translates": [
           {
             "value": "эзотерическая информация",
@@ -228,7 +228,7 @@
         ]
       },
       {
-        "word": "quandaries",
+        "value": "quandaries",
         "translates": [
           {
             "value": "дилеммы",
@@ -237,7 +237,7 @@
         ]
       },
       {
-        "word": "obliviousness",
+        "value": "obliviousness",
         "translates": [
           {
             "value": "незнание",
@@ -246,7 +246,7 @@
         ]
       },
       {
-        "word": "taciturnity",
+        "value": "taciturnity",
         "translates": [
           {
             "value": "молчаливость",
@@ -255,7 +255,7 @@
         ]
       },
       {
-        "word": "fastidiousness",
+        "value": "fastidiousness",
         "translates": [
           {
             "value": "тщательность",

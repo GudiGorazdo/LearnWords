@@ -12,7 +12,7 @@ import IconsStrings from '../../assets/awesomeIcons';
 import SelectDropdown from 'react-native-select-dropdown';
 import { BottomModalWindow } from '../../modules/BottomModalWindow';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
-import { useObject } from '../../store/RealmContext';
+import { useObject, useRealm } from '../../store/RealmContext';
 import Word from '../../store/models/Word';
 
 import containerStyles from '../../styles/container';
@@ -52,13 +52,14 @@ const inputsTranslateInitialState = (word: Word | null) => {
 }
 
 export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
+  const realm = useRealm();
   const route = useRoute();
   const isNewWord = (route.params as { isNewWord?: boolean })?.isNewWord;
   const wordID = (route.params as { wordID?: string })?.wordID;
   const word: Word | null = useObject<Word>("Word", new Realm.BSON.ObjectId(wordID));
 
   const emptyInputTranslate: TTranslate = {
-    context: [] as TContext[],
+    context: [],
     value: '',
     new: true,
     removed: false,
@@ -213,6 +214,9 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     }
     console.log('save');
     console.log(inputTranslate);
+    realm.write(() => {
+
+    });
     // const inputsData = filterinputTranslate();
 
     // const word: TWord = {
