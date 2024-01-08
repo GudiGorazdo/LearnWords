@@ -45,7 +45,6 @@ const inputsTranslateInitialState = (word: Word | null) => {
       _id: translate._id,
       value: translate.value,
       context: contexts,
-      word: word,
       removed: false,
       new: false,
     }
@@ -59,7 +58,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const word: Word | null = useObject<Word>("Word", new Realm.BSON.ObjectId(wordID));
 
   const emptyInputTranslate: TTranslate = {
-    word: {} as Word,
     context: [] as TContext[],
     value: '',
     new: true,
@@ -139,9 +137,9 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   };
 
   const addNewTranslate = () => {
-    // const newinputTranslate = [...inputTranslate];
-    // newinputTranslate.push(emptyInputTranslate);
-    // setInputTranslate(newinputTranslate);
+    const newinputTranslate = [...inputTranslate];
+    newinputTranslate.push(emptyInputTranslate);
+    setInputTranslate(newinputTranslate);
   };
 
   const removeTranslate = (index: number) => {
@@ -210,9 +208,11 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   };
 
   const saveWord = async () => {
-    // if (validationWord()) {
-    //   return;
-    // }
+    if (validationWord()) {
+      return;
+    }
+    console.log('save');
+    console.log(inputTranslate);
     // const inputsData = filterinputTranslate();
 
     // const word: TWord = {

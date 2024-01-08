@@ -19,7 +19,6 @@ export type TTranslate = {
   _id?: Realm.BSON.ObjectId;
   value: string;
   context?: TContext[];
-  word: Word|null;
   removed?: boolean;
   new?: boolean;
 };
