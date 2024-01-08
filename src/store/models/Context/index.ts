@@ -12,7 +12,11 @@ export default class Context extends Realm.Object<Context> {
     properties: {
       _id: {type: 'objectId', default: () => new Realm.BSON.ObjectId()},
       value: {type: 'string', indexed: true},
-      translate: 'Translate',
+      translate: {
+        type: 'linkingObjects',
+        objectType: 'Translate',
+        property: 'contexts',
+      },
     },
   };
 }

@@ -1,17 +1,21 @@
 import Realm from 'realm';
+import Group from './store/models/Group';
+import Word from './store/models/Word';
+import Translate from './store/models/Translate';
+import Context from './store/models/Context';
 
 export type TGroup = {
   _id: Realm.BSON.ObjectId;
   name: string;
-  words: TWord[];
+  words?: TWord[] | Word[];
 };
 
 export type TWord = {
   [key: string]: any;
   _id?: Realm.BSON.ObjectId;
   value: string;
-  translate: TTranslate[];
-  group?: TGroup;
+  translates?: TTranslate[] | Translate[];
+  group?: TGroup | Group;
 };
 
 export type TWordListItem = {
@@ -23,9 +27,7 @@ export type TTranslate = {
   [key: string]: any;
   _id?: Realm.BSON.ObjectId;
   value: string;
-  context: TContext[];
-  removed?: boolean;
-  new?: boolean;
+  contexts?: TContext[] | Context[];
 };
 
 

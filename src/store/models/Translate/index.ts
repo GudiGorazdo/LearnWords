@@ -15,7 +15,11 @@ export default class Translate extends Realm.Object<Translate> {
       _id: {type: 'objectId', default: () => new Realm.BSON.ObjectId()},
       value: {type: 'string', indexed: true},
       contexts: 'Context[]',
-      word: 'Word',
+      word: {
+        type: 'linkingObjects',
+        objectType: 'Word',
+        property: 'translates',
+      },
     },
   };
 }

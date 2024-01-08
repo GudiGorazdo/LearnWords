@@ -12,8 +12,10 @@ import IconsStrings from '../../assets/awesomeIcons';
 import SelectDropdown from 'react-native-select-dropdown';
 import { BottomModalWindow } from '../../modules/BottomModalWindow';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
-import { useObject, useRealm } from '../../store/RealmContext';
+import { useObject, useRealm, useQuery } from '../../store/RealmContext';
+import Group from '../../store/models/Group';
 import Word from '../../store/models/Word';
+import Context from '../../store/models/Context';
 
 import containerStyles from '../../styles/container';
 import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
@@ -34,7 +36,7 @@ interface IWordEditScreenProps {
 
 const inputsTranslateInitialState = (word: Word | null) => {
   return word?.translates.map((translate) => {
-    const contexts: TContext[] = translate.contexts?.map((context) => {
+    const contexts: TContext[] | Context[] = translate.contexts?.map((context) => {
       return {
         _id: context._id,
         value: context.value,
@@ -44,9 +46,7 @@ const inputsTranslateInitialState = (word: Word | null) => {
     return {
       _id: translate._id,
       value: translate.value,
-      context: contexts,
-      removed: false,
-      new: false,
+      contexts: contexts,
     }
   })
 }
@@ -57,12 +57,12 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const isNewWord = (route.params as { isNewWord?: boolean })?.isNewWord;
   const wordID = (route.params as { wordID?: string })?.wordID;
   const word: Word | null = useObject<Word>("Word", new Realm.BSON.ObjectId(wordID));
+  // const groups = useQuery(Group);
+  // console.log(groups);
 
   const emptyInputTranslate: TTranslate = {
-    context: [],
+    contexts: [],
     value: '',
-    new: true,
-    removed: false,
   };
 
   const [inputWord, setInputWord] = useState(word?.value ?? '');
@@ -113,8 +113,8 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
         case 'context':
           if (!contextIndex) break;
           if (!newinputTranslate[index].context) break;
-          const context = newinputTranslate[index].context;
-          context && (context[contextIndex].value = value);
+          const contexts = newinputTranslate[index].contexts;
+          contexts && (contexts[contextIndex].value = value);
           break;
       }
       return newinputTranslate;
@@ -123,16 +123,16 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
 
   const addNewContext = (index: number) => {
     const newinputTranslate = [...inputTranslate];
-    if (newinputTranslate[index] && newinputTranslate[index].context) {
-      newinputTranslate[index].context?.push({} as TContext);
+    if (newinputTranslate[index] && newinputTranslate[index].contexts) {
+      newinputTranslate[index].contexts?.push({} as Context);
       setInputTranslate(newinputTranslate);
     }
   };
 
   const removeContext = (index: number, contextIndex: number) => {
     const newinputTranslate = [...inputTranslate];
-    if (newinputTranslate[index] && newinputTranslate[index].context) {
-      newinputTranslate[index].context?.splice(contextIndex, 1);
+    if (newinputTranslate[index] && newinputTranslate[index].contexts) {
+      newinputTranslate[index].contexts?.splice(contextIndex, 1);
       setInputTranslate(newinputTranslate);
     }
   };
@@ -155,10 +155,10 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     }
   };
 
-  const updateWord = async (word: TWord) => {
-    word.id = wordID;
-    // await SWords.update(word);
-  };
+  // const updateWord = async (word: TWord) => {
+  //   word.id = wordID;
+  //   // await SWords.update(word);
+  // };
 
   const validationWord = (): boolean => {
     if (!inputWord) {
@@ -167,6 +167,13 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
       setAlertVisible(true);
       return true;
     }
+    if (!inputTranslate[0].value) {
+      setSaveWordError(true);
+      setAlertMessage('Введите перевод');
+      setAlertVisible(true);
+      return true;
+    }
+
     if (!inputTranslate[0].value) {
       setSaveWordError(true);
       setAlertMessage('Введите перевод');
@@ -195,27 +202,52 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     // return filteredinputTranslate;
   };
 
-  const dbSaveWord = async (word: TWord) => {
-    return new Promise(async (resolve, reject) => {
-      let result = null;
-      if (isNewWord) {
-        // result = await SWords.save(word);
-      } else {
-        result = await updateWord(word);
-      }
+  // const dbSaveWord = async (word: TWord) => {
+  //   return new Promise(async (resolve, reject) => {
+  //     let result = null;
+  //     if (isNewWord) {
+  //       // result = await SWords.save(word);
+  //     } else {
+  //       result = await updateWord(word);
+  //     }
 
-      resolve(result);
-    });
-  };
+  //     resolve(result);
+  //   });
+  // };
+
+  const updateWord = () => {
+    const data: TWord = {
+      ...word,
+      value: inputWord,
+      translates: inputTranslate,
+    };
+    realm.create('Word', data, Realm.UpdateMode.Modified);
+  }
+
+  const createWord = () => {
+    // const data: TWord = {
+
+    // };
+  }
 
   const saveWord = async () => {
     if (validationWord()) {
       return;
     }
-    console.log('save');
-    console.log(inputTranslate);
     realm.write(() => {
-
+      if (word) {
+        updateWord();
+      } else {
+        createWord();
+      }
+      // inputTranslate.forEach((translate: TTranslate) => {
+      //   console.log('save');
+      //   console.log(translate);
+      //   const update = word?.translates.filter((old) => old);
+      //   // translate.contexts.forEach((context: TContext) => {
+      //   //   console.log(context);
+      //   // });
+      // });
     });
     // const inputsData = filterinputTranslate();
 
@@ -290,7 +322,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   };
 
   const inputGroupTemplate = (index: number, data: TTranslate): JSX.Element => {
-    console.log(data);
     return (
       <React.Fragment key={`group-${index}`}>
         <View style={styles.groupInputs}>
@@ -319,8 +350,8 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
             }
           />
 
-          {data.context &&
-            data.context.map((context: TContext, contextIndex: number) => {
+          {data.contexts &&
+            data.contexts.map((context: TContext, contextIndex: number) => {
               return (
                 <Input
                   style={[styles.mb]}

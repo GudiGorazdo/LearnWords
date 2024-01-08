@@ -12,10 +12,14 @@ export default class Word extends Realm.Object<Word> {
     name: 'Word',
     primaryKey: '_id',
     properties: {
-      _id: {type: 'objectId', default: () => new Realm.BSON.ObjectId()},
-      value: {type: 'string', indexed: true},
-      group: 'Group',
+      _id: { type: 'objectId', default: () => new Realm.BSON.ObjectId() },
+      value: { type: 'string', indexed: true },
       translates: 'Translate[]',
+      group: {
+        type: 'linkingObjects',
+        objectType: 'Group',
+        property: 'words',
+      },
     },
   };
 }
