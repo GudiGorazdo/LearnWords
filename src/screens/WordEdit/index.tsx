@@ -14,6 +14,7 @@ import { useObject, useRealm, useQuery } from '../../store/RealmContext';
 import Word from '../../store/models/Word';
 import Context from '../../store/models/Context';
 import { Groups } from './Groups';
+import { Translate } from './Translate';
 
 import containerStyles from '../../styles/container';
 import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
@@ -82,7 +83,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const [inputWord, setInputWord] = useState(word?.value ?? '');
   const [inputTranslate, setInputTranslate] = useState<TTranslate[]>(inputsTranslateInitialState(word) ?? [emptyInputTranslate]);
 
-  // const [start, setStart] = useState(true);
   const [isAlertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [isSaveWordError, setSaveWordError] = useState(false);
@@ -96,21 +96,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     }
   }, [scrollBottom]);
 
-  // useFocusEffect(() => {
-  //   if (start) {
-  //     fetchWord();
-  //     setStart(false);
-  //   }
-  // });
-
-  const fetchWord = async () => {
-    // const word = await SWords.getByID(wordID);
-    // if (word) {
-    //   setInputWord(word.word);
-    //   setInputTranslate(word.translate);
-    // }
-  };
-
   const updateInputGroups = (
     value: string,
     index: number,
@@ -118,48 +103,48 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     contextIndex?: number,
   ) => {
     setInputTranslate(prevInputGroups => {
-      const newinputTranslate = [...prevInputGroups];
+      const newInputTranslate = [...prevInputGroups];
       switch (type) {
         case 'translate':
-          newinputTranslate[index].value = value;
+          newInputTranslate[index].value = value;
           break;
         case 'context':
-          if (!contextIndex) break;
-          if (!newinputTranslate[index].context) break;
-          const contexts = newinputTranslate[index].contexts;
+          if (contextIndex !== 0 && !contextIndex) break;
+          if (!newInputTranslate[index].contexts) break;
+          const contexts = newInputTranslate[index].contexts;
           contexts && (contexts[contextIndex].value = value);
           break;
       }
-      return newinputTranslate;
+      return newInputTranslate;
     });
   };
 
   const addNewContext = (index: number) => {
-    const newinputTranslate = [...inputTranslate];
-    if (newinputTranslate[index] && newinputTranslate[index].contexts) {
-      newinputTranslate[index].contexts?.push({} as Context);
-      setInputTranslate(newinputTranslate);
+    const newInputTranslate = [...inputTranslate];
+    if (newInputTranslate[index] && newInputTranslate[index].contexts) {
+      newInputTranslate[index].contexts?.push({} as Context);
+      setInputTranslate(newInputTranslate);
     }
   };
 
   const removeContext = (index: number, contextIndex: number) => {
-    const newinputTranslate = [...inputTranslate];
-    if (newinputTranslate[index] && newinputTranslate[index].contexts) {
-      newinputTranslate[index].contexts?.splice(contextIndex, 1);
-      setInputTranslate(newinputTranslate);
+    const newInputTranslate = [...inputTranslate];
+    if (newInputTranslate[index] && newInputTranslate[index].contexts) {
+      newInputTranslate[index].contexts?.splice(contextIndex, 1);
+      setInputTranslate(newInputTranslate);
     }
   };
 
   const addNewTranslate = () => {
-    const newinputTranslate = [...inputTranslate];
-    newinputTranslate.push(emptyInputTranslate);
-    setInputTranslate(newinputTranslate);
+    const newInputTranslate = [...inputTranslate];
+    newInputTranslate.push(emptyInputTranslate);
+    setInputTranslate(newInputTranslate);
   };
 
   const removeTranslate = (index: number) => {
-    const newinputTranslate = [...inputTranslate];
-    newinputTranslate[index].removed = true;
-    setInputTranslate(newinputTranslate);
+    const newInputTranslate = [...inputTranslate];
+    newInputTranslate[index].removed = true;
+    setInputTranslate(newInputTranslate);
   };
 
   const handleLayout = () => {
@@ -180,13 +165,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
       setAlertVisible(true);
       return true;
     }
-    if (!inputTranslate[0].value) {
-      setSaveWordError(true);
-      setAlertMessage('Введите перевод');
-      setAlertVisible(true);
-      return true;
-    }
-
     if (!inputTranslate[0].value) {
       setSaveWordError(true);
       setAlertMessage('Введите перевод');
@@ -334,71 +312,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     return buttons;
   };
 
-  const inputGroupTemplate = (index: number, data: TTranslate): JSX.Element => {
-    return (
-      <React.Fragment key={`group-${index}`}>
-        <View style={styles.groupInputs}>
-          <Input
-            style={[styles.mb]}
-            key={`translate-${index}`}
-            label="Перевод"
-            placeholder="Введите перевод"
-            value={data.value}
-            onChangeText={translate =>
-              updateInputGroups(translate, index, 'translate')
-            }
-            onLayout={() => handleLayout()}
-            icon={
-              inputTranslate.length > 1
-                ? {
-                  type: IconsStrings.remove,
-                  style: {
-                    position: 'absolute',
-                    right: '-12%',
-                    padding: 10,
-                  },
-                  onPress: () => removeTranslate(index),
-                }
-                : undefined
-            }
-          />
-
-          {data.contexts &&
-            data.contexts.map((context: TContext, contextIndex: number) => {
-              return (
-                <Input
-                  style={[styles.mb]}
-                  key={`context-${index}-${contextIndex}`}
-                  label="Контекст"
-                  placeholder="Добавьте контекст"
-                  value={context.value}
-                  onChangeText={context =>
-                    updateInputGroups(context, index, 'context', contextIndex)
-                  }
-                  multiline={true}
-                  icon={{
-                    type: IconsStrings.cancel,
-                    style: {
-                      fontSize: 24,
-                      position: 'absolute',
-                      right: '-12%',
-                      padding: 10,
-                      color: theme.textColor
-                    },
-                    onPress: () => removeContext(index, contextIndex),
-                  }}
-                />
-              )
-            })}
-          <Button
-            title="Добавить контекст"
-            onPress={() => addNewContext(index)}
-          />
-        </View>
-      </React.Fragment>
-    );
-  };
-
   return (
     <>
       <SafeAreaView style={styles.safeArea}>
@@ -428,7 +341,21 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
                 onChangeText={value => setInputWord(value)}
               />
               {inputTranslate.map((data, index) =>
-                data.removed ? null : inputGroupTemplate(index, data),
+                data.removed ? null : (
+                  <Translate
+                    key={`translate-${index}`}
+                    data={data}
+                    containerStyle={styles.groupInputs}
+                    inputStyle={styles.mb}
+                    removeIcon={inputTranslate.length > 1}
+                    onUpdateDataTranslate={(translate) => updateInputGroups(translate, index, 'translate')}
+                    onUpdateDataContext={(context, contextIndex) => updateInputGroups(context, index, 'context', contextIndex)}
+                    onLayout={() => handleLayout()}
+                    removeGroup={() => removeTranslate(index)}
+                    addContext={() => addNewContext(index)}
+                    removeContext={(contextIndex) => removeContext(index, contextIndex)}
+                  />
+                ),
               )}
             </View>
           </ScrollView>
