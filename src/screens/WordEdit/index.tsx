@@ -6,10 +6,10 @@ import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
 import { Alert, TAlertButton } from '../../modules/Alert';
-import { TTranslate, TWord, TContext } from '../../types';
+import { TTranslate, TWord, TContext, TGroup } from '../../types';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconsStrings from '../../assets/awesomeIcons';
-import SelectDropdown from 'react-native-select-dropdown';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { BottomModalWindow } from '../../modules/BottomModalWindow';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { useObject, useRealm, useQuery } from '../../store/RealmContext';
@@ -57,10 +57,11 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const isNewWord = (route.params as { isNewWord?: boolean })?.isNewWord;
   const wordID = (route.params as { wordID?: string })?.wordID;
   const word: any = useObject<Word>("Word", new Realm.BSON.ObjectId(wordID));
-  const x: any = useObject<Word>("Translate", new Realm.BSON.ObjectId('659ba2ba798f859f48e94e27'));
-  console.log('x', x);
+  // console.log(word.groups);
+  // const x: any = useObject<Word>("Translate", new Realm.BSON.ObjectId('659ba2ba798f859f48e94e27'));
+  // console.log('x', x);
 
-  const groups = useQuery(Group);
+  const groupsList = useQuery(Group);
   realm.write(() => {
 
     // if (word) word.translates = [];
@@ -402,6 +403,60 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     );
   };
 
+
+
+
+
+
+
+
+
+
+
+
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+  const [groupsDropdownItems, setGroupsDropdownItems] = useState(groupsList.map(group => {
+    return {
+      value: group._id.toString(),
+      label: group.name,
+    }
+  }));
+
+  const getGroupsData = (groups: TGroup[]) => {
+    return groups.map((group) => {
+      return {
+        id: group._id.toString(),
+        open: false,
+      }
+    });
+  }
+  const [wordGroups, setWordGroups] = useState(getGroupsData(word.groups));
+
+  const setGroupMenuOpen = (openIndex: number) => {
+    const newWordGroups = wordGroups.map((group, index) => {
+      if (index === openIndex) group.open = true;
+      else group.open = false;
+      return group;
+    });
+
+    setWordGroups(newWordGroups);
+  }
+
+  const setWordGroup = (id: string, indexCurrent: number) => {
+    const newWordGroups = wordGroups.map((group, index) => {
+      if (index === indexCurrent) group.id = id;
+      return group;
+    });
+
+    setWordGroups(newWordGroups);
+  }
+
+  const addNewGroup = () => {
+    const newWordGroups = [...wordGroups, { id: '', open: false }];
+    setWordGroups(newWordGroups);
+  }
+
   return (
     <>
       <SafeAreaView style={styles.safeArea}>
@@ -448,42 +503,33 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
       </SafeAreaView>
       <BottomModalWindow
         isVisible={isGroupListVisible}
-        onOverlayPress={() => setGroupListVisible(false)}>
-        <SelectDropdown
-          data={[{label: 'q', value: 'id_1'}]}
-          onSelect={(selectedItem, index) => {
-            console.log(selectedItem, index);
-          }}
-          buttonTextAfterSelection={(selectedItem, index) => {
-            // text represented after item is selected
-            // if data array is an array of objects then return selectedItem.property to render after item is selected
-            return selectedItem;
-          }}
-          rowTextForSelection={(item, index) => {
-            // text represented for each item in dropdown
-            // if data array is an array of objects then return item.property to represent item in dropdown
-            return item;
-          }}
-          defaultButtonText={'Select country'}
-          // buttonTextAfterSelection={(selectedItem, index) => {
-          //   return selectedItem;
-          // }}
-          buttonStyle={styles.dropdown1BtnStyle}
-          buttonTextStyle={styles.dropdown1BtnTxtStyle}
-          renderDropdownIcon={isOpened => {
-            return (
-              <Icon
-                name={isOpened ? 'chevron-up' : 'chevron-down'}
-                color={'#444'}
-                size={18}
-              />
-            );
-          }}
-          dropdownIconPosition={'right'}
-          dropdownStyle={styles.dropdown1DropdownStyle}
-          rowStyle={styles.dropdown1RowStyle}
-          rowTextStyle={styles.dropdown1RowTxtStyle}
-        />
+        onOverlayPress={() => {
+          setGroupListVisible(false);
+          setGroupMenuOpen(NaN);
+        }}>
+        {wordGroups.map((group, index) => (
+          <DropDownPicker
+            key={`${index}_group`}
+            open={group.open}
+            value={group.id}
+            items={groupsDropdownItems}
+            setOpen={() => setGroupMenuOpen(index)}
+            setValue={(set) => setWordGroup(set(value), index)}
+            onChangeValue={(value) => {
+              setGroupMenuOpen(NaN);
+            }}
+            setItems={() => console.log('asdf')}
+          />
+        ))}
+
+        {
+          wordGroups.length < groupsList.length && (
+            <Button
+              title="Добавить группу"
+              onPress={() => addNewGroup()}
+            />
+          )
+        }
       </BottomModalWindow>
       <Alert
         isVisible={isAlertVisible}

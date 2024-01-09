@@ -19,8 +19,14 @@ const setup = async (realm: Realm) => {
       realm.create('Config', { isInstalled: true });
 
       for (const group of data) {
-        const groupItem = realm.create('Group', {name: group.name});
-        group.words && group.words.forEach((word) => realm.create('Word', {value: word.value, translates: word.translates, groups: [groupItem]}));
+        const groupItem = realm.create('Group', { name: group.name });
+        group.words && group.words.forEach((word) => {
+          realm.create('Word', {
+            value: word.value,
+            translates: word.translates,
+            groups: [groupItem]
+          });
+        });
       }
     });
 
