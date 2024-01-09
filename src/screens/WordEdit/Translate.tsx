@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 type TTranslateProps = {
+  translateIndex: number;
   data: TTranslate;
   containerStyle: StyleProp<ViewStyle>;
   inputStyle: StyleProp<ViewStyle>;
@@ -23,6 +24,7 @@ type TTranslateProps = {
   removeContext: (contextIndex: number) => void;
 }
 export function Translate({
+  translateIndex,
   data,
   containerStyle,
   inputStyle,
@@ -63,7 +65,7 @@ export function Translate({
             return (
               <Input
                 style={inputStyle}
-                key={`context-${contextIndex}`}
+                key={`context-${translateIndex}-${contextIndex}`}
                 label="Контекст"
                 placeholder="Добавьте контекст"
                 value={context.value}

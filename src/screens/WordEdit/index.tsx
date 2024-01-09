@@ -175,7 +175,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     return false;
   };
 
-  const filterinputTranslate = () => {
+  const filterInputTranslate = () => {
     // const filteredinputTranslate: TTranslate[] = inputTranslate.reduce(
     //   (acc: TTranslate[], item: TTranslate) => {
     //     if (item.value == '') {
@@ -240,7 +240,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
       //   // });
       // });
     });
-    // const inputsData = filterinputTranslate();
+    // const inputsData = filterInputTranslate();
 
     // const word: TWord = {
     //   word: inputWord,
