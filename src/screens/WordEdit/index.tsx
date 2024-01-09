@@ -9,13 +9,11 @@ import { Alert, TAlertButton } from '../../modules/Alert';
 import { TTranslate, TWord, TContext, TGroup } from '../../types';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconsStrings from '../../assets/awesomeIcons';
-import DropDownPicker from 'react-native-dropdown-picker';
-import { BottomModalWindow } from '../../modules/BottomModalWindow';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { useObject, useRealm, useQuery } from '../../store/RealmContext';
-import Group from '../../store/models/Group';
 import Word from '../../store/models/Word';
 import Context from '../../store/models/Context';
+import { Groups } from './Groups';
 
 import containerStyles from '../../styles/container';
 import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
@@ -61,7 +59,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   // const x: any = useObject<Word>("Translate", new Realm.BSON.ObjectId('659ba2ba798f859f48e94e27'));
   // console.log('x', x);
 
-  const groupsList = useQuery(Group);
   realm.write(() => {
 
     // if (word) word.translates = [];
@@ -85,7 +82,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const [inputWord, setInputWord] = useState(word?.value ?? '');
   const [inputTranslate, setInputTranslate] = useState<TTranslate[]>(inputsTranslateInitialState(word) ?? [emptyInputTranslate]);
 
-  const [isGroupListVisible, setGroupListVisible] = useState(false);
   // const [start, setStart] = useState(true);
   const [isAlertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -403,60 +399,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     );
   };
 
-
-
-
-
-
-
-
-
-
-
-
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
-  const [groupsDropdownItems, setGroupsDropdownItems] = useState(groupsList.map(group => {
-    return {
-      value: group._id.toString(),
-      label: group.name,
-    }
-  }));
-
-  const getGroupsData = (groups: TGroup[]) => {
-    return groups.map((group) => {
-      return {
-        id: group._id.toString(),
-        open: false,
-      }
-    });
-  }
-  const [wordGroups, setWordGroups] = useState(getGroupsData(word.groups));
-
-  const setGroupMenuOpen = (openIndex: number) => {
-    const newWordGroups = wordGroups.map((group, index) => {
-      if (index === openIndex) group.open = true;
-      else group.open = false;
-      return group;
-    });
-
-    setWordGroups(newWordGroups);
-  }
-
-  const setWordGroup = (id: string, indexCurrent: number) => {
-    const newWordGroups = wordGroups.map((group, index) => {
-      if (index === indexCurrent) group.id = id;
-      return group;
-    });
-
-    setWordGroups(newWordGroups);
-  }
-
-  const addNewGroup = () => {
-    const newWordGroups = [...wordGroups, { id: '', open: false }];
-    setWordGroups(newWordGroups);
-  }
-
   return (
     <>
       <SafeAreaView style={styles.safeArea}>
@@ -470,15 +412,14 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
         <KeyboardAvoidingView
           style={styles.flex}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? getStatusBarHeight(true) : 0}>
+          keyboardVerticalOffset={Platform.OS === 'ios' ? getStatusBarHeight(true) : 0}
+        >
           <ScrollView
             ref={scrollViewRef}
-            contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
+            contentContainerStyle={[styles.scrollViewContent, containerStyles]}
+          >
             <View style={styles.section}>
-              <Button
-                title="Показать список групп"
-                onPress={() => setGroupListVisible(true)}
-              />
+              <Groups word={word} />
               <Input
                 style={[styles.mb]}
                 label="Слово"
@@ -501,36 +442,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
           }}
         />
       </SafeAreaView>
-      <BottomModalWindow
-        isVisible={isGroupListVisible}
-        onOverlayPress={() => {
-          setGroupListVisible(false);
-          setGroupMenuOpen(NaN);
-        }}>
-        {wordGroups.map((group, index) => (
-          <DropDownPicker
-            key={`${index}_group`}
-            open={group.open}
-            value={group.id}
-            items={groupsDropdownItems}
-            setOpen={() => setGroupMenuOpen(index)}
-            setValue={(set) => setWordGroup(set(value), index)}
-            onChangeValue={(value) => {
-              setGroupMenuOpen(NaN);
-            }}
-            setItems={() => console.log('asdf')}
-          />
-        ))}
-
-        {
-          wordGroups.length < groupsList.length && (
-            <Button
-              title="Добавить группу"
-              onPress={() => addNewGroup()}
-            />
-          )
-        }
-      </BottomModalWindow>
       <Alert
         isVisible={isAlertVisible}
         message={alertMessage}

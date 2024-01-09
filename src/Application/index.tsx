@@ -1,5 +1,7 @@
 import React from 'react';
 // import {StatusBar, useColorScheme} from 'react-native';
+import * as eva from '@eva-design/eva';
+import { ApplicationProvider, Layout, Text } from '@ui-kitten/components';
 import Navigation from '../navigation/Navigation';
 import { useQuery, useRealm } from '../store/RealmContext';
 import Config from '../store/models/Config';
@@ -21,7 +23,9 @@ export const Application = (): JSX.Element => {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
       /> */}
-      <Navigation />
+      <ApplicationProvider {...eva} theme={eva.light}>
+        <Navigation />
+      </ApplicationProvider>
     </>
   );
 };
