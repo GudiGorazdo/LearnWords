@@ -12,7 +12,10 @@ export default class Group extends Realm.Object<Group> {
     properties: {
       _id: {type: 'objectId', default: () => new Realm.BSON.ObjectId()},
       name: {type: 'string', indexed: true},
-      words: 'Word[]',
+      words: {
+        type: 'list',
+        objectType: 'Word',
+      },
     },
   };
 }

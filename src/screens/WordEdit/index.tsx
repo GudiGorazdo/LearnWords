@@ -56,9 +56,25 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const route = useRoute();
   const isNewWord = (route.params as { isNewWord?: boolean })?.isNewWord;
   const wordID = (route.params as { wordID?: string })?.wordID;
-  const word: Word | null = useObject<Word>("Word", new Realm.BSON.ObjectId(wordID));
-  // const groups = useQuery(Group);
-  // console.log(groups);
+  const word: any = useObject<Word>("Word", new Realm.BSON.ObjectId(wordID));
+  const x: any = useObject<Word>("Translate", new Realm.BSON.ObjectId('659ba2ba798f859f48e94e27'));
+  console.log('x', x);
+
+  const groups = useQuery(Group);
+  realm.write(() => {
+
+    // if (word) word.translates = [];
+
+    // word.groups = [];
+    // word.groups.push(groups[1]);
+    // if (word && !word.groups.includes(groups[1])) {
+    // }
+    // groups[1].words?.push(word);
+  });
+  // console.log(word.translates[0]._id); // 659ba2ba798f859f48e94e27
+  // console.log(word.groups.includes(groups[0]));
+  // console.log([... new Set(word.groups)]);
+  // console.log(groups[1].words);
 
   const emptyInputTranslate: TTranslate = {
     contexts: [],
@@ -434,7 +450,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
         isVisible={isGroupListVisible}
         onOverlayPress={() => setGroupListVisible(false)}>
         <SelectDropdown
-          data={['Egypt', 'Canada', 'Australia', 'Ireland']}
+          data={[{label: 'q', value: 'id_1'}]}
           onSelect={(selectedItem, index) => {
             console.log(selectedItem, index);
           }}

@@ -1,5 +1,6 @@
 import Realm from "realm";
 import { TGroup } from "../types";
+import { TWord } from "../types";
 
 const getFromJSON = async () => {
   try {
@@ -17,8 +18,9 @@ const setup = async (realm: Realm) => {
     realm.write(() => {
       realm.create('Config', { isInstalled: true });
 
-      for (const item of data) {
-        realm.create('Group',item);
+      for (const group of data) {
+        const groupItem = realm.create('Group', {name: group.name});
+        group.words && group.words.forEach((word) => realm.create('Word', {value: word.value, translates: word.translates, groups: [groupItem]}));
       }
     });
 

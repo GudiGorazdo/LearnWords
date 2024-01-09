@@ -5,8 +5,8 @@ import Translate from '../Translate';
 export default class Word extends Realm.Object<Word> {
   _id!: Realm.BSON.ObjectId;
   value!: string;
-  group!: Group;
   translates!: Realm.List<Translate>;
+  words?: Realm.List<Group>;
 
   static schema: Realm.ObjectSchema = {
     name: 'Word',
@@ -15,10 +15,9 @@ export default class Word extends Realm.Object<Word> {
       _id: { type: 'objectId', default: () => new Realm.BSON.ObjectId() },
       value: { type: 'string', indexed: true },
       translates: 'Translate[]',
-      group: {
-        type: 'linkingObjects',
+      groups: {
+        type: 'list',
         objectType: 'Group',
-        property: 'words',
       },
     },
   };
