@@ -1,18 +1,20 @@
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Alert as AlertEL, TAlertButton } from '../../modules/Alert';
+import { useEffect, useState } from 'react';
+import { ControlOutlined } from '@ant-design/icons';
 
 type TAlertProps = {
   isVisible: boolean;
   isNewWord: boolean;
   isErrors: boolean;
-  message: string;
+  alertMessage: string;
   close: () => void;
 }
 
 export function Alert({
   isVisible,
   isNewWord,
-  message,
+  alertMessage,
   isErrors,
   close,
 }: TAlertProps) {
@@ -25,43 +27,41 @@ export function Alert({
       },
     }];
 
-    // if (isErrors) return buttons;
+    if (isErrors) return buttons;
 
-    // if (isNewWord) {
-    //   buttons.push({
-    //     title: 'Добавить новое слово',
-    //     onPress: () => {
-    //       setAlertVisible(!isVisible);
-    //       resetForm();
-    //       setStart(true);
-    //       navigation.push('WordEdit', {
-    //         isNewWord: true,
-    //       });
-    //     },
-    //   });
-    // }
-    // buttons.push({
-    //   title: 'Назад',
-    //   onPress: () => {
-    //     close();
-    //     navigation.goBack();
-    //   },
-    // });
+    if (isNewWord) {
+      buttons.push({
+        title: 'Добавить новое слово',
+        onPress: () => {
+          close();
+          // navigation.push('WordEdit', {
+          //   isNewWord: true,
+          // });
+        },
+      });
+    }
+    buttons.push({
+      title: 'Назад',
+      onPress: () => {
+        close();
+        // navigation.goBack();
+      },
+    });
 
-    // buttons.push({
-    //   title: 'К списку слов',
-    //   onPress: () => {
-    //     close();
-    //     navigation.navigate('WordsList', { groupID: groupID});
-    //   },
-    // });
+    buttons.push({
+      title: 'К списку слов',
+      onPress: () => {
+        close();
+        // navigation.navigate('WordsList', { groupID: groupID});
+      },
+    });
 
     return buttons;
   };
   return (
     <AlertEL
       isVisible={isVisible}
-      message={message}
+      message={alertMessage}
       buttons={getAlertButtons()}
       onOverlayPress={() => close()}
     />

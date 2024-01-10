@@ -7,7 +7,8 @@ import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
 import { TTranslate, TWord, TContext } from '../../types';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
-import { useObject, useRealm } from '../../store/RealmContext';
+import { useObject, useRealm, useQuery } from '../../store/RealmContext';
+import Group from '../../store/models/Group';
 import Word from '../../store/models/Word';
 import Context from '../../store/models/Context';
 import { Groups } from './Groups';
@@ -63,12 +64,14 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
 
   const [inputWord, setInputWord] = useState(word?.value ?? '');
   const [inputTranslate, setInputTranslate] = useState<TTranslate[]>(inputsTranslateInitialState(word) ?? [emptyInputTranslate]);
+  const [groupsList, setGroupsList] = useState<Group[]>((word?.groups ?? []) as Group[]);
   const [isAlertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [isSaveWordError, setSaveWordError] = useState(false);
   const [startScroll, setStartScroll] = useState(true);
   const [scrollBottom, setScrollBottom] = useState(false);
   const scrollViewRef = useRef(null);
+
 
   useEffect(() => {
     if (scrollBottom && scrollViewRef && scrollViewRef.current) {
@@ -137,21 +140,30 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const filterInputTranslate = () => {
     const filteredinputTranslate: TTranslate[] = inputTranslate.reduce(
       (acc: TTranslate[], item: TTranslate) => {
-        if (item.value == '') {
+        if (item.value.trim() == '') {
           return acc;
         }
         if (item.contexts) {
-          item.contexts = item.contexts.filter(contextItem => contextItem.value !== '');
+          item.contexts = item.contexts.reduce((acc: TContext[], contextItem: TContext) => {
+            contextItem.value = contextItem.value.trim();
+            if (contextItem.value) acc.push(contextItem);
+            return acc;
+          }, [] as TContext[]);
         }
         acc.push(item);
         return acc;
       },
       [],
     );
+    if (filteredinputTranslate.length < 1) {
+      filteredinputTranslate.push(emptyInputTranslate);
+    };
     setInputTranslate(filteredinputTranslate);
   };
 
   const validationWord = (): boolean => {
+    const value = inputWord.trim();
+    setInputWord(value);
     filterInputTranslate();
 
     if (!inputWord) {
@@ -160,6 +172,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
       setAlertVisible(true);
       return true;
     }
+
     if (!inputTranslate[0].value) {
       setSaveWordError(true);
       setAlertMessage('Введите перевод');
@@ -167,37 +180,61 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
       return true;
     }
 
+    if (isNewWord && realm.objects("Word").filtered("value = $0", inputWord, false).length) {
+      setSaveWordError(true);
+      setAlertMessage('Слово уже есть в словаре');
+      setAlertVisible(true);
+      return true;
+    }
+
     return false;
   };
 
-  const saveWord = async () => {
+  const saveWord = () => {
+    return new Promise(resolve => {
+      realm.write(() => {
+        let result: boolean = false;
+
+        if (isNewWord) {
+          result = WordApi.create(realm, {
+            value: inputWord,
+            translates: inputTranslate,
+          } as TWord);
+        } else if (word) {
+          result = WordApi.update(
+            realm,
+            groupsList,
+            word,
+            inputWord,
+            inputTranslate
+          );
+        }
+
+        resolve(result);
+      });
+    });
+  };
+
+  const submit = async () => {
     if (validationWord()) return;
 
-    realm.write(() => {
-      if (isNewWord) {
-        WordApi.create(realm, {
-          value: inputWord,
-          translates: inputTranslate,
-        } as TWord);
-      } else {
-        word && WordApi.update(realm, word, inputWord, inputTranslate);
-      }
-    });
+    try {
+      const result = await saveWord();
+      console.log(result);
+      if (!result) {
+        throw Error('Произошла ошибка при сохраненни слова src/screens/WordEdit submit()');
+      };
 
-    // setSaveWordError(false);
-    // setAlertMessage('Слово сохранено');
-    // try {
-    //   const result = await dbSaveWord(word);
-    //   if (result === 'duplicate') {
-    //     setAlertMessage('Слово уже есть в словаре');
-    //   }
-    //   setAlertVisible(true);
-    // } catch (error: any) {
-    //   console.log(error);
-    //   setAlertMessage('При сохранении слова произошла ошибка');
-    //   return setAlertVisible(true);
-    // }
-  };
+      setAlertMessage('Слово успешно сохранено');
+      setSaveWordError(false);
+      setAlertVisible(true);
+
+    } catch (error) {
+      console.log(error);
+      setAlertMessage('При сохранении слова произошла ошибка');
+      return setAlertVisible(true);
+    }
+  }
 
   const resetForm = () => {
     // setInputTranslate([emptyInputTranslate]);
@@ -208,7 +245,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   return (
     <>
       <SafeAreaView style={styles.safeArea}>
-        <Header backPath={() => navigation.goBack()} accept={() => saveWord()} />
+        <Header backPath={() => navigation.goBack()} accept={() => submit()} />
         <KeyboardAvoidingView
           style={styles.flex}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -219,7 +256,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
             contentContainerStyle={[styles.scrollViewContent, containerStyles]}
           >
             <View style={styles.section}>
-              {word && <Groups word={word} />}
+              <Groups word={word} onChange={(list) => setGroupsList(list)} />
               <Input
                 style={[styles.mb]}
                 label="Слово"
@@ -259,7 +296,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
       <Alert
         isNewWord={!!isNewWord}
         isVisible={isAlertVisible}
-        message={alertMessage}
+        alertMessage={alertMessage}
         isErrors={isSaveWordError}
         close={() => setAlertVisible(false)}
       />

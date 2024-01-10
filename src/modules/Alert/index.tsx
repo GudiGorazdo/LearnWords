@@ -1,6 +1,7 @@
 import React from 'react';
 import { ModalWithOverlay } from '../ModalWithOverlay';
 import { Button } from '../../components/Button';
+import theme from '../../styles/themeLight';
 
 import {
 	View,
@@ -30,7 +31,6 @@ export function Alert({
 	buttons,
 	style,
 	onOverlayPress,
-	x,
 }: IAlertProps): JSX.Element {
 	return (
 		<ModalWithOverlay
@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
 	message: {
 		fontSize: 22,
 		textAlign: 'center',
+    color: theme.textColor
 	},
 
 

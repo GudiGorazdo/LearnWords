@@ -2,6 +2,7 @@ import Realm from "realm";
 import { TContext, TTranslate, TWord } from "../types";
 import Word from "./models/Word";
 import Context from "./models/Context";
+import Group from "./models/Group";
 
 const getTranslatesToRemove = (word: Word, translates: TTranslate[]) => {
   const translateIds: string[] = translates.map(translate => translate._id?.toString() ?? '');
@@ -30,22 +31,40 @@ const getContextsToRemove = (word: Word, translates: TTranslate[]) => {
   return filteredContexts;
 }
 
-export const update = (realm: Realm, word: Word, value: string, translates: TTranslate[] = []) => {
-  [
-    getTranslatesToRemove(word, translates),
-    getContextsToRemove(word, translates)
-  ].forEach(intem => realm.delete(intem));
+export const update = (
+  realm: Realm,
+  groups: Group[],
+  word: Word,
+  value: string,
+  translates: TTranslate[]
+) => {
+  try {
+    [
+      getTranslatesToRemove(word, translates),
+      getContextsToRemove(word, translates)
+    ].forEach(intem => realm.delete(intem));
 
-  const data: TWord = {
-    ...word,
-    value: value,
-    translates: translates,
-  };
-  realm.create('Word', data, Realm.UpdateMode.Modified);
+    const data: TWord = {
+      ...word,
+      groups: groups,
+      value: value,
+      translates: translates,
+    };
+    realm.create('Word', data, Realm.UpdateMode.Modified);
+
+    return true;
+  } catch (error) {
+    console.log('Ошибка src/store/WordApi update()', error);
+    return false;
+  }
 }
 
 export const create = (realm: Realm, word: TWord) => {
-  // const data: TWord = {
-
-  // };
+  try {
+    realm.create('Word', word);
+    return true;
+  } catch (error) {
+    console.log('Ошибка src/store/WordApi create()', error);
+    return false;
+  }
 }
