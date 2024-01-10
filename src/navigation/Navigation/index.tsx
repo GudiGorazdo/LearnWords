@@ -8,7 +8,7 @@ import { Home } from '../../screens/Home';
 import { WordData } from '../../screens/WordData';
 import { WordEdit } from '../../screens/WordEdit';
 import { WordsList } from '../../screens/WordsList';
-// import {WordsGroups} from '../../screens/WordsGroups';
+import {WordsGroups} from '../../screens/WordsGroups';
 
 // import {Training} from '../../screens/Training';
 // import {TestMode} from '../../screens/TestMode';
@@ -45,11 +45,11 @@ export default function Navigation(): JSX.Element {
           component={WordsList}
           options={{ headerShown: false }}
         />
-        {/* <Stack.Screen
+        <Stack.Screen
           name="WordsGroups"
           component={WordsGroups}
           options={{headerShown: false}}
-        /> */}
+        />
         {/* <Stack.Screen
           name="Training"
           component={Training}
