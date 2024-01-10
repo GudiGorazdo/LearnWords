@@ -197,6 +197,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
 
         if (isNewWord) {
           result = WordApi.create(realm, {
+            groups: groupsList,
             value: inputWord,
             translates: inputTranslate,
           } as TWord);
