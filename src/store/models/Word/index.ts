@@ -6,7 +6,7 @@ export default class Word extends Realm.Object<Word> {
   _id!: Realm.BSON.ObjectId;
   value!: string;
   translates!: Realm.List<Translate>;
-  words?: Realm.List<Group>;
+  groups?: Realm.List<Group>;
 
   static schema: Realm.ObjectSchema = {
     name: 'Word',

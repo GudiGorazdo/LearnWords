@@ -1,20 +1,19 @@
 import React, { useState, useRef, useEffect, } from 'react';
-import { useRoute, useFocusEffect, } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Realm from 'realm';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
-import { TTranslate, TWord, TContext, TGroup } from '../../types';
-import Icon from 'react-native-vector-icons/Ionicons';
-import IconsStrings from '../../assets/awesomeIcons';
+import { TTranslate, TWord, TContext } from '../../types';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
-import { useObject, useRealm, useQuery } from '../../store/RealmContext';
+import { useObject, useRealm } from '../../store/RealmContext';
 import Word from '../../store/models/Word';
 import Context from '../../store/models/Context';
 import { Groups } from './Groups';
 import { Translate } from './Translate';
 import { Alert } from './Alert';
+import * as WordApi from '../../store/WordApi';
 
 import containerStyles from '../../styles/container';
 import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
@@ -50,45 +49,27 @@ const inputsTranslateInitialState = (word: Word | null) => {
   })
 }
 
+const emptyInputTranslate: TTranslate = {
+  contexts: [],
+  value: '',
+};
+
 export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const realm = useRealm();
   const route = useRoute();
   const isNewWord = (route.params as { isNewWord?: boolean })?.isNewWord;
   const wordID = (route.params as { wordID?: string })?.wordID;
-  const word: any = useObject<Word>("Word", new Realm.BSON.ObjectId(wordID));
-  // console.log(word.groups);
-  // const x: any = useObject<Word>("Translate", new Realm.BSON.ObjectId('659ba2ba798f859f48e94e27'));
-  // console.log('x', x);
-
-  realm.write(() => {
-
-    // if (word) word.translates = [];
-
-    // word.groups = [];
-    // word.groups.push(groups[1]);
-    // if (word && !word.groups.includes(groups[1])) {
-    // }
-    // groups[1].words?.push(word);
-  });
-  // console.log(word.translates[0]._id); // 659ba2ba798f859f48e94e27
-  // console.log(word.groups.includes(groups[0]));
-  // console.log([... new Set(word.groups)]);
-  // console.log(groups[1].words);
-
-  const emptyInputTranslate: TTranslate = {
-    contexts: [],
-    value: '',
-  };
+  const word: Word | null = useObject<Word>("Word", new Realm.BSON.ObjectId(wordID));
 
   const [inputWord, setInputWord] = useState(word?.value ?? '');
   const [inputTranslate, setInputTranslate] = useState<TTranslate[]>(inputsTranslateInitialState(word) ?? [emptyInputTranslate]);
-
   const [isAlertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [isSaveWordError, setSaveWordError] = useState(false);
   const [startScroll, setStartScroll] = useState(true);
   const [scrollBottom, setScrollBottom] = useState(false);
   const scrollViewRef = useRef(null);
+
   useEffect(() => {
     if (scrollBottom && scrollViewRef && scrollViewRef.current) {
       (scrollViewRef.current as ScrollView).scrollToEnd({ animated: true });
@@ -143,7 +124,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
 
   const removeTranslate = (index: number) => {
     const newInputTranslate = [...inputTranslate];
-    newInputTranslate[index].removed = true;
+    newInputTranslate.splice(index, 1);
     setInputTranslate(newInputTranslate);
   };
 
@@ -153,7 +134,26 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     }
   };
 
+  const filterInputTranslate = () => {
+    const filteredinputTranslate: TTranslate[] = inputTranslate.reduce(
+      (acc: TTranslate[], item: TTranslate) => {
+        if (item.value == '') {
+          return acc;
+        }
+        if (item.contexts) {
+          item.contexts = item.contexts.filter(contextItem => contextItem.value !== '');
+        }
+        acc.push(item);
+        return acc;
+      },
+      [],
+    );
+    setInputTranslate(filteredinputTranslate);
+  };
+
   const validationWord = (): boolean => {
+    filterInputTranslate();
+
     if (!inputWord) {
       setSaveWordError(true);
       setAlertMessage('Введите слово');
@@ -170,68 +170,19 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     return false;
   };
 
-  const filterInputTranslate = () => {
-    // const filteredinputTranslate: TTranslate[] = inputTranslate.reduce(
-    //   (acc: TTranslate[], item: TTranslate) => {
-    //     if (item.value == '') {
-    //       return acc;
-    //     }
-    //     if (item.context) {
-    //       item.context = item.context.filter(contextItem => contextItem !== '');
-    //     }
-    //     acc.push(item);
-    //     return acc;
-    //   },
-    //   [],
-    // );
-    // setInputTranslate(filteredinputTranslate);
-    // return filteredinputTranslate;
-  };
-
-  // const dbSaveWord = async (word: TWord) => {
-  //   return new Promise(async (resolve, reject) => {
-  //     let result = null;
-  //     if (isNewWord) {
-  //       // result = await SWords.save(word);
-  //     } else {
-  //       result = await updateWord(word);
-  //     }
-
-  //     resolve(result);
-  //   });
-  // };
-
-  const createWord = () => {
-    // const data: TWord = {
-
-    // };
-  }
-
   const saveWord = async () => {
-    if (validationWord()) {
-      return;
-    }
-    realm.write(() => {
-      if (word) {
-        updateWord(realm, word, inputWord, inputTranslate);
-      } else {
-        createWord();
-      }
-      // inputTranslate.forEach((translate: TTranslate) => {
-      //   console.log('save');
-      //   console.log(translate);
-      //   const update = word?.translates.filter((old) => old);
-      //   // translate.contexts.forEach((context: TContext) => {
-      //   //   console.log(context);
-      //   // });
-      // });
-    });
-    // const inputsData = filterInputTranslate();
+    if (validationWord()) return;
 
-    // const word: TWord = {
-    //   word: inputWord,
-    //   translate: inputsData,
-    // };
+    realm.write(() => {
+      if (isNewWord) {
+        WordApi.create(realm, {
+          value: inputWord,
+          translates: inputTranslate,
+        } as TWord);
+      } else {
+        word && WordApi.update(realm, word, inputWord, inputTranslate);
+      }
+    });
 
     // setSaveWordError(false);
     // setAlertMessage('Слово сохранено');
@@ -257,13 +208,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   return (
     <>
       <SafeAreaView style={styles.safeArea}>
-        <Header
-          backPath={() => {
-            // setStart(true);
-            navigation.goBack();
-          }}
-          accept={() => saveWord()}
-        />
+        <Header backPath={() => navigation.goBack()} accept={() => saveWord()} />
         <KeyboardAvoidingView
           style={styles.flex}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -274,7 +219,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
             contentContainerStyle={[styles.scrollViewContent, containerStyles]}
           >
             <View style={styles.section}>
-              <Groups word={word} />
+              {word && <Groups word={word} />}
               <Input
                 style={[styles.mb]}
                 label="Слово"
@@ -282,23 +227,22 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
                 value={inputWord}
                 onChangeText={value => setInputWord(value)}
               />
-              {inputTranslate.map((data, index) =>
-                data.removed ? null : (
-                  <Translate
-                    key={`translate-${index}`}
-                    translateIndex={index}
-                    data={data}
-                    containerStyle={styles.groupInputs}
-                    inputStyle={styles.mb}
-                    removeIcon={inputTranslate.length > 1}
-                    onUpdateDataTranslate={(translate) => updateInputGroups(translate, index, 'translate')}
-                    onUpdateDataContext={(context, contextIndex) => updateInputGroups(context, index, 'context', contextIndex)}
-                    onLayout={() => handleLayout()}
-                    removeGroup={() => removeTranslate(index)}
-                    addContext={() => addNewContext(index)}
-                    removeContext={(contextIndex) => removeContext(index, contextIndex)}
-                  />
-                ),
+              {inputTranslate.map((data, index) => (
+                <Translate
+                  key={`translate-${index}`}
+                  translateIndex={index}
+                  data={data}
+                  containerStyle={styles.groupInputs}
+                  inputStyle={styles.mb}
+                  removeIcon={inputTranslate.length > 1}
+                  onUpdateDataTranslate={(translate) => updateInputGroups(translate, index, 'translate')}
+                  onUpdateDataContext={(context, contextIndex) => updateInputGroups(context, index, 'context', contextIndex)}
+                  onLayout={() => handleLayout()}
+                  removeGroup={() => removeTranslate(index)}
+                  addContext={() => addNewContext(index)}
+                  removeContext={(contextIndex) => removeContext(index, contextIndex)}
+                />
+              ),
               )}
             </View>
           </ScrollView>
@@ -316,7 +260,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
         isNewWord={!!isNewWord}
         isVisible={isAlertVisible}
         message={alertMessage}
-        checkErrors={() => validationWord()}
+        isErrors={isSaveWordError}
         close={() => setAlertVisible(false)}
       />
     </>
@@ -395,6 +339,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#444',
   },
+
   dropdown1BtnTxtStyle: { color: '#444', textAlign: 'left' },
   dropdown1DropdownStyle: { backgroundColor: '#EFEFEF' },
   dropdown1RowStyle: { backgroundColor: '#EFEFEF', borderBottomColor: '#C5C5C5' },

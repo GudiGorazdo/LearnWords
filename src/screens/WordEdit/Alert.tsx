@@ -4,8 +4,8 @@ import { Alert as AlertEL, TAlertButton } from '../../modules/Alert';
 type TAlertProps = {
   isVisible: boolean;
   isNewWord: boolean;
+  isErrors: boolean;
   message: string;
-  checkErrors: () => boolean;
   close: () => void;
 }
 
@@ -13,7 +13,7 @@ export function Alert({
   isVisible,
   isNewWord,
   message,
-  checkErrors,
+  isErrors,
   close,
 }: TAlertProps) {
 
@@ -25,7 +25,7 @@ export function Alert({
       },
     }];
 
-    // if (checkErrors()) return buttons;
+    // if (isErrors) return buttons;
 
     // if (isNewWord) {
     //   buttons.push({

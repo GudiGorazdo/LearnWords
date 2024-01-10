@@ -52,10 +52,10 @@ export function Translate({
               position: 'absolute',
               right: '-12%',
               padding: 10,
+              color: theme.textColor
             },
             onPress: () => removeGroup(),
-          }
-            : undefined
+          } : undefined
         }
       />
 

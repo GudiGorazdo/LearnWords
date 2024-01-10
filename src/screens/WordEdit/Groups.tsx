@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { TWord, TGroup } from '../../types';
 import { useQuery } from '../../store/RealmContext';
 import Group from '../../store/models/Group';
+import Word from '../../store/models/Word';
 import { IndexPath, Select, SelectItem } from '@ui-kitten/components';
 
 type IGroupsProps = {
-  word: TWord;
+  word: TWord | Word;
 }
 
 export function Groups({ word }: IGroupsProps): JSX.Element {
