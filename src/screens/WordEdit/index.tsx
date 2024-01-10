@@ -63,7 +63,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const word: Word | null = useObject<Word>("Word", new Realm.BSON.ObjectId(wordID));
 
   const [inputWord, setInputWord] = useState(word?.value ?? '');
-  const [inputTranslate, setInputTranslate] = useState<TTranslate[]>(inputsTranslateInitialState(word) ?? [{...emptyInputTranslate}]);
+  const [inputTranslate, setInputTranslate] = useState<TTranslate[]>(inputsTranslateInitialState(word) ?? [{ ...emptyInputTranslate }]);
   const [groupsList, setGroupsList] = useState<Group[]>((word?.groups ?? []) as Group[]);
   const [isAlertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -71,6 +71,10 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const [startScroll, setStartScroll] = useState(true);
   const [scrollBottom, setScrollBottom] = useState(false);
   const scrollViewRef = useRef(null);
+
+  const groups = useQuery(Group);
+  console.log(groups[1].words);
+
 
   useEffect(() => {
     if (scrollBottom && scrollViewRef && scrollViewRef.current) {
@@ -120,7 +124,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
 
   const addNewTranslate = () => {
     const newInputTranslate = [...inputTranslate];
-    newInputTranslate.push({...emptyInputTranslate});
+    newInputTranslate.push({ ...emptyInputTranslate });
     setInputTranslate(newInputTranslate);
   };
 

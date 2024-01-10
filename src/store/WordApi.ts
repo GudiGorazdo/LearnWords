@@ -1,5 +1,5 @@
 import Realm from "realm";
-import { TContext, TTranslate, TWord } from "../types";
+import { TContext, TTranslate, TWord, TGroup } from "../types";
 import Word from "./models/Word";
 import Context from "./models/Context";
 import Group from "./models/Group";
@@ -31,6 +31,17 @@ const getContextsToRemove = (word: Word, translates: TTranslate[]) => {
   return filteredContexts;
 }
 
+const syncGroups = (word: Word, groups: Group[]) => {
+  word.groups && word.groups.forEach(group => {
+    if (!groups.includes(group) && group.words?.includes(word)) {
+      const wordIndex = group.words?.indexOf(word);
+      (wordIndex || wordIndex === 0) && group.words?.splice(wordIndex, 1);
+    }
+  });
+
+  groups.forEach(group => group.words?.push(word));
+}
+
 export const update = (
   realm: Realm,
   groups: Group[],
@@ -43,6 +54,7 @@ export const update = (
       getTranslatesToRemove(word, translates),
       getContextsToRemove(word, translates)
     ].forEach(intem => realm.delete(intem));
+    syncGroups(word, groups);
 
     const data: TWord = {
       ...word,
@@ -61,7 +73,11 @@ export const update = (
 
 export const create = (realm: Realm, word: TWord) => {
   try {
-    realm.create('Word', word);
+    const newWord: any = realm.create('Word', word);
+    word.groups.forEach((group: Group) => {
+      group.words?.push(newWord as Word);
+    });
+
     return true;
   } catch (error) {
     console.log('Ошибка src/store/WordApi create()', error);
@@ -71,11 +87,18 @@ export const create = (realm: Realm, word: TWord) => {
 
 export const remove = (realm: Realm, word: Word) => {
   try {
+    word.groups?.forEach(group => {
+      const wordIndex = group.words?.indexOf(word);
+      (wordIndex || wordIndex === 0) && group.words?.splice(wordIndex, 1);
+    });
+
     word.translates.forEach(translate => {
       translate.contexts?.forEach(context => realm.delete(context));
       realm.delete(translate);
     });
+
     realm.delete(word);
+
     return true;
   } catch (error) {
     console.log('Ошибка src/store/WordApi remove()', error);

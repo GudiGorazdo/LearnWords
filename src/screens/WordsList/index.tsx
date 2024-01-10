@@ -23,6 +23,7 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
+import Group from '../../store/models/Group';
 
 interface IWordsListScreenProps {
   navigation: StackNavigationProp<any>;
