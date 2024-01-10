@@ -63,7 +63,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const word: Word | null = useObject<Word>("Word", new Realm.BSON.ObjectId(wordID));
 
   const [inputWord, setInputWord] = useState(word?.value ?? '');
-  const [inputTranslate, setInputTranslate] = useState<TTranslate[]>(inputsTranslateInitialState(word) ?? [emptyInputTranslate]);
+  const [inputTranslate, setInputTranslate] = useState<TTranslate[]>(inputsTranslateInitialState(word) ?? [{...emptyInputTranslate}]);
   const [groupsList, setGroupsList] = useState<Group[]>((word?.groups ?? []) as Group[]);
   const [isAlertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -71,7 +71,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const [startScroll, setStartScroll] = useState(true);
   const [scrollBottom, setScrollBottom] = useState(false);
   const scrollViewRef = useRef(null);
-
 
   useEffect(() => {
     if (scrollBottom && scrollViewRef && scrollViewRef.current) {
@@ -121,7 +120,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
 
   const addNewTranslate = () => {
     const newInputTranslate = [...inputTranslate];
-    newInputTranslate.push(emptyInputTranslate);
+    newInputTranslate.push({...emptyInputTranslate});
     setInputTranslate(newInputTranslate);
   };
 
@@ -221,7 +220,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
 
     try {
       const result = await saveWord();
-      console.log(result);
       if (!result) {
         throw Error('Произошла ошибка при сохраненни слова src/screens/WordEdit submit()');
       };
@@ -231,7 +229,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
       setAlertVisible(true);
 
     } catch (error) {
-      console.log(error);
+      console.log('Произошла ошибка при сохраненни слова src/screens/WordEdit submit()', error);
       setAlertMessage('При сохранении слова произошла ошибка');
       return setAlertVisible(true);
     }
@@ -240,8 +238,8 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const resetForm = () => {
     // setInputTranslate([emptyInputTranslate]);
     // setInputWord('');
+    console.log('reset form');
   };
-
 
   return (
     <>
@@ -299,7 +297,10 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
         isVisible={isAlertVisible}
         alertMessage={alertMessage}
         isErrors={isSaveWordError}
-        close={() => setAlertVisible(false)}
+        close={() => {
+          setAlertVisible(false);
+          if (!isSaveWordError) resetForm();
+        }}
       />
     </>
   );
