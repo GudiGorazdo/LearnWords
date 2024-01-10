@@ -64,10 +64,7 @@ export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
   // };
 
   const removeWord = async (word: Word) => {
-    realm.write(() => {
-      const result = remove(realm, word);
-      console.log(result);
-    });
+    realm.write(() => remove(realm, word));
   };
 
   return (

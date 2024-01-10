@@ -72,10 +72,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const [scrollBottom, setScrollBottom] = useState(false);
   const scrollViewRef = useRef(null);
 
-  const groups = useQuery(Group);
-  console.log(groups[1].words);
-
-
   useEffect(() => {
     if (scrollBottom && scrollViewRef && scrollViewRef.current) {
       (scrollViewRef.current as ScrollView).scrollToEnd({ animated: true });

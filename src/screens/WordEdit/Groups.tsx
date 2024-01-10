@@ -12,22 +12,9 @@ type IGroupsProps = {
 
 export function Groups({ word, onChange }: IGroupsProps): JSX.Element {
   const groupsList = useQuery(Group);
-  const [activeList, setActiveList] = useState<Group[]>(word?.groups ?? []);
   const [multiSelectedIndex, setMultiSelectedIndex] = useState<IndexPath[]>(word?.groups?.map((group: Group) => {
     return new IndexPath(groupsList.indexOf(group));
   }) ?? []);
-
-  const syncActiveList = () => {
-    // const activeIndexes = multiSelectedIndex.map(ind => ind.row);
-    // const newList = groupsList.filter((group, index) => {
-    //   return group && activeIndexes.includes(index);
-    // });
-
-    // const newList = multiSelectedIndex.map(index => index && groupsList[index[row]]);
-    const newList = multiSelectedIndex.map(index => console.log(index));
-
-    // setActiveList(newList);
-  }
 
   return (
     <Select
