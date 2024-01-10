@@ -278,8 +278,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
                   addContext={() => addNewContext(index)}
                   removeContext={(contextIndex) => removeContext(index, contextIndex)}
                 />
-              ),
-              )}
+              ))}
             </View>
           </ScrollView>
         </KeyboardAvoidingView>

@@ -68,3 +68,17 @@ export const create = (realm: Realm, word: TWord) => {
     return false;
   }
 }
+
+export const remove = (realm: Realm, word: Word) => {
+  try {
+    word.translates.forEach(translate => {
+      translate.contexts?.forEach(context => realm.delete(context));
+      realm.delete(translate);
+    });
+    realm.delete(word);
+    return true;
+  } catch (error) {
+    console.log('Ошибка src/store/WordApi remove()', error);
+    return false;
+  }
+}

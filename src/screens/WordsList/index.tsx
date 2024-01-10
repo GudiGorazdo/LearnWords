@@ -1,14 +1,15 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 // import {useFocusEffect, useRoute} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {Header} from '../../modules/Header';
-import {Alert} from '../../modules/Alert';
-import {TWordListItem} from '../../types';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { Header } from '../../modules/Header';
+import { Alert } from '../../modules/Alert';
+import { TWordListItem } from '../../types';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconsStrings from '../../assets/awesomeIcons';
-import {Button} from '../../components/Button';
-import {useQuery} from '../../store/RealmContext';
+import { Button } from '../../components/Button';
+import { useQuery, useRealm } from '../../store/RealmContext';
 import Word from '../../store/models/Word';
+import { remove } from '../../store/WordApi';
 
 import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
 import containerStyles from '../../styles/container';
@@ -27,19 +28,20 @@ interface IWordsListScreenProps {
   navigation: StackNavigationProp<any>;
 }
 
-export function WordsList({navigation}: IWordsListScreenProps): JSX.Element {
+export function WordsList({ navigation }: IWordsListScreenProps): JSX.Element {
+  const realm = useRealm();
   // const route = useRoute();
   // const [groupID, setGroupID] = useState<number | null>(
   //   route.params?.groupID ?? null,
   // );
 
-  const words: TWordListItem[] = useQuery(Word, words => {
+  const words = useQuery(Word, words => {
     return words.sorted('value', false);
-  }).map(word => ({id: word._id.toString(), value: word.value}));
+  });
   // const startArr: TWord[] = [];
   // const [words, setWords] = useState<TWord[]>(startArr);
 
-  const [wordToRemove, setWordToRemove] = useState<TWordListItem | null>(null);
+  const [wordToRemove, setWordToRemove] = useState<Word | null>(null);
   const [isAlertVisible, setAlertVisible] = useState<boolean>(false);
 
   // useFocusEffect(
@@ -60,11 +62,11 @@ export function WordsList({navigation}: IWordsListScreenProps): JSX.Element {
   //   }
   // };
 
-  const removeWord = async (word: TWordListItem) => {
-    if (word.id) {
-      // setWords(words.filter(item => item.id !== word.id));
-      // // SWords.removeByID(word.id);
-    }
+  const removeWord = async (word: Word) => {
+    realm.write(() => {
+      const result = remove(realm, word);
+      console.log(result);
+    });
   };
 
   return (
@@ -82,26 +84,26 @@ export function WordsList({navigation}: IWordsListScreenProps): JSX.Element {
       />
       <ScrollView
         contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
-        {words.map((word: TWordListItem) => (
-          <View key={word.id} style={styles.rowContainer}>
+        {words.map((word: Word) => (
+          <View key={word._id.toString()} style={styles.rowContainer}>
             <TouchableOpacity
               style={styles.wordContainer}
               onPress={() =>
                 navigation.push('WordData', {
                   isShowWord: true,
-                  wordID: word.id,
+                  wordID: word._id.toHexString(),
                 })
               }>
-              <Text style={{color: theme.textColor}}>{word.value}</Text>
+              <Text style={{ color: theme.textColor }}>{word.value}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{padding: 5}}
+              style={{ padding: 5 }}
               onPress={() => {
                 setWordToRemove(word);
                 setAlertVisible(!isAlertVisible);
               }}>
               <Icon
-                style={{color: theme.textColor}}
+                style={{ color: theme.textColor }}
                 name={IconsStrings.remove}
                 size={24}
               />
@@ -114,7 +116,7 @@ export function WordsList({navigation}: IWordsListScreenProps): JSX.Element {
         title="Учить"
         onPress={() =>
           navigation.push('WordData', {
-            wordID: words[0].id,
+            wordID: words[0]._id.toString(),
             // groupID: groupID,
           })
         }
