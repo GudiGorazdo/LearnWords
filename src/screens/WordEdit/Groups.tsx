@@ -8,17 +8,11 @@ type IGroupsProps = {
   word: TWord;
 }
 
-const data = [
-  'Developer',
-  'Designer',
-  'Product Manager',
-];
-
 export function Groups({ word }: IGroupsProps): JSX.Element {
   const groupsList = useQuery(Group);
-  const [multiSelectedIndex, setMultiSelectedIndex] = useState<IndexPath[]>(word.groups.map((group: Group) => {
+  const [multiSelectedIndex, setMultiSelectedIndex] = useState<IndexPath[]>(word?.groups?.map((group: Group) => {
     return new IndexPath(groupsList.indexOf(group));
-  }));
+  }) ?? []);
 
   return (
     <Select

@@ -37,59 +37,57 @@ export function Translate({
   removeContext,
 }: TTranslateProps): JSX.Element {
   return (
-    <>
-      <View style={containerStyle}>
-        <Input
-          style={inputStyle}
-          label="Перевод"
-          placeholder="Введите перевод"
-          value={data.value}
-          onChangeText={translate => onUpdateDataTranslate(translate)}
-          onLayout={() => onLayout()}
-          icon={
-            removeIcon ? {
-                type: IconsStrings.remove,
+    <View style={containerStyle}>
+      <Input
+        style={inputStyle}
+        label="Перевод"
+        placeholder="Введите перевод"
+        value={data.value}
+        onChangeText={translate => onUpdateDataTranslate(translate)}
+        onLayout={() => onLayout()}
+        icon={
+          removeIcon ? {
+            type: IconsStrings.remove,
+            style: {
+              position: 'absolute',
+              right: '-12%',
+              padding: 10,
+            },
+            onPress: () => removeGroup(),
+          }
+            : undefined
+        }
+      />
+
+      {data.contexts &&
+        data.contexts.map((context: TContext, contextIndex: number) => {
+          return (
+            <Input
+              style={inputStyle}
+              key={`context-${translateIndex}-${contextIndex}`}
+              label="Контекст"
+              placeholder="Добавьте контекст"
+              value={context.value}
+              onChangeText={context => onUpdateDataContext(context, contextIndex)}
+              multiline={true}
+              icon={{
+                type: IconsStrings.cancel,
                 style: {
+                  fontSize: 24,
                   position: 'absolute',
                   right: '-12%',
                   padding: 10,
+                  color: theme.textColor
                 },
-                onPress: () => removeGroup(),
-              }
-              : undefined
-          }
-        />
-
-        {data.contexts &&
-          data.contexts.map((context: TContext, contextIndex: number) => {
-            return (
-              <Input
-                style={inputStyle}
-                key={`context-${translateIndex}-${contextIndex}`}
-                label="Контекст"
-                placeholder="Добавьте контекст"
-                value={context.value}
-                onChangeText={context => onUpdateDataContext(context, contextIndex)}
-                multiline={true}
-                icon={{
-                  type: IconsStrings.cancel,
-                  style: {
-                    fontSize: 24,
-                    position: 'absolute',
-                    right: '-12%',
-                    padding: 10,
-                    color: theme.textColor
-                  },
-                  onPress: () => removeContext(contextIndex),
-                }}
-              />
-            )
-          })}
-        <Button
-          title="Добавить контекст"
-          onPress={() => addContext()}
-        />
-      </View>
-    </>
+                onPress: () => removeContext(contextIndex),
+              }}
+            />
+          )
+        })}
+      <Button
+        title="Добавить контекст"
+        onPress={() => addContext()}
+      />
+    </View>
   );
 }

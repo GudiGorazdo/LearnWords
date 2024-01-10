@@ -5,7 +5,6 @@ import Realm from 'realm';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Header } from '../../modules/Header';
-import { Alert, TAlertButton } from '../../modules/Alert';
 import { TTranslate, TWord, TContext, TGroup } from '../../types';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconsStrings from '../../assets/awesomeIcons';
@@ -15,6 +14,7 @@ import Word from '../../store/models/Word';
 import Context from '../../store/models/Context';
 import { Groups } from './Groups';
 import { Translate } from './Translate';
+import { Alert } from './Alert';
 
 import containerStyles from '../../styles/container';
 import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
@@ -153,11 +153,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     }
   };
 
-  // const updateWord = async (word: TWord) => {
-  //   word.id = wordID;
-  //   // await SWords.update(word);
-  // };
-
   const validationWord = (): boolean => {
     if (!inputWord) {
       setSaveWordError(true);
@@ -206,15 +201,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   //   });
   // };
 
-  const updateWord = () => {
-    const data: TWord = {
-      ...word,
-      value: inputWord,
-      translates: inputTranslate,
-    };
-    realm.create('Word', data, Realm.UpdateMode.Modified);
-  }
-
   const createWord = () => {
     // const data: TWord = {
 
@@ -227,7 +213,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     }
     realm.write(() => {
       if (word) {
-        updateWord();
+        updateWord(realm, word, inputWord, inputTranslate);
       } else {
         createWord();
       }
@@ -267,50 +253,6 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     // setInputWord('');
   };
 
-  const getAlertButtons = (): TAlertButton[] => {
-    const buttons: TAlertButton[] = [{
-      title: 'Закрыть',
-      onPress: () => {
-        setAlertVisible(!isAlertVisible);
-        // setStart(true);
-      },
-    }];
-
-    // if (isSaveWordError) return buttons;
-
-    // if (isNewWord) {
-    //   buttons.push({
-    //     title: 'Добавить новое слово',
-    //     onPress: () => {
-    //       setAlertVisible(!isAlertVisible);
-    //       resetForm();
-    //       setStart(true);
-    //       navigation.push('WordEdit', {
-    //         isNewWord: true,
-    //       });
-    //     },
-    //   });
-    // }
-    // buttons.push({
-    //   title: 'Назад',
-    //   onPress: () => {
-    //     setAlertVisible(!isAlertVisible);
-    //     setStart(true);
-    //     navigation.goBack();
-    //   },
-    // });
-
-    // buttons.push({
-    //   title: 'К списку слов',
-    //   onPress: () => {
-    //     setAlertVisible(!isAlertVisible);
-    //     setStart(true);
-    //     navigation.navigate('WordsList', { groupID: groupID});
-    //   },
-    // });
-
-    return buttons;
-  };
 
   return (
     <>
@@ -344,6 +286,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
                 data.removed ? null : (
                   <Translate
                     key={`translate-${index}`}
+                    translateIndex={index}
                     data={data}
                     containerStyle={styles.groupInputs}
                     inputStyle={styles.mb}
@@ -370,10 +313,11 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
         />
       </SafeAreaView>
       <Alert
+        isNewWord={!!isNewWord}
         isVisible={isAlertVisible}
         message={alertMessage}
-        buttons={getAlertButtons()}
-        onOverlayPress={() => setAlertVisible(!isAlertVisible)}
+        checkErrors={() => validationWord()}
+        close={() => setAlertVisible(false)}
       />
     </>
   );
