@@ -3,12 +3,14 @@ import { TContext, TTranslate, TWord } from "../types";
 import Word from "./models/Word";
 import Context from "./models/Context";
 
-export const sync = (realm: Realm, word: Word, translates: TTranslate[]) => {
+const getTranslatesToRemove = (word: Word, translates: TTranslate[]) => {
   const translateIds: string[] = translates.map(translate => translate._id?.toString() ?? '');
-  const filteredTranslates = word.translates.filter(translate => {
+  return word.translates.filter(translate => {
     return translate._id && !translateIds.includes(translate._id.toString());
   });
+}
 
+const getContextsToRemove = (word: Word, translates: TTranslate[]) => {
   const newContextsIds: string[] = [];
   translates.map(translate => {
     translate.contexts?.map(context => {
@@ -25,11 +27,15 @@ export const sync = (realm: Realm, word: Word, translates: TTranslate[]) => {
     });
   });
 
-  [filteredContexts, filteredTranslates].forEach(intem => realm.delete(intem));
+  return filteredContexts;
 }
 
 export const update = (realm: Realm, word: Word, value: string, translates: TTranslate[] = []) => {
-  sync(realm, word, translates);
+  [
+    getTranslatesToRemove(word, translates),
+    getContextsToRemove(word, translates)
+  ].forEach(intem => realm.delete(intem));
+
   const data: TWord = {
     ...word,
     value: value,
