@@ -32,7 +32,6 @@ import {
 interface IWordEditScreenProps {
   navigation: StackNavigationProp<any>;
 }
-
 const inputsTranslateInitialState = (word: Word | null) => {
   return word?.translates.map((translate) => {
     const contexts: TContext[] | Context[] = translate.contexts?.map((context) => {
@@ -50,12 +49,13 @@ const inputsTranslateInitialState = (word: Word | null) => {
   })
 }
 
-const emptyInputTranslate: TTranslate = {
+const createEmptyInputTranslate = (): TTranslate => ({
   contexts: [],
   value: '',
-};
+});
 
 export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
+
   const realm = useRealm();
   const route = useRoute();
   const isNewWord = (route.params as { isNewWord?: boolean })?.isNewWord;
@@ -63,7 +63,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
   const word: Word | null = useObject<Word>("Word", new Realm.BSON.ObjectId(wordID));
 
   const [inputWord, setInputWord] = useState(word?.value ?? '');
-  const [inputTranslate, setInputTranslate] = useState<TTranslate[]>(inputsTranslateInitialState(word) ?? [{ ...emptyInputTranslate }]);
+  const [inputTranslate, setInputTranslate] = useState<TTranslate[]>(inputsTranslateInitialState(word) ?? [createEmptyInputTranslate()]);
   const [groupsList, setGroupsList] = useState<Group[]>((word?.groups ?? []) as Group[]);
   const [isAlertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -104,23 +104,21 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
 
   const addNewContext = (index: number) => {
     const newInputTranslate = [...inputTranslate];
-    if (newInputTranslate[index] && newInputTranslate[index].contexts) {
-      newInputTranslate[index].contexts?.push({} as Context);
-      setInputTranslate(newInputTranslate);
-    }
+    newInputTranslate[index].contexts?.push({} as Context);
+    setInputTranslate(newInputTranslate);
   };
 
   const removeContext = (index: number, contextIndex: number) => {
     const newInputTranslate = [...inputTranslate];
-    if (newInputTranslate[index] && newInputTranslate[index].contexts) {
-      newInputTranslate[index].contexts?.splice(contextIndex, 1);
-      setInputTranslate(newInputTranslate);
-    }
+    newInputTranslate[index].contexts?.splice(contextIndex, 1);
+    setInputTranslate(newInputTranslate);
   };
 
   const addNewTranslate = () => {
-    const newInputTranslate = [...inputTranslate];
-    newInputTranslate.push({ ...emptyInputTranslate });
+    const newInputTranslate = [
+      ...inputTranslate,
+      createEmptyInputTranslate()
+    ];
     setInputTranslate(newInputTranslate);
   };
 
@@ -152,10 +150,10 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
         acc.push(item);
         return acc;
       },
-      [],
+      [] as TTranslate[],
     );
     if (filteredinputTranslate.length < 1) {
-      filteredinputTranslate.push(emptyInputTranslate);
+      filteredinputTranslate.push(createEmptyInputTranslate());
     };
     setInputTranslate(filteredinputTranslate);
   };
