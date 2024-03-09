@@ -31,6 +31,7 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 
   const getGroups = async () => {
     const allArr: TGroup[] = await SWords.getGroups();
+    console.log(allArr);
 		setGroups(allArr);
 	}
 
@@ -48,9 +49,9 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 		getData();
 	}, [switchData]);
 
-	useFocusEffect(() => {
-		getData();
-	});
+	// useFocusEffect(() => {
+	// 	getData();
+	// });
 
 	const getData = async () => {
 		try {
@@ -97,12 +98,12 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 					{rowTemplate('Слова без групп', withoutGroupsCount)}
 				</ScrollView>
 			</SafeAreaView >
-			<GroupForm
+			{/* <GroupForm
 				navigation={navigation}
 				onClose={() => setGroupFormVisible(false)}
 				isVisible={isGroupFormVisible}
 				onCreate={() => activateSwitchData(!switchData)}
-			/>
+			/> */}
 		</>
 	);
 }

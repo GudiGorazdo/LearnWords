@@ -472,7 +472,7 @@ export default class SWords implements ISwords {
     const sql = `
       SELECT
         groups.*,
-        COUNT(words.id) AS counk
+        COUNT(words.id) AS count
       FROM groups
       LEFT JOIN word_group ON groups.id = word_group.group_id
       LEFT JOIN words ON word_group.word_id = words.id
