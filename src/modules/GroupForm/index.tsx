@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, } from 'react';
 import { NavigationProp } from '@react-navigation/native';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
@@ -12,6 +12,7 @@ import {
 	StyleSheet,
 	Animated,
 	Easing,
+
 } from 'react-native';
 
 interface IGroupFormScreenProps {
@@ -33,7 +34,7 @@ export function GroupForm({
 	const [name, setName] = useState('');
 	const [description, setDescription] = useState('');
 	const [animatedFormViewHeight, setAnimatedFormViewHeight] = useState(0);
-	const animatedFormViewRef = useRef(null);
+	const animatedFormViewRef = useRef< any | null>(null);
 	const [animationForm] = useState(new Animated.Value(0));
 	const [isShowForm, setShowForm] = useState<boolean>(true);
 
@@ -76,7 +77,7 @@ export function GroupForm({
 
 	const onLayoutForm = () => {
 		if (animatedFormViewRef.current) {
-			animatedFormViewRef.current.measure((x, y, width, height) => {
+			animatedFormViewRef.current.measure((x: number, y: number, width: number, height: number) => {
 				setAnimatedFormViewHeight(height);
 			});
 		}

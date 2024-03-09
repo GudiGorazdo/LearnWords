@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useFocusEffect, useRoute } from "@react-navigation/native";
+import { useFocusEffect, useRoute, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { Button } from "../../components/Button";
 import { Header } from "../../modules/Header";
@@ -20,13 +20,20 @@ import {
   View,
 } from "react-native";
 
+type RootStackParamList = {
+  WordData: {
+    groupID?: number,
+    wordID?: number,
+  };
+};
+
 interface IWordDataScreenProps {
-  navigation: StackNavigationProp<any>;
+  navigation: StackNavigationProp<RootStackParamList, 'WordData'>;
 }
 
 export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
-  const route = useRoute();
-  const groupID: number | null = route.params.groupID ?? null;
+  const route = useRoute<RouteProp<RootStackParamList, 'WordData'>>();
+  const groupID: number | null = route.params?.groupID ?? null;
 
   const wordDataGroup: TTranslate = {
     value: "",
@@ -36,7 +43,7 @@ export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
 
   const [start, setStart] = useState<boolean>(true);
   const [wordID, setWordID] = useState<number | null>(
-    route.params.wordID ?? null,
+    route.params?.wordID ?? null,
   );
   const [wordName, setWordName] = useState<string>("");
   const [wordData, setWordData] = useState<TTranslate[]>([wordDataGroup]);
