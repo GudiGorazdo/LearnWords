@@ -22,10 +22,10 @@ export const Home = ({ navigation }: IHomeScreenProps ): JSX.Element => {
 			/>
 			<Button title='Группы слов' onPress={() => navigation.push('WordsGroups')} />
 			<Button title='Тренировка' onPress={() => navigation.push('Training')} />
-			<Button 
-				title='Все слова' 
-				onPress={() => navigation.push('WordsList')} 
-			/>
+			{/* <Button
+				title='Все слова'
+				onPress={() => navigation.push('WordsList')}
+			/> */}
 		</CenteredContent>
 	);
 };

@@ -25,6 +25,13 @@ type RootStackParamList = {
     groupID?: number,
     wordID?: number,
   };
+
+  WordEdit: {
+    isNewWord: boolean;
+    wordID: number | null;
+    groupID: number | null;
+  };
+
 };
 
 interface IWordDataScreenProps {
