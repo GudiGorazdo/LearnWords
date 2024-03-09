@@ -69,7 +69,7 @@ export default class SWords implements ISwords {
     for (const table of this.tables) {
       await this.checkTable(table);
     }
-    // this.reset();
+    this.reset();
     this.isInitialized = true;
   }
 
@@ -88,18 +88,22 @@ export default class SWords implements ISwords {
 
   private static async execute(sql: string, params: Array<any> = []): Promise<ResultSet> {
     const instance = await SWords.getInstance();
-    return new Promise(async (resolve, reject) => {
-      instance.db.transaction((tx: Transaction) => {
-        tx.executeSql(sql, params,
-          (tx: Transaction, results: ResultSet) => {
-            resolve(results)
-          },
-          (error: any) => {
-            reject(error);
-            console.error(error);
-          }
-        );
-      });
+    return new Promise((resolve, reject) => {
+      try {
+        instance.db?.transaction((tx: Transaction) => {
+          tx.executeSql(sql, params,
+            (tx: Transaction, results: ResultSet) => {
+              resolve(results)
+            },
+            (error: any) => {
+              reject(error);
+              console.error(error);
+            }
+          );
+        });
+      } catch (error) {
+        throw error;
+      }
     });
   }
 
@@ -373,7 +377,7 @@ export default class SWords implements ISwords {
       const insertedWordID: number = results.insertId;
 
       if (word.groups) {
-        const groupPromises = word.groups.map(async (group: number) => {
+        const groupPromises = (word.groups as number[]).map(async (group: number) => {
           await SWords.insertGroup(group, insertedWordID);
         });
         await Promise.all(groupPromises);
@@ -464,30 +468,37 @@ export default class SWords implements ISwords {
     }
   }
 
-  static async getGroups(wordID: number|null = null): Promise<TGroup[]> {
+  static async getGroups(wordID: number | null = null): Promise<TGroup[]> {
     const sql = `
       SELECT
         groups.*,
-        COUNT(words.id) AS count
+        COUNT(words.id) AS counk
       FROM groups
       LEFT JOIN word_group ON groups.id = word_group.group_id
       LEFT JOIN words ON word_group.word_id = words.id
-      ${ wordID ? 'WHERE words.id = (?)' : ''}
+      ${wordID ? 'WHERE words.id = (?)' : ''}
       GROUP BY groups.id
     ;`;
     const params = wordID ? [wordID] : [];
 
     try {
       const results: ResultSet = await SWords.execute(sql, params);
+
+      if (!results || !results.rows) {
+        console.log('No results or rows found.');
+        return [];
+      }
+
       const groups: TGroup[] = [];
-      if (!results || !results.rows) return [];
+
       for (let i = 0; i < results.rows.length; i++) {
         const result = results.rows.item(i) as TGroup;
         groups.push(result);
       }
+
       return groups;
     } catch (error) {
-      console.log(error);
+      console.log('Error fetching groups:', error);
       throw error;
     }
   }
@@ -530,7 +541,7 @@ export default class SWords implements ISwords {
   private async dropTable(table: TStructureTable) {
     try {
       const dropTableQuery = `DROP TABLE IF EXISTS ${table.name};`;
-      await this.db.executeSql(dropTableQuery);
+      await this.db?.executeSql(dropTableQuery);
       console.log(`Таблица "${table.name}" успешно удалена`);
     } catch (error) {
       console.log('DROP ERR: ', error);
@@ -541,7 +552,7 @@ export default class SWords implements ISwords {
   private async checkTable(table: TStructureTable) {
     const query = `CREATE TABLE IF NOT EXISTS ${table.name} (${table.structure.join(', ')});`
     try {
-      await this.db.executeSql(query);
+      await this.db?.executeSql(query);
       console.log(table.name, ' table is ok.');
     } catch (error) {
       console.log('Ошибка при создании таблицы:', error);
@@ -551,10 +562,12 @@ export default class SWords implements ISwords {
 
   private async reset() {
     try {
+      console.log('here');
       for (const table of this.tables) {
         await this.dropTable(table);
         await this.checkTable(table);
       }
+      console.log('next here');
       const result: TStartDB = await this.getFromJSON();
       for (const word of result.data) {
         word.groups = result.groups;

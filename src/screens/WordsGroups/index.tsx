@@ -22,12 +22,27 @@ interface IWordsGroupsScreenProps {
 }
 
 export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Element {
-	const [groups, setGroups] = useState<TGroup[]>([]);
+  const [groups, setGroups] = useState<TGroup[]>([]);
 	const [dictionaryCount, setDictionaryCount] = useState<number>(0);
 	const [withoutGroupsCount, setWithoutGroupsCount] = useState<number>(0);
 	const [isGroupFormVisible, setGroupFormVisible] = useState<boolean>(false);
 
 	const [switchData, activateSwitchData] = useState<boolean>(false);
+
+  const getGroups = async () => {
+    const allArr: TGroup[] = await SWords.getGroups();
+		setGroups(allArr);
+	}
+
+	const getAllCount = async () => {
+		const count: number = await SWords.getDictionaryCount();
+		setDictionaryCount(count);
+	}
+
+	const getWordsWithoutGroups = async () => {
+		const count: number = await SWords.getWithoutGroupsCount();
+		setWithoutGroupsCount(count);
+	}
 
 	useEffect(() => {
 		getData();
@@ -47,20 +62,6 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 		}
 	}
 
-	const getGroups = async () => {
-    const allArr: TGroup[] = await SWords.getGroups();
-		setGroups(allArr);
-	}
-
-	const getAllCount = async () => {
-		const count: number = await SWords.getDictionaryCount();
-		setDictionaryCount(count);
-	}
-
-	const getWordsWithoutGroups = async () => {
-		const count: number = await SWords.getWithoutGroupsCount();
-		setWithoutGroupsCount(count);
-	}
 
 	const rowTemplate = (name: string, count: number, id?: number) => {
 		return (
