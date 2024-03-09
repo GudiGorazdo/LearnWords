@@ -24,8 +24,8 @@ interface IWordsGroupsScreenProps {
 }
 
 export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Element {
-  const goupsList = useQuery(Group);
-  console.log(goupsList[0].words);
+  const groupsList = useQuery(Group);
+  console.log(groupsList[1].words);
 	const [dictionaryCount, setDictionaryCount] = useState<number>(0);
 	const [withoutGroupsCount, setWithoutGroupsCount] = useState<number>(0);
 	const [isGroupFormVisible, setGroupFormVisible] = useState<boolean>(false);
@@ -95,7 +95,7 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 					}}
 				/>
 				<ScrollView contentContainerStyle={[styles.scrollViewContent, containerStyles]}>
-					{goupsList.map((group: Group) => rowTemplate(group.name, group.words?.length ?? 0, group._id.toString()))}
+					{groupsList.map((group: Group) => rowTemplate(group.name, group.words?.length ?? 0, group._id.toString()))}
 					{/* {rowTemplate('Все слова', dictionaryCount, 0)}
 					{rowTemplate('Слова без групп', withoutGroupsCount)} */}
 				</ScrollView>

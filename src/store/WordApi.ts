@@ -39,7 +39,10 @@ const syncGroups = (word: Word, groups: Group[]) => {
     }
   });
 
-  groups.forEach(group => group.words?.push(word));
+  groups.forEach(group => {
+    if (group.words?.includes(word)) return;
+    group.words?.push(word);
+  });
 }
 
 export const update = (

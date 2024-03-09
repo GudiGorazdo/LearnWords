@@ -217,11 +217,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
     if (validationWord()) return;
 
     try {
-      const result = await saveWord();
-      if (!result) {
-        throw Error('Произошла ошибка при сохраненни слова src/screens/WordEdit submit()');
-      };
-
+      await saveWord();
       setAlertMessage('Слово успешно сохранено');
       setSaveWordError(false);
       setAlertVisible(true);
@@ -304,21 +300,10 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  mb: {
-    marginBottom: 10,
-  },
-
-  safeArea: {
-    flex: 1,
-  },
-
-  flex: {
-    flex: 1,
-  },
-
-  text: {
-    color: theme.textColor
-  },
+  mb: { marginBottom: 10, },
+  safeArea: { flex: 1, },
+  flex: { flex: 1, },
+  text: { color: theme.textColor },
 
   scrollViewContent: {
     flexGrow: 1,

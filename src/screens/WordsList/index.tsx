@@ -9,6 +9,7 @@ import IconsStrings from '../../assets/awesomeIcons';
 import { Button } from '../../components/Button';
 import { useQuery, useRealm } from '../../store/RealmContext';
 import Word from '../../store/models/Word';
+import Group from '../../store/models/Group';
 import { remove } from '../../store/WordApi';
 
 import buttonBottomFreeze from '../../styles/buttonBottomFreeze';
@@ -23,7 +24,6 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-import Group from '../../store/models/Group';
 
 interface IWordsListScreenProps {
   navigation: StackNavigationProp<any>;
