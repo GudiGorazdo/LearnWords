@@ -7,14 +7,13 @@ import { Appearance } from 'react-native';
 
 function App(): JSX.Element {
   Appearance.setColorScheme('light');
-  // const isDarkMode = useColorScheme() === 'dark';
+  const isDarkMode = useColorScheme() === 'dark';
 
   return (
     <>
       <StatusBar
         translucent
-        barStyle={'dark-content'}
-        // barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
       />
       <Navigation />
