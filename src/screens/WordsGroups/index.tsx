@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Header } from '../../modules/Header';
 import { GroupForm } from '../../modules/GroupForm';
@@ -49,10 +49,6 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 		getData();
 	}, [switchData]);
 
-	// useFocusEffect(() => {
-	// 	getData();
-	// });
-
 	const getData = async () => {
 		try {
 			await getGroups();
@@ -98,12 +94,12 @@ export function WordsGroups({ navigation }: IWordsGroupsScreenProps): JSX.Elemen
 					{rowTemplate('Слова без групп', withoutGroupsCount)}
 				</ScrollView>
 			</SafeAreaView >
-			{/* <GroupForm
-				navigation={navigation}
+			<GroupForm
+				navigation={navigation as NavigationProp<any>}
 				onClose={() => setGroupFormVisible(false)}
 				isVisible={isGroupFormVisible}
 				onCreate={() => activateSwitchData(!switchData)}
-			/> */}
+			/>
 		</>
 	);
 }
