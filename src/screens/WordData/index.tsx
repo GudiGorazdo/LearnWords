@@ -35,7 +35,7 @@ type RootStackParamList = {
 };
 
 interface IWordDataScreenProps {
-  navigation: StackNavigationProp<RootStackParamList, 'WordData'>;
+  navigation: StackNavigationProp<RootStackParamList, 'WordData', 'WordEdit'>;
 }
 
 export function WordData({ navigation }: IWordDataScreenProps): JSX.Element {
