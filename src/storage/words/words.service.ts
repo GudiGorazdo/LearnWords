@@ -66,10 +66,10 @@ export default class SWords implements ISwords {
   private async init() {
     const instanceDB = await SDB.getInstance();
     this.db = await instanceDB.getDBConnection();
-    for (const table of this.tables) {
-      await this.checkTable(table);
-    }
-    this.reset();
+    // for (const table of this.tables) {
+    //   await this.checkTable(table);
+    // }
+    // this.reset();
     this.isInitialized = true;
   }
 
