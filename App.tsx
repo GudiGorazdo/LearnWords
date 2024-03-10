@@ -13,6 +13,7 @@ function App(): JSX.Element {
     <>
       <StatusBar
         translucent
+        barStyle={'dark-content'}
         // barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
       />
