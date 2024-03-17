@@ -1,4 +1,4 @@
-package com.lw
+package com.learnwords
 
 import android.app.Application
 import com.facebook.react.PackageList
