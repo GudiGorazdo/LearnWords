@@ -59,6 +59,12 @@ export default class SWords implements ISwords {
         'PRIMARY KEY (group_id, word_id)',
       ]
     },
+    {
+      name: 'settings',
+      structure: [
+        'installed TINYINT DEFAULT 0',
+      ]
+    },
   ]
 
   constructor() { }
@@ -66,10 +72,7 @@ export default class SWords implements ISwords {
   private async init() {
     const instanceDB = await SDB.getInstance();
     this.db = await instanceDB.getDBConnection();
-    // for (const table of this.tables) {
-    //   await this.checkTable(table);
-    // }
-    // this.reset();
+    this.checkInstalled();
     this.isInitialized = true;
   }
 
@@ -84,6 +87,27 @@ export default class SWords implements ISwords {
       timeout++;
     }
     return SWords.instance;
+  }
+
+  private async checkInstalled(): Promise<number> {
+    try {
+      for (const table of this.tables) {
+        await this.checkTable(table);
+      }
+      const results: ResultSet = await SWords.execute(`SELECT * FROM settings`);
+      const result = results.rows.item(0);
+      if (result && result.installed === 1) {
+        return 1;
+      } else {
+        await this.reset();
+        await SWords.execute(`INSERT INTO settings (installed) VALUES (1);`);
+        await this.checkInstalled();
+        return 1;
+      }
+    } catch (error: any) {
+      console.error(error);
+      throw error;
+    }
   }
 
   private static async execute(sql: string, params: Array<any> = []): Promise<ResultSet> {
@@ -562,12 +586,10 @@ export default class SWords implements ISwords {
 
   private async reset() {
     try {
-      console.log('here');
       for (const table of this.tables) {
         await this.dropTable(table);
         await this.checkTable(table);
       }
-      console.log('next here');
       const result: TStartDB = await this.getFromJSON();
       for (const word of result.data) {
         word.groups = result.groups;
