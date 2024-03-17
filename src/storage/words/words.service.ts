@@ -3,8 +3,6 @@ import ISwords from './words.service';
 import SDB from '../db/db.service';
 
 import { TWord, TTranslate, TGroup } from './words.types';
-import { KeyboardAvoidingViewBase } from 'react-native';
-
 
 type TStructureTable = {
   [key: string]: string | string[],
