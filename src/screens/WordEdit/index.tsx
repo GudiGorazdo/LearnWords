@@ -232,7 +232,7 @@ export function WordEdit({ navigation }: IWordEditScreenProps): JSX.Element {
           resetForm();
           setStart(true);
           navigation.push('WordEdit', {
-            isNewWord: true, 
+            isNewWord: true,
           });
         },
       });
